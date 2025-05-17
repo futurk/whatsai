@@ -47,7 +47,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     
     setConversations(prev => [newConversation, ...prev]);
     
-    // Initialize chat manager for this conversation
     if (!chatManagers.has(agentId)) {
       chatManagers.set(
         agentId,
@@ -73,13 +72,18 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       throw new Error('Conversation not found');
     }
 
-    // Add user message
+    // Add user message with pending status
+    const userMessage: Message = {
+      ...message,
+      status: message.sender === 'user' ? 'pending' : undefined,
+    };
+
     setConversations(prev =>
       prev.map(conv =>
         conv.id === conversationId
           ? {
               ...conv,
-              messages: [...conv.messages, message],
+              messages: [...conv.messages, userMessage],
               updatedAt: new Date().toISOString()
             }
           : conv
@@ -141,7 +145,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             conv.id === conversationId
               ? {
                   ...conv,
-                  messages: [...conv.messages, assistantMessage],
+                  messages: [...conv.messages.map(msg =>
+                    msg.id === userMessage.id ? { ...msg, status: 'completed' } : msg
+                  ), assistantMessage],
                   updatedAt: new Date().toISOString()
                 }
               : conv
@@ -149,6 +155,21 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         );
       } catch (error) {
         console.error('Failed to get agent response:', error);
+        
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === conversationId
+              ? {
+                  ...conv,
+                  messages: [...conv.messages.map(msg =>
+                    msg.id === userMessage.id ? { ...msg, status: 'failed' } : msg
+                  )],
+                  updatedAt: new Date().toISOString()
+                }
+              : conv
+          )
+        );
+
         // Add error message to conversation
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),

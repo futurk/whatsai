@@ -2,6 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeInRight, FadeInLeft } from 'react-native-reanimated';
 import { memo } from 'react';
 import { Message } from '@/types/chat';
+import { CheckCircle, AlertCircle, Clock } from 'lucide-react-native';
 
 interface MessageBubbleProps {
   message: Message;
@@ -17,6 +18,34 @@ function formatTime(timestamp: string) {
 const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) => {
   const isUser = message.sender === 'user';
   
+  const getStatusIndicator = () => {
+    if (!isUser || !message.status) return null;
+
+    switch (message.status) {
+      case 'pending':
+        return <Clock size={14} color="#FFFFFF" style={styles.statusIcon} />;
+      case 'completed':
+        return <CheckCircle size={14} color="#FFFFFF" style={styles.statusIcon} />;
+      case 'failed':
+        return <AlertCircle size={14} color="#FFFFFF" style={styles.statusIcon} />;
+      default:
+        return null;
+    }
+  };
+
+  const getBubbleStyle = () => {
+    if (!isUser || !message.status) return {};
+
+    switch (message.status) {
+      case 'pending':
+        return { backgroundColor: '#6B7280', opacity: 0.8 };
+      case 'failed':
+        return { backgroundColor: '#EF4444' };
+      default:
+        return {};
+    }
+  };
+  
   return (
     <Animated.View
       entering={isUser ? FadeInRight.springify() : FadeInLeft.springify()}
@@ -29,7 +58,7 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
         style={[
           styles.bubble,
           isUser
-            ? styles.userBubble
+            ? [styles.userBubble, getBubbleStyle()]
             : [styles.assistantBubble, { backgroundColor: agentColor + '20' }],
         ]}
       >
@@ -41,6 +70,7 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
         >
           {message.text}
         </Text>
+        {getStatusIndicator()}
       </View>
       <Text style={styles.timestampText}>{formatTime(message.timestamp)}</Text>
     </Animated.View>
@@ -62,6 +92,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   userBubble: {
     backgroundColor: '#3B82F6',
@@ -73,6 +105,7 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 16,
     lineHeight: 22,
+    flex: 1,
   },
   userMessageText: {
     color: '#FFFFFF',
@@ -85,6 +118,9 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     marginTop: 4,
     marginHorizontal: 4,
+  },
+  statusIcon: {
+    marginLeft: 8,
   },
 });
 
