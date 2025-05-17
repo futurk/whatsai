@@ -114,10 +114,12 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           chatManagers.set(agent.id, chatManager);
         }
 
-        const messages = conversation.messages.map(msg => ({
-          role: msg.sender as 'user' | 'assistant',
-          content: msg.text
-        }));
+        const messages = conversation.messages
+          .filter(msg => !msg.status || msg.status !== 'failed')
+          .map(msg => ({
+            role: msg.sender as 'user' | 'assistant',
+            content: msg.text
+          }));
 
         if (agent.instructions) {
           messages.unshift({
