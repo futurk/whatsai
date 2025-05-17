@@ -57,20 +57,12 @@ export class ChatManager {
     }
 
     try {
-      // Filter out messages from failed attempts
-      const filteredMessages = messages.filter(msg => {
-        // Keep system messages and messages without status
-        if (msg.role === 'system' || !('status' in msg)) return true;
-        // Only include messages that are completed or pending
-        return msg.status !== 'failed';
-      });
-
       this.addLog('request', {
-        messages: filteredMessages,
+        messages,
         model: this.agent.model,
       });
 
-      const response = await client.chat(filteredMessages, this.agent.model);
+      const response = await client.chat(messages, this.agent.model);
 
       this.addLog('response', {
         response,

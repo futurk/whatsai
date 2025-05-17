@@ -114,12 +114,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           chatManagers.set(agent.id, chatManager);
         }
 
-        // Get valid messages for the conversation
-        const validMessages = conversation.messages.filter(msg => msg.status !== 'failed');
-        const messages = validMessages.map(msg => ({
+        const messages = conversation.messages.map(msg => ({
           role: msg.sender as 'user' | 'assistant',
-          content: msg.text,
-          status: msg.status
+          content: msg.text
         }));
 
         if (agent.instructions) {
@@ -131,8 +128,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
         messages.push({
           role: 'user',
-          content: message.text,
-          status: 'pending'
+          content: message.text
         });
 
         const response = await chatManager.sendMessage(agent.id, messages);
@@ -165,9 +161,29 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             conv.id === conversationId
               ? {
                   ...conv,
-                  messages: conv.messages.map(msg =>
+                  messages: [...conv.messages.map(msg =>
                     msg.id === userMessage.id ? { ...msg, status: 'failed' } : msg
-                  ),
+                  )],
+                  updatedAt: new Date().toISOString()
+                }
+              : conv
+          )
+        );
+
+        // Add error message to conversation
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: 'Sorry, I encountered an error while processing your message. Please try again.',
+          sender: 'assistant',
+          timestamp: new Date().toISOString()
+        };
+
+        setConversations(prev =>
+          prev.map(conv =>
+            conv.id === conversationId
+              ? {
+                  ...conv,
+                  messages: [...conv.messages, errorMessage],
                   updatedAt: new Date().toISOString()
                 }
               : conv
