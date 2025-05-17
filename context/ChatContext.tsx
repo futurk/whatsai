@@ -128,6 +128,11 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           });
         }
 
+        messages.push({
+          role: 'user',
+          content: message.text
+        });
+
         const response = await chatManager.sendMessage(agent.id, messages);
 
         const assistantMessage: Message = {
