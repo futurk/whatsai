@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeInRight, FadeInLeft } from 'react-native-reanimated';
 import { memo } from 'react';
 import { Message } from '@/types/chat';
-import { CheckCircle, AlertCircle, Clock } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, CircleAlert as AlertCircle, Clock } from 'lucide-react-native';
 
 interface MessageBubbleProps {
   message: Message;
