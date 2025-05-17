@@ -59,6 +59,11 @@ export default function DebugLogs({ logs }: DebugLogsProps) {
     }
   };
 
+  const getStatusText = (status?: string) => {
+    if (!status) return '';
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
   return (
     <Animated.View 
       entering={FadeIn.duration(200)} 
@@ -73,17 +78,23 @@ export default function DebugLogs({ logs }: DebugLogsProps) {
         {logs.map((log, index) => (
           <View key={index} style={styles.logEntry}>
             <View style={styles.logHeader}>
-              <Text style={styles.timestamp}>{log.timestamp}</Text>
-              <View style={styles.statusContainer}>
+              <View style={styles.timestampContainer}>
+                <Text style={styles.timestamp}>{log.timestamp}</Text>
                 <Text style={[styles.type, { color: getLogColor(log.type) }]}>
                   {log.type.toUpperCase()}
                 </Text>
-                {log.messageStatus && (
-                  <View style={styles.statusIconContainer}>
-                    {getStatusIcon(log.messageStatus)}
-                  </View>
-                )}
               </View>
+              {log.messageStatus && (
+                <View style={styles.statusContainer}>
+                  {getStatusIcon(log.messageStatus)}
+                  <Text style={[
+                    styles.statusText,
+                    { color: getLogColor(log.messageStatus === 'failed' ? 'error' : 'response') }
+                  ]}>
+                    {getStatusText(log.messageStatus)}
+                  </Text>
+                </View>
+              )}
             </View>
             <Text style={styles.data}>{formatData(log.data)}</Text>
           </View>
@@ -123,22 +134,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 8,
+  },
+  timestampContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   timestamp: {
     color: '#9CA3AF',
     fontSize: 12,
   },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   type: {
     fontSize: 12,
     fontWeight: '600',
   },
-  statusIconContainer: {
-    marginLeft: 8,
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#1F2937',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '500',
   },
   data: {
     color: '#E5E7EB',
