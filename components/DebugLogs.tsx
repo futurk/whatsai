@@ -1,11 +1,13 @@
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useEffect, useRef } from 'react';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { CircleCheck as CheckCircle, CircleAlert as AlertCircle, Clock } from 'lucide-react-native';
 
 interface LogEntry {
   timestamp: string;
   type: 'request' | 'response' | 'error';
   data: any;
+  messageStatus?: 'pending' | 'completed' | 'failed';
 }
 
 interface DebugLogsProps {
@@ -42,6 +44,21 @@ export default function DebugLogs({ logs }: DebugLogsProps) {
     }
   };
 
+  const getStatusIcon = (status?: string) => {
+    if (!status) return null;
+
+    switch (status) {
+      case 'pending':
+        return <Clock size={14} color="#6B7280" />;
+      case 'completed':
+        return <CheckCircle size={14} color="#10B981" />;
+      case 'failed':
+        return <AlertCircle size={14} color="#EF4444" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Animated.View 
       entering={FadeIn.duration(200)} 
@@ -55,10 +72,19 @@ export default function DebugLogs({ logs }: DebugLogsProps) {
       >
         {logs.map((log, index) => (
           <View key={index} style={styles.logEntry}>
-            <Text style={styles.timestamp}>{log.timestamp}</Text>
-            <Text style={[styles.type, { color: getLogColor(log.type) }]}>
-              {log.type.toUpperCase()}
-            </Text>
+            <View style={styles.logHeader}>
+              <Text style={styles.timestamp}>{log.timestamp}</Text>
+              <View style={styles.statusContainer}>
+                <Text style={[styles.type, { color: getLogColor(log.type) }]}>
+                  {log.type.toUpperCase()}
+                </Text>
+                {log.messageStatus && (
+                  <View style={styles.statusIconContainer}>
+                    {getStatusIcon(log.messageStatus)}
+                  </View>
+                )}
+              </View>
+            </View>
             <Text style={styles.data}>{formatData(log.data)}</Text>
           </View>
         ))}
@@ -93,15 +119,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#374151',
     borderRadius: 4,
   },
+  logHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   timestamp: {
     color: '#9CA3AF',
     fontSize: 12,
-    marginBottom: 4,
+  },
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   type: {
     fontSize: 12,
     fontWeight: '600',
-    marginBottom: 4,
+  },
+  statusIconContainer: {
+    marginLeft: 8,
   },
   data: {
     color: '#E5E7EB',
