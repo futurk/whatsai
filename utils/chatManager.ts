@@ -7,7 +7,6 @@ export interface LogEntry {
   timestamp: string;
   type: 'request' | 'response' | 'error';
   data: any;
-  messageStatus?: 'pending' | 'completed' | 'failed';
 }
 
 export class ChatManager {
@@ -41,12 +40,11 @@ export class ChatManager {
     }
   }
 
-  private addLog(type: LogEntry['type'], data: any, messageStatus?: LogEntry['messageStatus']) {
+  private addLog(type: LogEntry['type'], data: any) {
     const log: LogEntry = {
       timestamp: new Date().toISOString(),
       type,
       data,
-      messageStatus,
     };
     this.logs.push(log);
     this.onLog?.(log);
@@ -62,19 +60,19 @@ export class ChatManager {
       this.addLog('request', {
         messages,
         model: this.agent.model,
-      }, 'pending');
+      });
 
       const response = await client.chat(messages, this.agent.model);
 
       this.addLog('response', {
         response,
-      }, 'completed');
+      });
 
       return response;
     } catch (error) {
       this.addLog('error', {
         error: error instanceof Error ? error.message : 'Unknown error',
-      }, 'failed');
+      });
       console.error('Chat client error:', error);
       throw error;
     }

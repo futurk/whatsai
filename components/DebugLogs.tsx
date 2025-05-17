@@ -1,13 +1,11 @@
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useEffect, useRef } from 'react';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { CircleCheck as CheckCircle, CircleAlert as AlertCircle, Clock } from 'lucide-react-native';
 
 interface LogEntry {
   timestamp: string;
   type: 'request' | 'response' | 'error';
   data: any;
-  messageStatus?: 'pending' | 'completed' | 'failed';
 }
 
 interface DebugLogsProps {
@@ -44,26 +42,6 @@ export default function DebugLogs({ logs }: DebugLogsProps) {
     }
   };
 
-  const getStatusIcon = (status?: string) => {
-    if (!status) return null;
-
-    switch (status) {
-      case 'pending':
-        return <Clock size={14} color="#6B7280" />;
-      case 'completed':
-        return <CheckCircle size={14} color="#10B981" />;
-      case 'failed':
-        return <AlertCircle size={14} color="#EF4444" />;
-      default:
-        return null;
-    }
-  };
-
-  const getStatusText = (status?: string) => {
-    if (!status) return '';
-    return status.charAt(0).toUpperCase() + status.slice(1);
-  };
-
   return (
     <Animated.View 
       entering={FadeIn.duration(200)} 
@@ -77,25 +55,10 @@ export default function DebugLogs({ logs }: DebugLogsProps) {
       >
         {logs.map((log, index) => (
           <View key={index} style={styles.logEntry}>
-            <View style={styles.logHeader}>
-              <View style={styles.timestampContainer}>
-                <Text style={styles.timestamp}>{log.timestamp}</Text>
-                <Text style={[styles.type, { color: getLogColor(log.type) }]}>
-                  {log.type.toUpperCase()}
-                </Text>
-              </View>
-              {log.messageStatus && (
-                <View style={styles.statusContainer}>
-                  {getStatusIcon(log.messageStatus)}
-                  <Text style={[
-                    styles.statusText,
-                    { color: getLogColor(log.messageStatus === 'failed' ? 'error' : 'response') }
-                  ]}>
-                    {getStatusText(log.messageStatus)}
-                  </Text>
-                </View>
-              )}
-            </View>
+            <Text style={styles.timestamp}>{log.timestamp}</Text>
+            <Text style={[styles.type, { color: getLogColor(log.type) }]}>
+              {log.type.toUpperCase()}
+            </Text>
             <Text style={styles.data}>{formatData(log.data)}</Text>
           </View>
         ))}
@@ -130,37 +93,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#374151',
     borderRadius: 4,
   },
-  logHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  timestampContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   timestamp: {
     color: '#9CA3AF',
     fontSize: 12,
+    marginBottom: 4,
   },
   type: {
     fontSize: 12,
     fontWeight: '600',
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#1F2937',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '500',
+    marginBottom: 4,
   },
   data: {
     color: '#E5E7EB',
