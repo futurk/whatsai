@@ -1,6 +1,6 @@
 export interface ApiKey {
   id: string;
-  vendor: string;
+  vendorId: string;
   key: string;
   name: string;
   createdAt: string;

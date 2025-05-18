@@ -5,11 +5,11 @@ import { sampleApiKeys } from '@/data/sampleData';
 
 interface ApiKeyContextType {
   apiKeys: ApiKey[];
-  addApiKey: (vendor: string, key: string, name: string) => void;
+  addApiKey: (vendorId: string, key: string, name: string) => void;
   updateApiKey: (id: string, key: string) => void;
   deleteApiKey: (id: string) => void;
-  getApiKeysByVendor: (vendor: string) => ApiKey[];
-  getModelsByVendor: (vendor: string) => Model[];
+  getApiKeysByVendor: (vendorId: string) => ApiKey[];
+  getModelsByVendor: (vendorId: string) => Model[];
   getSupportedVendors: () => string[];
 }
 
@@ -18,10 +18,10 @@ const ApiKeyContext = createContext<ApiKeyContextType | undefined>(undefined);
 export const ApiKeyProvider = ({ children }: { children: ReactNode }) => {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>(sampleApiKeys);
 
-  const addApiKey = (vendor: string, key: string, name: string) => {
+  const addApiKey = (vendorId: string, key: string, name: string) => {
     const newKey: ApiKey = {
       id: Date.now().toString(),
-      vendor,
+      vendorId,
       key,
       name,
       createdAt: new Date().toISOString()
@@ -43,12 +43,12 @@ export const ApiKeyProvider = ({ children }: { children: ReactNode }) => {
     setApiKeys(prev => prev.filter(apiKey => apiKey.id !== id));
   };
 
-  const getApiKeysByVendor = (vendor: string) => {
-    return apiKeys.filter(key => key.vendor === vendor);
+  const getApiKeysByVendor = (vendorId: string) => {
+    return apiKeys.filter(key => key.vendorId === vendorId);
   };
 
-  const getModelsByVendor = (vendor: string): Model[] => {
-    const vendorData = VENDOR_MODELS.find(v => v.name === vendor);
+  const getModelsByVendor = (vendorId: string): Model[] => {
+    const vendorData = VENDOR_MODELS.find(v => v.name === vendorId);
     return vendorData?.models || [];
   };
 

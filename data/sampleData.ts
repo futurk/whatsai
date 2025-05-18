@@ -25,14 +25,14 @@ export const sampleAgents: Agent[] = [
 export const sampleApiKeys: ApiKey[] = [
   {
     id: 'key1',
-    vendor: 'OpenAI',
+    vendorId: 'OpenAI',
     key: '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',
     name: 'Development Key',
     createdAt: new Date().toISOString()
   },
   {
     id: 'key2',
-    vendor: 'OpenAI',
+    vendorId: 'OpenAI',
     key: 'sk-sample-key-2',
     name: 'Testing Key',
     createdAt: new Date().toISOString()
