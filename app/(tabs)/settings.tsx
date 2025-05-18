@@ -9,7 +9,7 @@ import { useTheme } from '@/context/ThemeContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { agents, defaultAgentId, setDefaultAgent } = useAgentContext();
+  const { agents, defaultAgentId, setDefaultAgent, getAgentById } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
   const { isDebugMode, toggleDebugMode } = useDebugContext();
   const { isDark, toggleTheme, theme } = useTheme();
