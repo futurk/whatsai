@@ -1,6 +1,7 @@
 import { Pressable, Text, StyleSheet } from 'react-native';
-import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { memo } from 'react';
+import { useTheme } from '@/context/ThemeContext';
 
 interface SuggestionChipProps {
   text: string;
@@ -8,6 +9,8 @@ interface SuggestionChipProps {
 }
 
 const SuggestionChip = ({ text, onPress }: SuggestionChipProps) => {
+  const { theme } = useTheme();
+
   return (
     <Animated.View
       entering={FadeIn.delay(300).duration(300)}
@@ -16,11 +19,17 @@ const SuggestionChip = ({ text, onPress }: SuggestionChipProps) => {
       <Pressable
         style={({ pressed }) => [
           styles.chip,
-          pressed && styles.chipPressed,
+          {
+            backgroundColor: theme.colors.surface,
+            borderColor: theme.colors.border,
+          },
+          pressed && { backgroundColor: theme.colors.border },
         ]}
         onPress={onPress}
       >
-        <Text style={styles.text}>{text}</Text>
+        <Text style={[styles.text, { color: theme.colors.text.secondary }]}>
+          {text}
+        </Text>
       </Pressable>
     </Animated.View>
   );
@@ -31,19 +40,13 @@ const styles = StyleSheet.create({
     margin: 4,
   },
   chip: {
-    backgroundColor: '#F3F4F6',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  chipPressed: {
-    backgroundColor: '#E5E7EB',
   },
   text: {
     fontSize: 14,
-    color: '#4B5563',
   },
 });
 

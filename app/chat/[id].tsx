@@ -7,6 +7,7 @@ import { ArrowLeft, Send } from 'lucide-react-native';
 import { useChatContext } from '@/context/ChatContext';
 import { useAgentContext } from '@/context/AgentContext';
 import { useDebugContext } from '@/context/DebugContext';
+import { useTheme } from '@/context/ThemeContext';
 import MessageBubble from '@/components/MessageBubble';
 import SuggestionChip from '@/components/SuggestionChip';
 import DebugLogs from '@/components/DebugLogs';
@@ -18,6 +19,7 @@ export default function ChatScreen() {
   const { getConversationById, addMessageToConversation, isTyping, debugLogs } = useChatContext();
   const { getAgentById } = useAgentContext();
   const { isDebugMode } = useDebugContext();
+  const { theme } = useTheme();
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef(null);
   const inputRef = useRef<TextInput>(null);
@@ -38,7 +40,6 @@ export default function ChatScreen() {
     }
   }, [conversation, router]);
 
-  // Auto-focus input when screen mounts
   useEffect(() => {
     const focusTimeout = setTimeout(() => {
       inputRef.current?.focus();
@@ -47,7 +48,6 @@ export default function ChatScreen() {
     return () => clearTimeout(focusTimeout);
   }, []);
 
-  // Auto-scroll when messages change or when typing indicator appears/disappears
   useEffect(() => {
     if (flatListRef.current && conversation?.messages.length) {
       setTimeout(() => {
@@ -88,7 +88,7 @@ export default function ChatScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
@@ -96,14 +96,14 @@ export default function ChatScreen() {
         options={{
           headerShown: true,
           headerTitle: agent.name,
-          headerTitleStyle: styles.headerTitle,
+          headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
           headerLeft: () => (
             <Pressable onPress={() => router.back()} style={styles.backButton}>
-              <ArrowLeft size={24} color="#1F2937" />
+              <ArrowLeft size={24} color={theme.colors.text.primary} />
             </Pressable>
           ),
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#FFFFFF' },
+          headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
       
@@ -160,12 +160,25 @@ export default function ChatScreen() {
         </Animated.View>
       )}
       
-      <View style={[styles.inputContainer, { paddingBottom: Math.max(16, insets.bottom) }]}>
+      <View style={[
+        styles.inputContainer, 
+        { 
+          paddingBottom: Math.max(16, insets.bottom),
+          backgroundColor: theme.colors.background,
+          borderTopColor: theme.colors.border
+        }
+      ]}>
         <TextInput
           ref={inputRef}
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: theme.colors.surface,
+              color: theme.colors.text.primary,
+            }
+          ]}
           placeholder="Type your message..."
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={theme.colors.text.secondary}
           value={inputText}
           onChangeText={setInputText}
           onKeyPress={handleKeyPress}
@@ -173,11 +186,15 @@ export default function ChatScreen() {
           maxLength={500}
         />
         <Pressable
-          style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+          style={[
+            styles.sendButton,
+            !inputText.trim() && styles.sendButtonDisabled,
+            { backgroundColor: inputText.trim() ? theme.colors.primary : theme.colors.surface }
+          ]}
           onPress={handleSend}
           disabled={!inputText.trim()}
         >
-          <Send size={20} color={inputText.trim() ? '#FFFFFF' : '#94A3B8'} />
+          <Send size={20} color={inputText.trim() ? '#FFFFFF' : theme.colors.text.secondary} />
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -187,7 +204,6 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   headerTitle: {
     fontWeight: '600',
@@ -256,32 +272,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingTop: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
   },
   input: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
     maxHeight: 120,
     fontSize: 16,
-    color: '#1F2937',
   },
   sendButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#3B82F6',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 12,
     alignSelf: 'flex-end',
   },
   sendButtonDisabled: {
-    backgroundColor: '#E5E7EB',
+    opacity: 0.5,
   },
 });

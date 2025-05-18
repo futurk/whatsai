@@ -2,6 +2,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import Animated, { FadeInRight, FadeInLeft } from 'react-native-reanimated';
 import { memo } from 'react';
 import { Message } from '@/types/chat';
+import { useTheme } from '@/context/ThemeContext';
 
 interface MessageBubbleProps {
   message: Message;
@@ -15,6 +16,7 @@ function formatTime(timestamp: string) {
 }
 
 const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) => {
+  const { theme } = useTheme();
   const isUser = message.sender === 'user';
   
   return (
@@ -29,20 +31,24 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
         style={[
           styles.bubble,
           isUser
-            ? styles.userBubble
+            ? [styles.userBubble, { backgroundColor: theme.colors.primary }]
             : [styles.assistantBubble, { backgroundColor: agentColor + '20' }],
         ]}
       >
         <Text
           style={[
             styles.messageText,
-            isUser ? styles.userMessageText : [styles.assistantMessageText, { color: '#1F2937' }],
+            isUser 
+              ? [styles.userMessageText, { color: '#FFFFFF' }]
+              : [styles.assistantMessageText, { color: theme.colors.text.primary }],
           ]}
         >
           {message.text}
         </Text>
       </View>
-      <Text style={styles.timestampText}>{formatTime(message.timestamp)}</Text>
+      <Text style={[styles.timestampText, { color: theme.colors.text.secondary }]}>
+        {formatTime(message.timestamp)}
+      </Text>
     </Animated.View>
   );
 };
@@ -64,7 +70,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   userBubble: {
-    backgroundColor: '#3B82F6',
     borderBottomRightRadius: 4,
   },
   assistantBubble: {
@@ -82,7 +87,6 @@ const styles = StyleSheet.create({
   },
   timestampText: {
     fontSize: 12,
-    color: '#9CA3AF',
     marginTop: 4,
     marginHorizontal: 4,
   },
