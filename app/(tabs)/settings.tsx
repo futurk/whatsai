@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Switch, Pressable, ScrollView, ActionSheetIOS } from 'react-native';
 import { useState } from 'react';
 import { Moon, Sun, Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, ChevronDown, MessageSquare } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
