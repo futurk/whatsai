@@ -9,7 +9,7 @@ import EmptyState from '@/components/EmptyState';
 
 export default function ChatsScreen() {
   const router = useRouter();
-  const { conversations } = useChatContext();
+  const { conversations, startNewConversation } = useChatContext();
   const { getAgentById, defaultAgentId } = useAgentContext();
   const { theme } = useTheme();
   
@@ -80,18 +80,18 @@ export default function ChatsScreen() {
         ListEmptyComponent={renderEmptyState}
       />
       <Pressable 
-  style={[styles.fab, { backgroundColor: theme.colors.primary }]} 
-  onPress={() => {
-    if (defaultAgentId) {
-      const conversationId = startNewConversation(defaultAgentId);
-      router.push(`/chat/${conversationId}`);
-    } else {
-      router.push('/agents');
-    }
-  }}
->
-  <Plus size={24} color="#FFFFFF" />
-</Pressable>
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]} 
+        onPress={() => {
+          if (defaultAgentId) {
+            const conversationId = startNewConversation(defaultAgentId);
+            router.push(`/chat/${conversationId}`);
+          } else {
+            router.push('/agents');
+          }
+        }}
+      >
+        <Plus size={24} color="#FFFFFF" />
+      </Pressable>
     </View>
   );
 }
