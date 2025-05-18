@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, Switch, Pressable, ScrollView, ActionSheetIOS, Platform } from 'react-native';
+import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { Moon, Sun, Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare } from 'lucide-react-native';
+import { Moon, Sun, Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
@@ -9,45 +9,12 @@ import { useTheme } from '@/context/ThemeContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { agents, defaultAgentId, setDefaultAgent, getAgentById } = useAgentContext();
+  const { agents } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
   const { isDebugMode, toggleDebugMode } = useDebugContext();
   const { isDark, toggleTheme, theme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
-
-  const handleDefaultAgentPress = () => {
-    if (Platform.OS === 'ios') {
-      const options = [
-        ...agents.map(agent => ({
-          label: agent.name,
-          onPress: () => setDefaultAgent(agent.id)
-        })),
-        {
-          label: 'None',
-          onPress: () => setDefaultAgent(null)
-        }
-      ];
-
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: [...options.map(o => o.label), 'Cancel'],
-          cancelButtonIndex: options.length,
-          title: 'Select Default Agent',
-          message: 'Choose an agent to start new chats with'
-        },
-        (buttonIndex) => {
-          if (buttonIndex < options.length) {
-            options[buttonIndex].onPress();
-          }
-        }
-      );
-    } else {
-      // For other platforms, you might want to implement a modal or dropdown
-      const nextAgent = agents.find(agent => agent.id !== defaultAgentId) || null;
-      setDefaultAgent(nextAgent?.id || null);
-    }
-  };
 
   const renderSettingItem = ({ 
     icon, 
@@ -75,7 +42,8 @@ export default function SettingsScreen() {
       <View style={styles.settingContent}>
         <Text style={[
           styles.settingTitle, 
-          { color: destructive ? theme.colors.error : theme.colors.text.primary }
+          { color: destructive ? theme.colors.error : theme.colors.text.primary },
+          destructive && styles.destructiveText
         ]}>{title}</Text>
         {description ? (
           <Text style={[styles.settingDescription, { color: theme.colors.text.secondary }]}>
@@ -120,14 +88,6 @@ export default function SettingsScreen() {
           description: 'Manage your API keys for different vendors',
           badge: apiKeys.length.toString(),
           onPress: () => router.push('/api-keys')
-        })}
-        {renderSettingItem({
-          icon: <MessageSquare size={22} color={theme.colors.primary} />,
-          title: 'Default Agent',
-          description: defaultAgentId 
-            ? `New chats will start with ${getAgentById(defaultAgentId)?.name}`
-            : 'Select an agent to start new chats immediately',
-          onPress: handleDefaultAgentPress
         })}
       </View>
 
