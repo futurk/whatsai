@@ -9,8 +9,8 @@ import EmptyState from '@/components/EmptyState';
 
 export default function ChatsScreen() {
   const router = useRouter();
-  const { conversations } = useChatContext();
-  const { getAgentById, defaultAgentId, startNewConversation } = useAgentContext();
+  const { conversations, startNewConversation } = useChatContext();
+  const { getAgentById, defaultAgentId } = useAgentContext();
   const { theme } = useTheme();
   
   const navigateToChat = (id: string) => {
