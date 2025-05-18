@@ -3,7 +3,7 @@ import Animated, { FadeInRight, FadeInLeft } from 'react-native-reanimated';
 import { memo } from 'react';
 import { Message } from '@/types/chat';
 import { useTheme } from '@/context/ThemeContext';
-import { AlertTriangle, Clock, CheckCircle2 } from 'lucide-react-native';
+import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2 } from 'lucide-react-native';
 
 interface MessageBubbleProps {
   message: Message;
@@ -139,3 +139,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
+
+export default MessageBubble
