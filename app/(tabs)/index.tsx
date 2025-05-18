@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { MessageSquare, Plus } from 'lucide-react-native';
 import { useChatContext } from '@/context/ChatContext';
-import { useAgentContext } from '@/context/AgentContext';
+import { useAgentContext, getAgentById } from '@/context/AgentContext';
 import { useTheme } from '@/context/ThemeContext';
 import EmptyState from '@/components/EmptyState';
 
