@@ -20,6 +20,7 @@ export default function ChatScreen() {
   const { isDebugMode } = useDebugContext();
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef(null);
+  const inputRef = useRef<TextInput>(null);
   
   const conversation = getConversationById(id as string);
   const agent = conversation ? getAgentById(conversation.agentId) : null;
@@ -36,6 +37,15 @@ export default function ChatScreen() {
       router.replace('/');
     }
   }, [conversation, router]);
+
+  // Auto-focus input when screen mounts
+  useEffect(() => {
+    const focusTimeout = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+
+    return () => clearTimeout(focusTimeout);
+  }, []);
 
   // Auto-scroll when messages change or when typing indicator appears/disappears
   useEffect(() => {
@@ -69,6 +79,7 @@ export default function ChatScreen() {
 
   const handleSuggestion = (suggestion: string) => {
     setInputText(suggestion);
+    inputRef.current?.focus();
   };
 
   if (!conversation || !agent) return null;
@@ -151,6 +162,7 @@ export default function ChatScreen() {
       
       <View style={[styles.inputContainer, { paddingBottom: Math.max(16, insets.bottom) }]}>
         <TextInput
+          ref={inputRef}
           style={styles.input}
           placeholder="Type your message..."
           placeholderTextColor="#9CA3AF"
@@ -159,7 +171,6 @@ export default function ChatScreen() {
           onKeyPress={handleKeyPress}
           multiline
           maxLength={500}
-          autoFocus={false}
         />
         <Pressable
           style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
