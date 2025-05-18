@@ -9,16 +9,21 @@ import EmptyState from '@/components/EmptyState';
 
 export default function ChatsScreen() {
   const router = useRouter();
-  const { conversations } = useChatContext();
-  const { getAgentById } = useAgentContext();
+  const { conversations, startNewConversation } = useChatContext();
+  const { getAgentById, defaultAgentId } = useAgentContext();
   const { theme } = useTheme();
 
   const navigateToChat = (id: string) => {
     router.push(`/chat/${id}`);
   };
 
-  const navigateToAgents = () => {
-    router.push('/agents');
+  const handleNewChat = () => {
+    if (defaultAgentId) {
+      const conversationId = startNewConversation(defaultAgentId);
+      router.push(`/chat/${conversationId}`);
+    } else {
+      router.push('/agents');
+    }
   };
 
   const renderItem = ({ item, index }) => {
@@ -66,7 +71,7 @@ export default function ChatsScreen() {
       title="No conversations yet"
       message="Start chatting with an AI agent to see your conversations here."
       actionLabel="Find an agent"
-      onAction={navigateToAgents}
+      onAction={handleNewChat}
     />
   );
 
@@ -80,8 +85,8 @@ export default function ChatsScreen() {
         ListEmptyComponent={renderEmptyState}
       />
       <Pressable 
-        style={styles.fab}
-        onPress={navigateToAgents}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        onPress={handleNewChat}
       >
         <Plus size={24} color="#FFFFFF" />
       </Pressable>
@@ -140,7 +145,6 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#3B82F6',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
