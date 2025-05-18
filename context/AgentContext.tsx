@@ -1,19 +1,53 @@
-import { createContext, useContext, ReactNode, useState } from 'react';
+// context/AgentContext.tsx
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Agent } from '@/types/agent';
 import { sampleAgents } from '@/data/sampleData';
 
 interface AgentContextType {
   agents: Agent[];
+  defaultAgentId: string | null;
   getAgentById: (id: string) => Agent | undefined;
   addAgent: (agent: Omit<Agent, 'id'>) => void;
   updateAgent: (id: string, agent: Partial<Agent>) => void;
   deleteAgent: (id: string) => void;
+  setDefaultAgent: (id: string | null) => void;
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
+const DEFAULT_AGENT_KEY = '@default_agent';
 
 export const AgentProvider = ({ children }: { children: ReactNode }) => {
   const [agents, setAgents] = useState<Agent[]>(sampleAgents);
+  const [defaultAgentId, setDefaultAgentId] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadDefaultAgent();
+  }, []);
+
+  const loadDefaultAgent = async () => {
+    try {
+      const savedDefaultAgent = await AsyncStorage.getItem(DEFAULT_AGENT_KEY);
+      if (savedDefaultAgent) {
+        setDefaultAgentId(savedDefaultAgent);
+      }
+    } catch (error) {
+      console.error('Error loading default agent:', error);
+    }
+  };
+
+  const setDefaultAgent = async (id: string | null) => {
+    try {
+      if (id) {
+        await AsyncStorage.setItem(DEFAULT_AGENT_KEY, id);
+      } else {
+        await AsyncStorage.removeItem(DEFAULT_AGENT_KEY);
+      }
+      setDefaultAgentId(id);
+    } catch (error) {
+      console.error('Error saving default agent:', error);
+    }
+  };
 
   const getAgentById = (id: string) => {
     return agents.find(agent => agent.id === id);
@@ -38,16 +72,21 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const deleteAgent = (id: string) => {
+    if (defaultAgentId === id) {
+      setDefaultAgent(null);
+    }
     setAgents(prev => prev.filter(agent => agent.id !== id));
   };
 
   return (
     <AgentContext.Provider value={{ 
       agents, 
+      defaultAgentId,
       getAgentById,
       addAgent,
       updateAgent,
-      deleteAgent
+      deleteAgent,
+      setDefaultAgent
     }}>
       {children}
     </AgentContext.Provider>
