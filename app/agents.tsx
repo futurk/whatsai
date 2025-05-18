@@ -4,12 +4,14 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ArrowLeft, Users } from 'lucide-react-native';
 import { useAgentContext } from '@/context/AgentContext';
 import { useChatContext } from '@/context/ChatContext';
+import { useTheme } from '@/context/ThemeContext';
 import EmptyState from '@/components/EmptyState';
 
 export default function AgentsScreen() {
   const router = useRouter();
   const { agents } = useAgentContext();
   const { startNewConversation } = useChatContext();
+  const { theme } = useTheme();
 
   const handleAgentPress = (agentId: string) => {
     const conversationId = startNewConversation(agentId);
@@ -24,7 +26,11 @@ export default function AgentsScreen() {
       <Pressable 
         style={({ pressed }) => [
           styles.agentItem,
-          pressed && styles.agentItemPressed
+          { 
+            backgroundColor: theme.colors.card,
+            borderColor: theme.colors.border,
+          },
+          pressed && { backgroundColor: theme.colors.surface }
         ]} 
         onPress={() => handleAgentPress(item.id)}
       >
@@ -35,9 +41,13 @@ export default function AgentsScreen() {
         </View>
         
         <View style={styles.agentContent}>
-          <Text style={styles.agentName}>{item.name}</Text>
-          <Text style={styles.agentVendor}>{item.vendor}</Text>
-          <Text style={styles.agentModel} numberOfLines={1}>
+          <Text style={[styles.agentName, { color: theme.colors.text.primary }]}>
+            {item.name}
+          </Text>
+          <Text style={[styles.agentVendor, { color: theme.colors.text.secondary }]}>
+            {item.vendor}
+          </Text>
+          <Text style={[styles.agentModel, { color: theme.colors.text.secondary }]} numberOfLines={1}>
             {item.model}
           </Text>
           
@@ -58,7 +68,7 @@ export default function AgentsScreen() {
 
   const renderEmptyState = () => (
     <EmptyState
-      icon={<Users size={48} color="#3B82F6" />}
+      icon={<Users size={48} color={theme.colors.primary} />}
       title="No agents available"
       message="Check back soon for new AI agents to chat with."
       actionLabel="Refresh"
@@ -72,17 +82,17 @@ export default function AgentsScreen() {
         options={{
           headerShown: true,
           headerTitle: 'Available Agents',
-          headerTitleStyle: styles.headerTitle,
+          headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
           headerLeft: () => (
             <Pressable onPress={() => router.back()} style={styles.backButton}>
-              <ArrowLeft size={24} color="#1F2937" />
+              <ArrowLeft size={24} color={theme.colors.text.primary} />
             </Pressable>
           ),
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#FFFFFF' },
+          headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         <FlatList
           data={agents}
           keyExtractor={(item) => item.id}
@@ -98,7 +108,6 @@ export default function AgentsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   headerTitle: {
     fontWeight: '600',
@@ -117,19 +126,13 @@ const styles = StyleSheet.create({
   agentItem: {
     flexDirection: 'row',
     padding: 16,
-    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 2,
-  },
-  agentItemPressed: {
-    backgroundColor: '#F9FAFB',
-    transform: [{ scale: 0.995 }],
   },
   avatarContainer: {
     width: 56,
@@ -149,17 +152,14 @@ const styles = StyleSheet.create({
   agentName: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1F2937',
     marginBottom: 4,
   },
   agentVendor: {
     fontSize: 14,
-    color: '#6B7280',
     marginBottom: 2,
   },
   agentModel: {
     fontSize: 14,
-    color: '#4B5563',
     marginBottom: 8,
   },
   tagsContainer: {
