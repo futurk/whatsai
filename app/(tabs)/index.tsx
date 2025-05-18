@@ -1,24 +1,62 @@
 import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { MessageSquare, Plus } from 'lucide-react-native';
+import { MessageSquare, Plus, Trash2 } from 'lucide-react-native';
 import { useChatContext } from '@/context/ChatContext';
 import { useAgentContext } from '@/context/AgentContext';
 import { useTheme } from '@/context/ThemeContext';
 import EmptyState from '@/components/EmptyState';
+import { useState } from 'react';
+import ConfirmationDialog from '@/components/ConfirmationDialog';
 
 export default function ChatsScreen() {
   const router = useRouter();
-  const { conversations, startNewConversation } = useChatContext();
+  const { conversations, startNewConversation, deleteConversations } = useChatContext();
   const { getAgentById, defaultAgentId } = useAgentContext();
   const { theme } = useTheme();
+  const [selectedChats, setSelectedChats] = useState<Set<string>>(new Set());
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   const navigateToChat = (id: string) => {
-    router.push(`/chat/${id}`);
+    if (selectedChats.size > 0) {
+      handleChatSelect(id);
+    } else {
+      router.push(`/chat/${id}`);
+    }
   };
 
-  const navigateToAgents = () => {
-    router.push('/agents');
+  const handleLongPress = (id: string) => {
+    handleChatSelect(id);
+  };
+
+  const handleChatSelect = (id: string) => {
+    setSelectedChats(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const handleDeleteSelected = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = () => {
+    deleteConversations(Array.from(selectedChats));
+    setSelectedChats(new Set());
+    setShowDeleteDialog(false);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteDialog(false);
+  };
+
+  const cancelSelection = () => {
+    setSelectedChats(new Set());
   };
 
   const renderItem = ({ item, index }) => {
@@ -29,6 +67,7 @@ export default function ChatsScreen() {
     
     const lastMessage = item.messages[item.messages.length - 1]?.text || 'Start a conversation';
     const messagePreview = lastMessage.length > 40 ? lastMessage.substring(0, 40) + '...' : lastMessage;
+    const isSelected = selectedChats.has(item.id);
     
     return (
       <Animated.View 
@@ -36,8 +75,14 @@ export default function ChatsScreen() {
         style={styles.animatedContainer}
       >
         <Pressable 
-          style={[styles.chatItem, { backgroundColor: theme.colors.card }]} 
+          style={[
+            styles.chatItem,
+            { backgroundColor: theme.colors.card },
+            isSelected && { backgroundColor: theme.colors.primary + '20' }
+          ]} 
           onPress={() => navigateToChat(item.id)}
+          onLongPress={() => handleLongPress(item.id)}
+          delayLongPress={200}
         >
           <View style={[styles.avatarContainer, { backgroundColor: agent.color + '20' }]}>
             <Text style={[styles.avatarText, { color: agent.color }]}>
@@ -66,12 +111,37 @@ export default function ChatsScreen() {
       title="No conversations yet"
       message="Start chatting with an AI agent to see your conversations here."
       actionLabel="Find an agent"
-      onAction={navigateToAgents}
+      onAction={() => router.push('/agents')}
     />
   );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      {selectedChats.size > 0 && (
+        <View style={[styles.selectionHeader, { backgroundColor: theme.colors.card }]}>
+          <Text style={[styles.selectionText, { color: theme.colors.text.primary }]}>
+            {selectedChats.size} selected
+          </Text>
+          <View style={styles.selectionActions}>
+            <Pressable
+              style={[styles.selectionButton, { backgroundColor: theme.colors.surface }]}
+              onPress={cancelSelection}
+            >
+              <Text style={[styles.buttonText, { color: theme.colors.text.primary }]}>Cancel</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.selectionButton, { backgroundColor: theme.colors.error + '20' }]}
+              onPress={handleDeleteSelected}
+            >
+              <Trash2 size={20} color={theme.colors.error} />
+              <Text style={[styles.buttonText, { color: theme.colors.error, marginLeft: 8 }]}>
+                Delete
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+
       <FlatList
         data={conversations}
         keyExtractor={(item) => item.id}
@@ -79,6 +149,7 @@ export default function ChatsScreen() {
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmptyState}
       />
+
       <Pressable 
         style={[styles.fab, { backgroundColor: theme.colors.primary }]} 
         onPress={() => {
@@ -92,6 +163,16 @@ export default function ChatsScreen() {
       >
         <Plus size={24} color="#FFFFFF" />
       </Pressable>
+
+      <ConfirmationDialog
+        visible={showDeleteDialog}
+        title="Delete Conversations"
+        message={`Are you sure you want to delete ${selectedChats.size} conversation${selectedChats.size === 1 ? '' : 's'}? This action cannot be undone.`}
+        confirmText="Delete"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        destructive
+      />
     </View>
   );
 }
@@ -103,7 +184,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingVertical: 12,
     flexGrow: 1,
-    paddingBottom: 80, // Add padding to ensure content is visible above FAB and tab bar
+    paddingBottom: 80,
   },
   animatedContainer: {
     width: '100%',
@@ -144,7 +225,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 80, // Increased to ensure visibility above tab bar
+    bottom: 80,
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -159,6 +240,35 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    zIndex: 1, // Added to ensure FAB stays above other content
+    zIndex: 1,
+  },
+  selectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  selectionText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  selectionActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  selectionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginLeft: 12,
+  },
+  buttonText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

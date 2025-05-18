@@ -10,6 +10,7 @@ interface ChatContextType {
   getConversationById: (id: string) => Conversation | undefined;
   startNewConversation: (agentId: string) => string;
   addMessageToConversation: (conversationId: string, message: Message) => Promise<void>;
+  deleteConversations: (ids: string[]) => void;
   isTyping: boolean;
   debugLogs: Record<string, LogEntry[]>;
 }
@@ -66,6 +67,16 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     
     return newConversation.id;
   }, [getAgentById, apiKeys, isDebugMode]);
+
+  const deleteConversations = useCallback((ids: string[]) => {
+    setConversations(prev => prev.filter(conv => !ids.includes(conv.id)));
+    // Clean up debug logs for deleted conversations
+    setDebugLogs(prev => {
+      const newLogs = { ...prev };
+      ids.forEach(id => delete newLogs[id]);
+      return newLogs;
+    });
+  }, []);
 
   const addMessageToConversation = useCallback(async (conversationId: string, message: Message) => {
     const conversation = getConversationById(conversationId);
@@ -181,6 +192,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         getConversationById,
         startNewConversation,
         addMessageToConversation,
+        deleteConversations,
         isTyping,
         debugLogs,
       }}
