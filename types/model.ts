@@ -1,3 +1,5 @@
+import { Vendor } from './apiKey';
+
 export interface Model {
   id: string;
   name: string;
@@ -9,7 +11,7 @@ export interface Model {
 }
 
 export interface VendorModels {
-  name: string;
+  name: Vendor;
   description?: string;
   models: Model[];
 }

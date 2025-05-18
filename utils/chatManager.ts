@@ -1,7 +1,7 @@
 import { OpenAIClient } from './api/openai';
 import { AnthropicClient } from './api/anthropic';
 import { Agent } from '@/types/agent';
-import { ApiKey } from '@/types/apiKey';
+import { ApiKey, Vendor } from '@/types/apiKey';
 
 export interface LogEntry {
   timestamp: string;
@@ -24,7 +24,7 @@ export class ChatManager {
     }
 
     try {
-      switch (apiKey.vendor.toLowerCase()) {
+      switch (apiKey.vendor.toLowerCase() as Lowercase<Vendor>) {
         case 'openai':
           this.clients.set(agent.id, new OpenAIClient(apiKey.key));
           break;

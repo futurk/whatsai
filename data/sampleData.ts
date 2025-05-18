@@ -1,5 +1,5 @@
 import { Agent } from '@/types/agent';
-import { ApiKey } from '@/types/apiKey';
+import { ApiKey, Vendor } from '@/types/apiKey';
 
 export const sampleAgents: Agent[] = [
   {
