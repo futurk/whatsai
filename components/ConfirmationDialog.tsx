@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Modal, Pressable } from 'react-native';
 import { X } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 interface ConfirmationDialogProps {
   visible: boolean;
@@ -22,6 +23,8 @@ export default function ConfirmationDialog({
   onCancel,
   destructive = false,
 }: ConfirmationDialogProps) {
+  const { theme } = useTheme();
+
   return (
     <Modal
       visible={visible}
@@ -29,36 +32,46 @@ export default function ConfirmationDialog({
       animationType="fade"
       onRequestClose={onCancel}
     >
-      <View style={styles.overlay}>
-        <View style={styles.dialog}>
+      <View style={[styles.overlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+        <View style={[styles.dialog, { backgroundColor: theme.colors.card }]}>
           <View style={styles.header}>
-            <Text style={styles.title}>{title}</Text>
+            <Text style={[styles.title, { color: theme.colors.text.primary }]}>
+              {title}
+            </Text>
             <Pressable onPress={onCancel} style={styles.closeButton}>
-              <X size={20} color="#6B7280" />
+              <X size={20} color={theme.colors.text.secondary} />
             </Pressable>
           </View>
           
-          <Text style={styles.message}>{message}</Text>
+          <Text style={[styles.message, { color: theme.colors.text.secondary }]}>
+            {message}
+          </Text>
           
           <View style={styles.buttonContainer}>
             <Pressable
-              style={[styles.button, styles.cancelButton]}
+              style={[styles.button, { backgroundColor: theme.colors.surface }]}
               onPress={onCancel}
             >
-              <Text style={styles.cancelButtonText}>{cancelText}</Text>
+              <Text style={[styles.buttonText, { color: theme.colors.text.secondary }]}>
+                {cancelText}
+              </Text>
             </Pressable>
             
             <Pressable
               style={[
                 styles.button,
-                destructive ? styles.destructiveButton : styles.confirmButton,
+                destructive 
+                  ? { backgroundColor: theme.colors.error + '20' }
+                  : { backgroundColor: theme.colors.primary }
               ]}
               onPress={onConfirm}
             >
               <Text
                 style={[
-                  styles.confirmButtonText,
-                  destructive && styles.destructiveButtonText,
+                  styles.buttonText,
+                  destructive 
+                    ? { color: theme.colors.error }
+                    : { color: '#FFFFFF' }
                 ]}
               >
                 {confirmText}
@@ -74,17 +87,15 @@ export default function ConfirmationDialog({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   dialog: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 20,
     width: '100%',
     maxWidth: 400,
+    borderRadius: 12,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -103,14 +114,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1F2937',
   },
   closeButton: {
     padding: 4,
   },
   message: {
     fontSize: 16,
-    color: '#4B5563',
     marginBottom: 24,
     lineHeight: 24,
   },
@@ -126,26 +135,8 @@ const styles = StyleSheet.create({
     minWidth: 100,
     alignItems: 'center',
   },
-  cancelButton: {
-    backgroundColor: '#F3F4F6',
-  },
-  confirmButton: {
-    backgroundColor: '#3B82F6',
-  },
-  destructiveButton: {
-    backgroundColor: '#FEE2E2',
-  },
-  cancelButtonText: {
-    color: '#4B5563',
+  buttonText: {
     fontSize: 16,
     fontWeight: '500',
-  },
-  confirmButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  destructiveButtonText: {
-    color: '#DC2626',
   },
 });
