@@ -1,9 +1,11 @@
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Chrome as Home, Settings } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const { isDarkMode } = useTheme();
   
   return (
     <Tabs
@@ -11,14 +13,14 @@ export default function TabLayout() {
         tabBarStyle: {
           paddingBottom: insets.bottom,
           height: 60 + insets.bottom,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
           borderTopWidth: 0.5,
-          borderTopColor: 'rgba(0, 0, 0, 0.1)',
+          borderTopColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
           elevation: 0,
           shadowOpacity: 0,
         },
-        tabBarActiveTintColor: '#3B82F6',
-        tabBarInactiveTintColor: '#94A3B8',
+        tabBarActiveTintColor: isDarkMode ? '#60A5FA' : '#3B82F6',
+        tabBarInactiveTintColor: isDarkMode ? '#9CA3AF' : '#94A3B8',
         tabBarLabelStyle: {
           fontSize: 12,
           marginBottom: 8,
@@ -28,11 +30,12 @@ export default function TabLayout() {
         },
         headerShadowVisible: false,
         headerStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
         },
         headerTitleStyle: {
           fontWeight: '600',
           fontSize: 17,
+          color: isDarkMode ? '#F9FAFB' : '#1F2937',
         },
       }}
     >
