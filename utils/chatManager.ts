@@ -24,7 +24,7 @@ export class ChatManager {
     }
 
     try {
-      switch (apiKey.vendorId.toLowerCase()) {
+      switch (apiKey.vendor.toLowerCase()) {
         case 'openai':
           this.clients.set(agent.id, new OpenAIClient(apiKey.key));
           break;
@@ -32,10 +32,10 @@ export class ChatManager {
           this.clients.set(agent.id, new AnthropicClient(apiKey.key));
           break;
         default:
-          throw new Error(`Unsupported vendor: ${apiKey.vendorId}`);
+          throw new Error(`Unsupported vendor: ${apiKey.vendor}`);
       }
     } catch (error) {
-      console.error(`Failed to initialize chat client for ${apiKey.vendorId}:`, error);
+      console.error(`Failed to initialize chat client for ${apiKey.vendor}:`, error);
       throw new Error(`Failed to initialize chat client: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

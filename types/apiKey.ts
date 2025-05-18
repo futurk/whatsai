@@ -1,8 +1,6 @@
-export type VendorId = 'OpenAI' | 'Anthropic';
-
 export interface ApiKey {
   id: string;
-  vendorId: VendorId;
+  vendor: string;
   key: string;
   name: string;
   createdAt: string;
