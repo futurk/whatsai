@@ -81,11 +81,18 @@ export default function ChatsScreen() {
         ListEmptyComponent={renderEmptyState}
       />
       <Pressable 
-        style={styles.fab}
-        onPress={navigateToAgents}
-      >
-        <Plus size={24} color="#FFFFFF" />
-      </Pressable>
+  style={[styles.fab, { backgroundColor: theme.colors.primary }]} 
+  onPress={() => {
+    if (defaultAgentId) {
+      const conversationId = startNewConversation(defaultAgentId);
+      router.push(`/chat/${conversationId}`);
+    } else {
+      router.push('/agents');
+    }
+  }}
+>
+  <Plus size={24} color="#FFFFFF" />
+</Pressable>
     </View>
   );
 }
