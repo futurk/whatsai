@@ -5,13 +5,14 @@ import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useDebugContext } from '@/context/DebugContext';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { agents } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
   const { isDebugMode, toggleDebugMode } = useDebugContext();
-  const [darkMode, setDarkMode] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
 
@@ -27,38 +28,69 @@ export default function SettingsScreen() {
     badge = null
   }) => (
     <Pressable 
-      style={styles.settingItem} 
+      style={[
+        styles.settingItem,
+        { backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF' }
+      ]} 
       onPress={onPress}
       disabled={!onPress}
     >
-      <View style={[styles.iconContainer, destructive && styles.destructiveIcon]}>
+      <View style={[
+        styles.iconContainer,
+        destructive && styles.destructiveIcon,
+        { backgroundColor: isDarkMode ? '#374151' : '#F3F4F6' }
+      ]}>
         {icon}
       </View>
       <View style={styles.settingContent}>
-        <Text style={[styles.settingTitle, destructive && styles.destructiveText]}>{title}</Text>
-        {description ? <Text style={styles.settingDescription}>{description}</Text> : null}
+        <Text style={[
+          styles.settingTitle,
+          destructive && styles.destructiveText,
+          { color: isDarkMode ? '#F9FAFB' : '#1F2937' }
+        ]}>{title}</Text>
+        {description ? (
+          <Text style={[
+            styles.settingDescription,
+            { color: isDarkMode ? '#D1D5DB' : '#6B7280' }
+          ]}>{description}</Text>
+        ) : null}
       </View>
       {badge ? (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{badge}</Text>
+        <View style={[
+          styles.badge,
+          { backgroundColor: isDarkMode ? '#374151' : '#EFF6FF' }
+        ]}>
+          <Text style={[
+            styles.badgeText,
+            { color: isDarkMode ? '#60A5FA' : '#3B82F6' }
+          ]}>{badge}</Text>
         </View>
       ) : hasSwitch ? (
         <Switch
           value={switchValue}
           onValueChange={onSwitchChange}
-          trackColor={{ false: '#D1D5DB', true: '#BFDBFE' }}
-          thumbColor={switchValue ? '#3B82F6' : '#9CA3AF'}
+          trackColor={{
+            false: isDarkMode ? '#4B5563' : '#D1D5DB',
+            true: isDarkMode ? '#60A5FA' : '#BFDBFE'
+          }}
+          thumbColor={switchValue ? '#3B82F6' : isDarkMode ? '#9CA3AF' : '#6B7280'}
         />
       ) : onPress ? (
-        <ChevronRight size={20} color="#9CA3AF" />
+        <ChevronRight size={20} color={isDarkMode ? '#9CA3AF' : '#6B7280'} />
       ) : null}
     </Pressable>
   );
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={[
+      styles.container,
+      { backgroundColor: isDarkMode ? '#111827' : '#FFFFFF' }
+    ]} contentContainerStyle={styles.contentContainer}>
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>AI Agents</Text>
+        <Text style={[
+          styles.sectionTitle,
+          { color: isDarkMode ? '#9CA3AF' : '#6B7280' }
+        ]}>AI Agents</Text>
         {renderSettingItem({
           icon: <Users size={22} color="#3B82F6" />,
           title: 'Manage Agents',
@@ -76,19 +108,25 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Appearance</Text>
+        <Text style={[
+          styles.sectionTitle,
+          { color: isDarkMode ? '#9CA3AF' : '#6B7280' }
+        ]}>Appearance</Text>
         {renderSettingItem({
-          icon: darkMode ? <Moon size={22} color="#8B5CF6" /> : <Sun size={22} color="#F59E0B" />,
+          icon: isDarkMode ? <Moon size={22} color="#8B5CF6" /> : <Sun size={22} color="#F59E0B" />,
           title: 'Dark Mode',
           description: 'Switch between light and dark themes',
           hasSwitch: true,
-          switchValue: darkMode,
-          onSwitchChange: setDarkMode
+          switchValue: isDarkMode,
+          onSwitchChange: toggleDarkMode
         })}
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Notifications</Text>
+        <Text style={[
+          styles.sectionTitle,
+          { color: isDarkMode ? '#9CA3AF' : '#6B7280' }
+        ]}>Notifications</Text>
         {renderSettingItem({
           icon: <Bell size={22} color="#3B82F6" />,
           title: 'Push Notifications',
@@ -108,7 +146,10 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Developer</Text>
+        <Text style={[
+          styles.sectionTitle,
+          { color: isDarkMode ? '#9CA3AF' : '#6B7280' }
+        ]}>Developer</Text>
         {renderSettingItem({
           icon: <Bug size={22} color="#3B82F6" />,
           title: 'Debug Mode',
@@ -120,7 +161,10 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>About</Text>
+        <Text style={[
+          styles.sectionTitle,
+          { color: isDarkMode ? '#9CA3AF' : '#6B7280' }
+        ]}>About</Text>
         {renderSettingItem({
           icon: <Shield size={22} color="#3B82F6" />,
           title: 'Privacy Policy',
@@ -139,7 +183,10 @@ export default function SettingsScreen() {
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account</Text>
+        <Text style={[
+          styles.sectionTitle,
+          { color: isDarkMode ? '#9CA3AF' : '#6B7280' }
+        ]}>Account</Text>
         {renderSettingItem({
           icon: <LogOut size={22} color="#F43F5E" />,
           title: 'Sign Out',
@@ -161,7 +208,6 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   contentContainer: {
     paddingBottom: 40,
@@ -172,7 +218,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6B7280',
     marginLeft: 20,
     marginBottom: 8,
     textTransform: 'uppercase',
@@ -188,7 +233,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -202,7 +246,6 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#1F2937',
     marginBottom: 2,
   },
   destructiveText: {
@@ -210,10 +253,8 @@ const styles = StyleSheet.create({
   },
   settingDescription: {
     fontSize: 14,
-    color: '#6B7280',
   },
   badge: {
-    backgroundColor: '#EFF6FF',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -221,7 +262,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   badgeText: {
-    color: '#3B82F6',
     fontSize: 12,
     fontWeight: '600',
   },
