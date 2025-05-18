@@ -9,7 +9,7 @@ export interface Model {
 }
 
 export interface VendorModels {
-  name: string;
+  name: VendorId;
   description?: string;
   models: Model[];
 }

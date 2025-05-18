@@ -1,16 +1,16 @@
 import { createContext, useContext, ReactNode, useState } from 'react';
 import { Model, VENDOR_MODELS } from '@/types/model';
-import { ApiKey } from '@/types/apiKey';
+import { ApiKey, VendorId } from '@/types/apiKey';
 import { sampleApiKeys } from '@/data/sampleData';
 
 interface ApiKeyContextType {
   apiKeys: ApiKey[];
-  addApiKey: (vendorId: string, key: string, name: string) => void;
+  addApiKey: (vendorId: VendorId, key: string, name: string) => void;
   updateApiKey: (id: string, key: string) => void;
   deleteApiKey: (id: string) => void;
-  getApiKeysByVendor: (vendorId: string) => ApiKey[];
-  getModelsByVendor: (vendorId: string) => Model[];
-  getSupportedVendors: () => string[];
+  getApiKeysByVendor: (vendorId: VendorId) => ApiKey[];
+  getModelsByVendor: (vendorId: VendorId) => Model[];
+  getSupportedVendors: () => VendorId[];
 }
 
 const ApiKeyContext = createContext<ApiKeyContextType | undefined>(undefined);
@@ -18,7 +18,7 @@ const ApiKeyContext = createContext<ApiKeyContextType | undefined>(undefined);
 export const ApiKeyProvider = ({ children }: { children: ReactNode }) => {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>(sampleApiKeys);
 
-  const addApiKey = (vendorId: string, key: string, name: string) => {
+  const addApiKey = (vendorId: VendorId, key: string, name: string) => {
     const newKey: ApiKey = {
       id: Date.now().toString(),
       vendorId,
@@ -43,16 +43,16 @@ export const ApiKeyProvider = ({ children }: { children: ReactNode }) => {
     setApiKeys(prev => prev.filter(apiKey => apiKey.id !== id));
   };
 
-  const getApiKeysByVendor = (vendorId: string) => {
+  const getApiKeysByVendor = (vendorId: VendorId) => {
     return apiKeys.filter(key => key.vendorId === vendorId);
   };
 
-  const getModelsByVendor = (vendorId: string): Model[] => {
+  const getModelsByVendor = (vendorId: VendorId): Model[] => {
     const vendorData = VENDOR_MODELS.find(v => v.name === vendorId);
     return vendorData?.models || [];
   };
 
-  const getSupportedVendors = () => {
+  const getSupportedVendors = (): VendorId[] => {
     return VENDOR_MODELS.map(vendor => vendor.name);
   };
 
