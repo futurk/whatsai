@@ -3,7 +3,6 @@ export interface Message {
   text: string;
   sender: 'user' | 'assistant';
   timestamp: string;
-  status?: 'pending' | 'completed' | 'failed';
 }
 
 export interface Conversation {
