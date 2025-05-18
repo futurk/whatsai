@@ -23,10 +23,17 @@ export default function ChatScreen() {
   
   const conversation = getConversationById(id as string);
   const agent = conversation ? getAgentById(conversation.agentId) : null;
+  
+  const suggestions = [
+    "Tell me about yourself",
+    "What can you help me with?",
+    "Tell me a joke",
+    "What's your specialty?"
+  ];
 
   useEffect(() => {
     if (!conversation) {
-      router.replace('/(tabs)');
+      router.replace('/');
     }
   }, [conversation, router]);
 
@@ -38,10 +45,6 @@ export default function ChatScreen() {
       }, 100);
     }
   }, [conversation?.messages, isTyping]);
-
-  const handleBack = () => {
-    router.push('/(tabs)');
-  };
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -67,13 +70,6 @@ export default function ChatScreen() {
   const handleSuggestion = (suggestion: string) => {
     setInputText(suggestion);
   };
-  
-  const suggestions = [
-    "Tell me about yourself",
-    "What can you help me with?",
-    "Tell me a joke",
-    "What's your specialty?"
-  ];
 
   if (!conversation || !agent) return null;
 
@@ -91,7 +87,7 @@ export default function ChatScreen() {
           headerTitle: agent.name,
           headerTitleStyle: styles.headerTitle,
           headerLeft: () => (
-            <Pressable onPress={handleBack} style={styles.backButton}>
+            <Pressable onPress={() => router.back()} style={styles.backButton}>
               <ArrowLeft size={24} color="#1F2937" />
             </Pressable>
           ),

@@ -28,52 +28,25 @@ export default function ManageAgentsScreen() {
     id: '',
     name: '',
   });
-  const [unsavedChangesDialog, setUnsavedChangesDialog] = useState(false);
-
-  const hasUnsavedChanges = () => {
-    if (!isEditing) return false;
-
-    if (editingAgent) {
-      return (
-        name !== editingAgent.name ||
-        instructions !== (editingAgent.instructions || '') ||
-        selectedModel !== editingAgent.model ||
-        selectedApiKeyId !== editingAgent.apiKeyId ||
-        color !== editingAgent.color ||
-        tags !== editingAgent.tags.join(', ')
-      );
-    }
-
-    return name || instructions || selectedModel || selectedApiKeyId || tags || color !== '#3B82F6';
-  };
-
-  const resetForm = () => {
-    setName('');
-    setInstructions('');
-    setSelectedModel('');
-    setSelectedApiKeyId('');
-    setColor('#3B82F6');
-    setTags('');
-  };
 
   const handleBack = () => {
-    if (hasUnsavedChanges()) {
-      setUnsavedChangesDialog(true);
+    if (isEditing) {
+      setIsEditing(false);
+      setEditingAgent(null);
     } else {
-      if (isEditing) {
-        setIsEditing(false);
-        setEditingAgent(null);
-        resetForm();
-      } else {
-        router.back();
-      }
+      router.back();
     }
   };
 
   const handleAddAgent = () => {
     setIsEditing(true);
     setEditingAgent(null);
-    resetForm();
+    setName('');
+    setInstructions('');
+    setSelectedModel('');
+    setSelectedApiKeyId('');
+    setColor('#3B82F6');
+    setTags('');
   };
 
   const handleEditAgent = (agent) => {
@@ -114,7 +87,6 @@ export default function ManageAgentsScreen() {
 
     setIsEditing(false);
     setEditingAgent(null);
-    resetForm();
   };
 
   const handleDelete = (agentId: string, agentName: string) => {
@@ -140,21 +112,6 @@ export default function ManageAgentsScreen() {
       id: '',
       name: '',
     });
-  };
-
-  const confirmDiscardChanges = () => {
-    setUnsavedChangesDialog(false);
-    if (isEditing) {
-      setIsEditing(false);
-      setEditingAgent(null);
-      resetForm();
-    } else {
-      router.back();
-    }
-  };
-
-  const cancelDiscardChanges = () => {
-    setUnsavedChangesDialog(false);
   };
 
   const renderItem = ({ item, index }) => {
@@ -361,7 +318,7 @@ export default function ManageAgentsScreen() {
                 <View style={styles.buttonGroup}>
                   <Pressable
                     style={[styles.button, styles.cancelButton]}
-                    onPress={handleBack}
+                    onPress={() => setIsEditing(false)}
                   >
                     <Text style={styles.cancelButtonText}>Cancel</Text>
                   </Pressable>
@@ -389,16 +346,6 @@ export default function ManageAgentsScreen() {
           confirmText="Delete"
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
-          destructive
-        />
-
-        <ConfirmationDialog
-          visible={unsavedChangesDialog}
-          title="Unsaved Changes"
-          message="You have unsaved changes. Are you sure you want to discard them?"
-          confirmText="Discard"
-          onConfirm={confirmDiscardChanges}
-          onCancel={cancelDiscardChanges}
           destructive
         />
       </View>
