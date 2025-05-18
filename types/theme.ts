@@ -12,6 +12,9 @@ export interface Theme {
     success: string;
     warning: string;
     info: string;
+    border: string;
+    card: string;
+    tabBar: string;
   };
   spacing: {
     xs: number;
@@ -28,7 +31,7 @@ export interface Theme {
   };
 }
 
-export const theme: Theme = {
+export const lightTheme: Theme = {
   colors: {
     primary: '#3B82F6',
     secondary: '#6B7280',
@@ -42,6 +45,9 @@ export const theme: Theme = {
     success: '#10B981',
     warning: '#F59E0B',
     info: '#3B82F6',
+    border: '#E5E7EB',
+    card: '#FFFFFF',
+    tabBar: '#FFFFFF',
   },
   spacing: {
     xs: 4,
@@ -56,4 +62,25 @@ export const theme: Theme = {
     lg: 12,
     full: 9999,
   },
-}
+};
+
+export const darkTheme: Theme = {
+  ...lightTheme,
+  colors: {
+    primary: '#60A5FA',
+    secondary: '#9CA3AF',
+    background: '#111827',
+    surface: '#1F2937',
+    text: {
+      primary: '#F9FAFB',
+      secondary: '#D1D5DB',
+    },
+    error: '#F87171',
+    success: '#34D399',
+    warning: '#FBBF24',
+    info: '#60A5FA',
+    border: '#374151',
+    card: '#1F2937',
+    tabBar: '#111827',
+  },
+};
