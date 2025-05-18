@@ -1,22 +1,45 @@
 import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { Moon, Sun, Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare } from 'lucide-react-native';
+import { Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor, Sun, Moon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useDebugContext } from '@/context/DebugContext';
 import { useTheme } from '@/context/ThemeContext';
 import AgentSelectionModal from '@/components/AgentSelectionModal';
+import { ThemeMode } from '@/types/theme';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { agents, defaultAgentId, setDefaultAgent, getAgentById } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
   const { isDebugMode, toggleDebugMode } = useDebugContext();
-  const { isDark, toggleTheme, theme } = useTheme();
+  const { theme, themeMode, setThemeMode } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
   const [showAgentModal, setShowAgentModal] = useState(false);
+
+  const getThemeIcon = (mode: ThemeMode) => {
+    switch (mode) {
+      case 'system':
+        return <Monitor size={22} color={themeMode === 'system' ? theme.colors.primary : theme.colors.text.secondary} />;
+      case 'light':
+        return <Sun size={22} color={themeMode === 'light' ? theme.colors.primary : theme.colors.text.secondary} />;
+      case 'dark':
+        return <Moon size={22} color={themeMode === 'dark' ? theme.colors.primary : theme.colors.text.secondary} />;
+    }
+  };
+
+  const getThemeLabel = (mode: ThemeMode) => {
+    switch (mode) {
+      case 'system':
+        return 'System';
+      case 'light':
+        return 'Light';
+      case 'dark':
+        return 'Dark';
+    }
+  };
 
   const renderSettingItem = ({ 
     icon, 
@@ -108,14 +131,34 @@ export default function SettingsScreen() {
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>Appearance</Text>
-          {renderSettingItem({
-            icon: isDark ? <Moon size={22} color="#8B5CF6" /> : <Sun size={22} color="#F59E0B" />,
-            title: 'Dark Mode',
-            description: 'Switch between light and dark themes',
-            hasSwitch: true,
-            switchValue: isDark,
-            onSwitchChange: toggleTheme
-          })}
+          <View style={[styles.themeSelector, { backgroundColor: theme.colors.card }]}>
+            {(['system', 'light', 'dark'] as ThemeMode[]).map((mode) => (
+              <Pressable
+                key={mode}
+                style={[
+                  styles.themeOption,
+                  { 
+                    backgroundColor: themeMode === mode ? theme.colors.primary + '20' : 'transparent',
+                    borderColor: themeMode === mode ? theme.colors.primary : 'transparent',
+                  }
+                ]}
+                onPress={() => setThemeMode(mode)}
+              >
+                {getThemeIcon(mode)}
+                <Text
+                  style={[
+                    styles.themeText,
+                    { 
+                      color: themeMode === mode ? theme.colors.primary : theme.colors.text.secondary,
+                      marginTop: 4,
+                    }
+                  ]}
+                >
+                  {getThemeLabel(mode)}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -251,5 +294,22 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 12,
     fontWeight: '600',
+  },
+  themeSelector: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    borderRadius: 12,
+    padding: 8,
+  },
+  themeOption: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  themeText: {
+    fontSize: 12,
+    fontWeight: '500',
   },
 });
