@@ -1,12 +1,11 @@
 import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { Moon, Sun, Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor } from 'lucide-react-native';
+import { Moon, Sun, Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useDebugContext } from '@/context/DebugContext';
 import { useTheme } from '@/context/ThemeContext';
-import { ThemeMode } from '@/types/theme';
 import AgentSelectionModal from '@/components/AgentSelectionModal';
 
 export default function SettingsScreen() {
@@ -14,7 +13,7 @@ export default function SettingsScreen() {
   const { agents, defaultAgentId, setDefaultAgent, getAgentById } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
   const { isDebugMode, toggleDebugMode } = useDebugContext();
-  const { theme, themeMode, setThemeMode } = useTheme();
+  const { isDark, toggleTheme, theme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
   const [showAgentModal, setShowAgentModal] = useState(false);
@@ -28,14 +27,12 @@ export default function SettingsScreen() {
     onSwitchChange = () => {}, 
     onPress = null,
     destructive = false,
-    badge = null,
-    options = null,
-    selectedOption = null,
+    badge = null
   }) => (
     <Pressable 
       style={styles.settingItem} 
       onPress={onPress}
-      disabled={!onPress && !options}
+      disabled={!onPress}
     >
       <View style={[
         styles.iconContainer, 
@@ -67,49 +64,11 @@ export default function SettingsScreen() {
           trackColor={{ false: theme.colors.border, true: theme.colors.primary + '40' }}
           thumbColor={switchValue ? theme.colors.primary : theme.colors.secondary}
         />
-      ) : options ? (
-        <View style={styles.optionsContainer}>
-          {options.map((option, index) => (
-            <Pressable
-              key={option.value}
-              style={[
-                styles.optionButton,
-                { 
-                  backgroundColor: selectedOption === option.value 
-                    ? theme.colors.primary + '20' 
-                    : theme.colors.surface,
-                  marginLeft: index > 0 ? 8 : 0,
-                }
-              ]}
-              onPress={() => option.onSelect(option.value)}
-            >
-              {option.icon}
-            </Pressable>
-          ))}
-        </View>
       ) : onPress ? (
         <ChevronRight size={20} color={theme.colors.text.secondary} />
       ) : null}
     </Pressable>
   );
-
-  const themeOptions = [
-    {
-      value: 'system' as ThemeMode,
-      icon: <Monitor size={20} color={themeMode === 'system' ? theme.colors.primary : theme.colors.text.secondary} />,
-      onSelect: setThemeMode,
-    },
-    {
-      value: 'light' as ThemeMode,
-      icon: <Sun size={20} color={themeMode === 'light' ? theme.colors.primary : theme.colors.text.secondary} />,
-      onSelect: setThemeMode,
-    },
-    {
-      value: 'dark' as ThemeMode,
-      icon: <Moon size={20} color={themeMode === 'dark' ? theme.colors.primary : theme.colors.text.secondary} />,
-      onSelect: setThemeMode,
-    },
-  ];
 
   return (
     <>
@@ -150,11 +109,12 @@ export default function SettingsScreen() {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>Appearance</Text>
           {renderSettingItem({
-            icon: <Monitor size={22} color={theme.colors.primary} />,
-            title: 'Theme',
-            description: 'Choose your preferred theme mode',
-            options: themeOptions,
-            selectedOption: themeMode,
+            icon: isDark ? <Moon size={22} color="#8B5CF6" /> : <Sun size={22} color="#F59E0B" />,
+            title: 'Dark Mode',
+            description: 'Switch between light and dark themes',
+            hasSwitch: true,
+            switchValue: isDark,
+            onSwitchChange: toggleTheme
           })}
         </View>
 
@@ -291,16 +251,5 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 12,
     fontWeight: '600',
-  },
-  optionsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  optionButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

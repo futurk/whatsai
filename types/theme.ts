@@ -1,5 +1,3 @@
-export type ThemeMode = 'system' | 'light' | 'dark';
-
 export interface Theme {
   colors: {
     primary: string;
