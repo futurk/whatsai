@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Switch, Pressable, ScrollView, ActionSheetIOS, Platform } from 'react-native';
 import { useState } from 'react';
-import { Moon, Sun, Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, ChevronDown, MessageSquare } from 'lucide-react-native';
+import { Moon, Sun, Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
@@ -9,12 +9,44 @@ import { useTheme } from '@/context/ThemeContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { agents, defaultAgentId, setDefaultAgent } = useAgentContext();
+  const { agents, defaultAgentId, setDefaultAgent, getAgentById } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
   const { isDebugMode, toggleDebugMode } = useDebugContext();
   const { isDark, toggleTheme, theme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
+
+  const handleDefaultAgentPress = () => {
+    if (Platform.OS === 'ios') {
+      const options = [
+        ...agents.map(agent => ({
+          label: agent.name,
+          onPress: () => setDefaultAgent(agent.id)
+        })),
+        {
+          label: 'None',
+          onPress: () => setDefaultAgent(null)
+        }
+      ];
+
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [...options.map(o => o.label), 'Cancel'],
+          cancelButtonIndex: options.length,
+          title: 'Select Default Agent',
+          message: 'Choose an agent to start new chats with'
+        },
+        (buttonIndex) => {
+          if (buttonIndex < options.length) {
+            options[buttonIndex].onPress();
+          }
+        }
+      );
+    } else {
+      // For web and Android, navigate to a selection screen
+      router.push('/agents');
+    }
+  };
 
   const renderSettingItem = ({ 
     icon, 
@@ -34,17 +66,17 @@ export default function SettingsScreen() {
     >
       <View style={[
         styles.iconContainer, 
-        { backgroundColor: destructive ? theme.colors.error + '20' : theme.colors.surface },
-        destructive && styles.destructiveIcon
+        { backgroundColor: destructive ? theme.colors.error + '20' : theme.colors.surface }
       ]}>
         {icon}
       </View>
       <View style={styles.settingContent}>
         <Text style={[
           styles.settingTitle, 
-          { color: destructive ? theme.colors.error : theme.colors.text.primary },
-          destructive && styles.destructiveText
-        ]}>{title}</Text>
+          { color: destructive ? theme.colors.error : theme.colors.text.primary }
+        ]}>
+          {title}
+        </Text>
         {description ? (
           <Text style={[styles.settingDescription, { color: theme.colors.text.secondary }]}>
             {description}
@@ -76,6 +108,14 @@ export default function SettingsScreen() {
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>AI Agents</Text>
         {renderSettingItem({
+          icon: <MessageSquare size={22} color={theme.colors.primary} />,
+          title: 'Default Agent',
+          description: defaultAgentId 
+            ? `New chats will start with ${getAgentById(defaultAgentId)?.name}`
+            : 'Select an agent to start new chats immediately',
+          onPress: handleDefaultAgentPress
+        })}
+        {renderSettingItem({
           icon: <Users size={22} color={theme.colors.primary} />,
           title: 'Manage Agents',
           description: 'Create, edit, and delete AI agents',
@@ -90,45 +130,6 @@ export default function SettingsScreen() {
           onPress: () => router.push('/api-keys')
         })}
       </View>
-
-      <View style={styles.section}>
-  <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>Preferences</Text>
-  {renderSettingItem({
-    icon: <MessageSquare size={22} color={theme.colors.primary} />,
-    title: 'Default Agent',
-    description: defaultAgentId 
-      ? `New chats will start with ${getAgentById(defaultAgentId)?.name}`
-      : 'Select an agent to start new chats immediately',
-    onPress: () => {
-      const currentAgent = defaultAgentId;
-      const options = [
-        ...agents.map(agent => ({
-          label: agent.name,
-          onPress: () => setDefaultAgent(agent.id)
-        })),
-        {
-          label: 'None',
-          onPress: () => setDefaultAgent(null)
-        }
-      ];
-
-      // Show action sheet or modal with options
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: [...options.map(o => o.label), 'Cancel'],
-          cancelButtonIndex: options.length,
-          title: 'Select Default Agent',
-          message: 'Choose an agent to start new chats with'
-        },
-        (buttonIndex) => {
-          if (buttonIndex < options.length) {
-            options[buttonIndex].onPress();
-          }
-        }
-      );
-    }
-  })}
-</View>
 
       <View style={styles.section}>
         <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>Appearance</Text>
