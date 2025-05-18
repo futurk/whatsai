@@ -80,18 +80,18 @@ export default function ChatsScreen() {
         ListEmptyComponent={renderEmptyState}
       />
       <Pressable 
-  style={[styles.fab, { backgroundColor: theme.colors.primary }]} 
-  onPress={() => {
-    if (defaultAgentId) {
-      const conversationId = startNewConversation(defaultAgentId);
-      router.push(`/chat/${conversationId}`);
-    } else {
-      router.push('/agents');
-    }
-  }}
->
-  <Plus size={24} color="#FFFFFF" />
-</Pressable>
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]} 
+        onPress={() => {
+          if (defaultAgentId) {
+            const conversationId = startNewConversation(defaultAgentId);
+            router.push(`/chat/${conversationId}`);
+          } else {
+            router.push('/agents');
+          }
+        }}
+      >
+        <Plus size={24} color="#FFFFFF" />
+      </Pressable>
     </View>
   );
 }
@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingVertical: 12,
     flexGrow: 1,
+    paddingBottom: 80, // Add padding to ensure content is visible above FAB and tab bar
   },
   animatedContainer: {
     width: '100%',
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 20,
+    bottom: 80, // Increased to ensure visibility above tab bar
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -158,5 +159,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    zIndex: 1, // Added to ensure FAB stays above other content
   },
 });
