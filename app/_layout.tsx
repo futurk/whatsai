@@ -8,7 +8,6 @@ import { AgentProvider } from '@/context/AgentContext';
 import { ChatProvider } from '@/context/ChatContext';
 import { ApiKeyProvider } from '@/context/ApiKeyContext';
 import { DebugProvider } from '@/context/DebugContext';
-import { ThemeProvider } from '@/context/ThemeContext';
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -16,22 +15,20 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <ThemeProvider>
-          <DebugProvider>
-            <ApiKeyProvider>
-              <AgentProvider>
-                <ChatProvider>
-                  <Stack screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="chat/[id]" options={{ presentation: 'card' }} />
-                    <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
-                  </Stack>
-                  <StatusBar style="auto" />
-                </ChatProvider>
-              </AgentProvider>
-            </ApiKeyProvider>
-          </DebugProvider>
-        </ThemeProvider>
+        <DebugProvider>
+          <ApiKeyProvider>
+            <AgentProvider>
+              <ChatProvider>
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                  <Stack.Screen name="chat/[id]" options={{ presentation: 'card' }} />
+                  <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
+                </Stack>
+                <StatusBar style="auto" />
+              </ChatProvider>
+            </AgentProvider>
+          </ApiKeyProvider>
+        </DebugProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );
