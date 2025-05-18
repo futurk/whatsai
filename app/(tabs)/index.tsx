@@ -10,10 +10,9 @@ import EmptyState from '@/components/EmptyState';
 export default function ChatsScreen() {
   const router = useRouter();
   const { conversations } = useChatContext();
-  const { getAgentById } = useAgentContext();
+  const { getAgentById, defaultAgentId } = useAgentContext();
   const { theme } = useTheme();
-  const { defaultAgentId } = useAgentContext();
-
+  
   const navigateToChat = (id: string) => {
     router.push(`/chat/${id}`);
   };
