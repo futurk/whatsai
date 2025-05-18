@@ -4,6 +4,7 @@ import { useRouter, Stack } from 'expo-router';
 import { ArrowLeft, Plus, CreditCard as Edit2, Trash2, Key } from 'lucide-react-native';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
+import { useTheme } from '@/context/ThemeContext';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
 
@@ -11,6 +12,7 @@ export default function ManageAgentsScreen() {
   const router = useRouter();
   const { agents, addAgent, updateAgent, deleteAgent } = useAgentContext();
   const { apiKeys, getModelsByVendor } = useApiKeyContext();
+  const { theme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editingAgent, setEditingAgent] = useState(null);
   const [name, setName] = useState('');
@@ -19,11 +21,7 @@ export default function ManageAgentsScreen() {
   const [selectedApiKeyId, setSelectedApiKeyId] = useState('');
   const [color, setColor] = useState('#3B82F6');
   const [tags, setTags] = useState('');
-  const [deleteConfirmation, setDeleteConfirmation] = useState<{
-    visible: boolean;
-    id: string;
-    name: string;
-  }>({
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
     visible: false,
     id: '',
     name: '',
@@ -121,7 +119,10 @@ export default function ManageAgentsScreen() {
     return (
       <Animated.View
         entering={FadeInUp.delay(index * 100).springify()}
-        style={styles.agentItem}
+        style={[styles.agentItem, { 
+          backgroundColor: theme.colors.card,
+          borderColor: theme.colors.border,
+        }]}
       >
         <View style={[styles.agentIcon, { backgroundColor: item.color + '20' }]}>
           <Text style={[styles.agentInitial, { color: item.color }]}>
@@ -129,13 +130,17 @@ export default function ManageAgentsScreen() {
           </Text>
         </View>
         <View style={styles.agentContent}>
-          <Text style={styles.agentName}>{item.name}</Text>
-          <Text style={styles.agentVendor}>{vendor}</Text>
-          <Text style={styles.agentModel}>
+          <Text style={[styles.agentName, { color: theme.colors.text.primary }]}>
+            {item.name}
+          </Text>
+          <Text style={[styles.agentVendor, { color: theme.colors.text.secondary }]}>
+            {vendor}
+          </Text>
+          <Text style={[styles.agentModel, { color: theme.colors.text.secondary }]}>
             {getModelsByVendor(vendor).find(m => m.id === item.model)?.name || item.model}
           </Text>
           {item.instructions && (
-            <Text style={styles.agentInstructions} numberOfLines={2}>
+            <Text style={[styles.agentInstructions, { color: theme.colors.text.secondary }]} numberOfLines={2}>
               {item.instructions}
             </Text>
           )}
@@ -149,16 +154,16 @@ export default function ManageAgentsScreen() {
         </View>
         <View style={styles.actionsContainer}>
           <Pressable
-            style={styles.actionButton}
+            style={[styles.actionButton, { backgroundColor: theme.colors.surface }]}
             onPress={() => handleEditAgent(item)}
           >
-            <Edit2 size={20} color="#6B7280" />
+            <Edit2 size={20} color={theme.colors.text.secondary} />
           </Pressable>
           <Pressable
             style={[styles.actionButton, styles.deleteButton]}
             onPress={() => handleDelete(item.id, item.name)}
           >
-            <Trash2 size={20} color="#F43F5E" />
+            <Trash2 size={20} color={theme.colors.error} />
           </Pressable>
         </View>
       </Animated.View>
@@ -171,17 +176,17 @@ export default function ManageAgentsScreen() {
         options={{
           headerShown: true,
           headerTitle: isEditing ? (editingAgent ? 'Edit Agent' : 'New Agent') : 'Manage Agents',
-          headerTitleStyle: styles.headerTitle,
+          headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
           headerLeft: () => (
             <Pressable onPress={handleBack} style={styles.backButton}>
-              <ArrowLeft size={24} color="#1F2937" />
+              <ArrowLeft size={24} color={theme.colors.text.primary} />
             </Pressable>
           ),
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#FFFFFF' },
+          headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         {!isEditing ? (
           <>
             <FlatList
@@ -190,7 +195,10 @@ export default function ManageAgentsScreen() {
               renderItem={renderItem}
               contentContainerStyle={styles.listContent}
             />
-            <Pressable style={styles.fab} onPress={handleAddAgent}>
+            <Pressable 
+              style={[styles.fab, { backgroundColor: theme.colors.primary }]} 
+              onPress={handleAddAgent}
+            >
               <Plus size={24} color="#FFFFFF" />
             </Pressable>
           </>
@@ -208,31 +216,41 @@ export default function ManageAgentsScreen() {
                 style={styles.formContainer}
               >
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>
+                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>
                     <Text>Name </Text>
                     <Text style={styles.required}>*</Text>
                   </Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { 
+                      backgroundColor: theme.colors.surface,
+                      borderColor: theme.colors.border,
+                      color: theme.colors.text.primary
+                    }]}
                     value={name}
                     onChangeText={setName}
                     placeholder="Enter agent name"
+                    placeholderTextColor={theme.colors.text.secondary}
                   />
                 </View>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Instructions</Text>
+                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>Instructions</Text>
                   <TextInput
-                    style={[styles.input, styles.textArea]}
+                    style={[styles.input, styles.textArea, {
+                      backgroundColor: theme.colors.surface,
+                      borderColor: theme.colors.border,
+                      color: theme.colors.text.primary
+                    }]}
                     value={instructions}
                     onChangeText={setInstructions}
                     placeholder="Enter agent instructions (optional)"
+                    placeholderTextColor={theme.colors.text.secondary}
                     multiline
                     numberOfLines={4}
                   />
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>
+                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>
                     <Text>API Key </Text>
                     <Text style={styles.required}>*</Text>
                   </Text>
@@ -242,18 +260,26 @@ export default function ManageAgentsScreen() {
                         key={key.id}
                         style={[
                           styles.apiKeyChip,
-                          selectedApiKeyId === key.id && styles.apiKeyChipSelected,
+                          {
+                            backgroundColor: selectedApiKeyId === key.id 
+                              ? theme.colors.primary + '20'
+                              : theme.colors.surface
+                          }
                         ]}
                         onPress={() => {
                           setSelectedApiKeyId(key.id);
-                          setSelectedModel(''); // Reset model when API key changes
+                          setSelectedModel('');
                         }}
                       >
-                        <Key size={16} color={selectedApiKeyId === key.id ? '#1D4ED8' : '#4B5563'} />
+                        <Key size={16} color={selectedApiKeyId === key.id ? theme.colors.primary : theme.colors.text.secondary} />
                         <Text
                           style={[
                             styles.apiKeyChipText,
-                            selectedApiKeyId === key.id && styles.apiKeyChipTextSelected,
+                            {
+                              color: selectedApiKeyId === key.id 
+                                ? theme.colors.primary
+                                : theme.colors.text.secondary
+                            }
                           ]}
                         >
                           {key.vendor} - {key.name}
@@ -265,7 +291,7 @@ export default function ManageAgentsScreen() {
 
                 {selectedApiKeyId && (
                   <View style={styles.inputGroup}>
-                    <Text style={styles.label}>
+                    <Text style={[styles.label, { color: theme.colors.text.primary }]}>
                       <Text>Model </Text>
                       <Text style={styles.required}>*</Text>
                     </Text>
@@ -275,19 +301,34 @@ export default function ManageAgentsScreen() {
                           key={model.id}
                           style={[
                             styles.modelCard,
-                            selectedModel === model.id && styles.modelCardSelected,
+                            {
+                              backgroundColor: selectedModel === model.id
+                                ? theme.colors.primary + '10'
+                                : theme.colors.surface,
+                              borderColor: selectedModel === model.id
+                                ? theme.colors.primary
+                                : theme.colors.border
+                            }
                           ]}
                           onPress={() => setSelectedModel(model.id)}
                         >
                           <Text style={[
                             styles.modelName,
-                            selectedModel === model.id && styles.modelNameSelected
+                            {
+                              color: selectedModel === model.id
+                                ? theme.colors.primary
+                                : theme.colors.text.primary
+                            }
                           ]}>
                             {model.name}
                           </Text>
                           <Text style={[
                             styles.modelDescription,
-                            selectedModel === model.id && styles.modelDescriptionSelected
+                            {
+                              color: selectedModel === model.id
+                                ? theme.colors.primary
+                                : theme.colors.text.secondary
+                            }
                           ]}>
                             {model.description}
                           </Text>
@@ -298,35 +339,53 @@ export default function ManageAgentsScreen() {
                 )}
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Color</Text>
+                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>Color</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, {
+                      backgroundColor: theme.colors.surface,
+                      borderColor: theme.colors.border,
+                      color: theme.colors.text.primary
+                    }]}
                     value={color}
                     onChangeText={setColor}
                     placeholder="#3B82F6"
+                    placeholderTextColor={theme.colors.text.secondary}
                   />
                 </View>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Tags (comma-separated)</Text>
+                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>Tags (comma-separated)</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, {
+                      backgroundColor: theme.colors.surface,
+                      borderColor: theme.colors.border,
+                      color: theme.colors.text.primary
+                    }]}
                     value={tags}
                     onChangeText={setTags}
                     placeholder="General, Helpful, Assistant"
+                    placeholderTextColor={theme.colors.text.secondary}
                   />
                 </View>
                 <View style={styles.buttonGroup}>
                   <Pressable
-                    style={[styles.button, styles.cancelButton]}
+                    style={[styles.button, styles.cancelButton, {
+                      backgroundColor: theme.colors.surface
+                    }]}
                     onPress={() => setIsEditing(false)}
                   >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                    <Text style={[styles.cancelButtonText, {
+                      color: theme.colors.text.primary
+                    }]}>Cancel</Text>
                   </Pressable>
                   <Pressable
                     style={[
                       styles.button,
                       styles.saveButton,
-                      (!name || !selectedModel || !selectedApiKeyId) && styles.saveButtonDisabled,
+                      {
+                        backgroundColor: (!name || !selectedModel || !selectedApiKeyId)
+                          ? theme.colors.primary + '50'
+                          : theme.colors.primary
+                      }
                     ]}
                     onPress={handleSave}
                     disabled={!name || !selectedModel || !selectedApiKeyId}

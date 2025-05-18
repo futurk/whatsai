@@ -3,21 +3,19 @@ import { View, Text, StyleSheet, TextInput, Pressable, FlatList } from 'react-na
 import { Stack, useRouter } from 'expo-router';
 import { ArrowLeft, Key, Plus, Trash2 } from 'lucide-react-native';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
+import { useTheme } from '@/context/ThemeContext';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
 
 export default function ApiKeysScreen() {
   const router = useRouter();
   const { apiKeys, addApiKey, deleteApiKey, getSupportedVendors } = useApiKeyContext();
+  const { theme } = useTheme();
   const [selectedVendor, setSelectedVendor] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [keyName, setKeyName] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [deleteConfirmation, setDeleteConfirmation] = useState<{
-    visible: boolean;
-    id: string;
-    name: string;
-  }>({
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
     visible: false,
     id: '',
     name: '',
@@ -72,23 +70,30 @@ export default function ApiKeysScreen() {
   const renderItem = ({ item, index }) => (
     <Animated.View
       entering={FadeInUp.delay(index * 100).springify()}
-      style={styles.keyItem}
+      style={[styles.keyItem, {
+        backgroundColor: theme.colors.card,
+        borderColor: theme.colors.border,
+      }]}
     >
-      <View style={styles.keyIcon}>
-        <Key size={20} color="#3B82F6" />
+      <View style={[styles.keyIcon, { backgroundColor: theme.colors.primary + '20' }]}>
+        <Key size={20} color={theme.colors.primary} />
       </View>
       <View style={styles.keyContent}>
-        <Text style={styles.vendorName}>{item.vendor}</Text>
-        <Text style={styles.keyName}>{item.name}</Text>
-        <Text style={styles.keyPreview}>
+        <Text style={[styles.vendorName, { color: theme.colors.text.primary }]}>
+          {item.vendor}
+        </Text>
+        <Text style={[styles.keyName, { color: theme.colors.text.secondary }]}>
+          {item.name}
+        </Text>
+        <Text style={[styles.keyPreview, { color: theme.colors.text.secondary }]}>
           {item.key.substring(0, 3)}...{item.key.substring(item.key.length - 4)}
         </Text>
       </View>
       <Pressable
-        style={styles.deleteButton}
+        style={[styles.deleteButton, { backgroundColor: theme.colors.error + '20' }]}
         onPress={() => handleDelete(item.id, item.name)}
       >
-        <Trash2 size={20} color="#F43F5E" />
+        <Trash2 size={20} color={theme.colors.error} />
       </Pressable>
     </Animated.View>
   );
@@ -99,17 +104,17 @@ export default function ApiKeysScreen() {
         options={{
           headerShown: true,
           headerTitle: 'My API Keys',
-          headerTitleStyle: styles.headerTitle,
+          headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
           headerLeft: () => (
             <Pressable onPress={handleBack} style={styles.backButton}>
-              <ArrowLeft size={24} color="#1F2937" />
+              <ArrowLeft size={24} color={theme.colors.text.primary} />
             </Pressable>
           ),
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: '#FFFFFF' },
+          headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         {!isAdding ? (
           <>
             <FlatList
@@ -119,15 +124,20 @@ export default function ApiKeysScreen() {
               contentContainerStyle={styles.listContent}
               ListEmptyComponent={
                 <View style={styles.emptyState}>
-                  <Key size={48} color="#3B82F6" />
-                  <Text style={styles.emptyTitle}>No API Keys</Text>
-                  <Text style={styles.emptyMessage}>
+                  <Key size={48} color={theme.colors.primary} />
+                  <Text style={[styles.emptyTitle, { color: theme.colors.text.primary }]}>
+                    No API Keys
+                  </Text>
+                  <Text style={[styles.emptyMessage, { color: theme.colors.text.secondary }]}>
                     Add your API keys to use with different AI models
                   </Text>
                 </View>
               }
             />
-            <Pressable style={styles.fab} onPress={() => setIsAdding(true)}>
+            <Pressable 
+              style={[styles.fab, { backgroundColor: theme.colors.primary }]} 
+              onPress={() => setIsAdding(true)}
+            >
               <Plus size={24} color="#FFFFFF" />
             </Pressable>
           </>
@@ -137,7 +147,7 @@ export default function ApiKeysScreen() {
             style={styles.formContainer}
           >
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>
+              <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
                 <Text>Select Vendor </Text>
                 <Text style={styles.required}>*</Text>
               </Text>
@@ -147,14 +157,16 @@ export default function ApiKeysScreen() {
                     key={vendor}
                     style={[
                       styles.vendorChip,
-                      selectedVendor === vendor && styles.vendorChipSelected,
+                      { backgroundColor: theme.colors.card },
+                      selectedVendor === vendor && { backgroundColor: theme.colors.primary + '20' },
                     ]}
                     onPress={() => setSelectedVendor(vendor)}
                   >
                     <Text
                       style={[
                         styles.vendorChipText,
-                        selectedVendor === vendor && styles.vendorChipTextSelected,
+                        { color: theme.colors.text.secondary },
+                        selectedVendor === vendor && { color: theme.colors.primary, fontWeight: '500' },
                       ]}
                     >
                       {vendor}
@@ -165,44 +177,57 @@ export default function ApiKeysScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>
+              <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
                 <Text>Key Name </Text>
                 <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { 
+                  backgroundColor: theme.colors.card,
+                  borderColor: theme.colors.border,
+                  color: theme.colors.text.primary
+                }]}
                 value={keyName}
                 onChangeText={setKeyName}
                 placeholder="Enter a name for this key"
+                placeholderTextColor={theme.colors.text.secondary}
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>
+              <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
                 <Text>API Key </Text>
                 <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { 
+                  backgroundColor: theme.colors.card,
+                  borderColor: theme.colors.border,
+                  color: theme.colors.text.primary
+                }]}
                 value={apiKey}
                 onChangeText={setApiKey}
                 placeholder="Enter your API key"
+                placeholderTextColor={theme.colors.text.secondary}
                 secureTextEntry
               />
             </View>
 
             <View style={styles.buttonGroup}>
               <Pressable
-                style={[styles.button, styles.cancelButton]}
+                style={[styles.button, styles.cancelButton, { backgroundColor: theme.colors.card }]}
                 onPress={() => setIsAdding(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={[styles.cancelButtonText, { color: theme.colors.text.secondary }]}>
+                  Cancel
+                </Text>
               </Pressable>
               <Pressable
                 style={[
                   styles.button,
                   styles.saveButton,
-                  (!selectedVendor || !apiKey || !keyName) && styles.saveButtonDisabled,
+                  { backgroundColor: theme.colors.primary },
+                  (!selectedVendor || !apiKey || !keyName) && { opacity: 0.5 },
                 ]}
                 onPress={handleSave}
                 disabled={!selectedVendor || !apiKey || !keyName}
