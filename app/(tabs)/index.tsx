@@ -4,12 +4,14 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { MessageSquare, Plus } from 'lucide-react-native';
 import { useChatContext } from '@/context/ChatContext';
 import { useAgentContext } from '@/context/AgentContext';
+import { useTheme } from '@/context/ThemeContext';
 import EmptyState from '@/components/EmptyState';
 
 export default function ChatsScreen() {
   const router = useRouter();
   const { conversations } = useChatContext();
   const { getAgentById } = useAgentContext();
+  const { theme } = useTheme();
 
   const navigateToChat = (id: string) => {
     router.push(`/chat/${id}`);
@@ -21,7 +23,6 @@ export default function ChatsScreen() {
 
   const renderItem = ({ item, index }) => {
     const agent = getAgentById(item.agentId);
-    // Skip rendering if agent is not found
     if (!agent) {
       return null;
     }
@@ -35,7 +36,7 @@ export default function ChatsScreen() {
         style={styles.animatedContainer}
       >
         <Pressable 
-          style={styles.chatItem} 
+          style={[styles.chatItem, { backgroundColor: theme.colors.card }]} 
           onPress={() => navigateToChat(item.id)}
         >
           <View style={[styles.avatarContainer, { backgroundColor: agent.color + '20' }]}>
@@ -44,10 +45,14 @@ export default function ChatsScreen() {
             </Text>
           </View>
           <View style={styles.chatContent}>
-            <Text style={styles.chatName}>{agent.name}</Text>
-            <Text style={styles.chatPreview}>{messagePreview}</Text>
+            <Text style={[styles.chatName, { color: theme.colors.text.primary }]}>
+              {agent.name}
+            </Text>
+            <Text style={[styles.chatPreview, { color: theme.colors.text.secondary }]}>
+              {messagePreview}
+            </Text>
           </View>
-          <Text style={styles.timestamp}>
+          <Text style={[styles.timestamp, { color: theme.colors.text.secondary }]}>
             {new Date(item.updatedAt).toLocaleDateString()}
           </Text>
         </Pressable>
@@ -57,7 +62,7 @@ export default function ChatsScreen() {
 
   const renderEmptyState = () => (
     <EmptyState
-      icon={<MessageSquare size={48} color="#3B82F6" />}
+      icon={<MessageSquare size={48} color={theme.colors.primary} />}
       title="No conversations yet"
       message="Start chatting with an AI agent to see your conversations here."
       actionLabel="Find an agent"
@@ -66,7 +71,7 @@ export default function ChatsScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <FlatList
         data={conversations}
         keyExtractor={(item) => item.id}
@@ -87,7 +92,6 @@ export default function ChatsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   listContent: {
     paddingVertical: 12,
@@ -101,7 +105,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#FFFFFF',
   },
   avatarContainer: {
     width: 50,
@@ -121,16 +124,13 @@ const styles = StyleSheet.create({
   chatName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
     marginBottom: 4,
   },
   chatPreview: {
     fontSize: 14,
-    color: '#6B7280',
   },
   timestamp: {
     fontSize: 12,
-    color: '#9CA3AF',
     marginLeft: 8,
   },
   fab: {

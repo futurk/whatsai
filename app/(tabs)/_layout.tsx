@@ -1,9 +1,11 @@
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Chrome as Home, Settings } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const { theme } = useTheme();
   
   return (
     <Tabs
@@ -11,14 +13,14 @@ export default function TabLayout() {
         tabBarStyle: {
           paddingBottom: insets.bottom,
           height: 60 + insets.bottom,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: theme.colors.tabBar,
           borderTopWidth: 0.5,
-          borderTopColor: 'rgba(0, 0, 0, 0.1)',
+          borderTopColor: theme.colors.border,
           elevation: 0,
           shadowOpacity: 0,
         },
-        tabBarActiveTintColor: '#3B82F6',
-        tabBarInactiveTintColor: '#94A3B8',
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.text.secondary,
         tabBarLabelStyle: {
           fontSize: 12,
           marginBottom: 8,
@@ -28,9 +30,10 @@ export default function TabLayout() {
         },
         headerShadowVisible: false,
         headerStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: theme.colors.background,
         },
         headerTitleStyle: {
+          color: theme.colors.text.primary,
           fontWeight: '600',
           fontSize: 17,
         },
