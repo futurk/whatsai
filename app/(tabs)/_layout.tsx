@@ -11,6 +11,10 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarStyle: {
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
           paddingBottom: insets.bottom,
           height: 60 + insets.bottom,
           backgroundColor: theme.colors.tabBar,
