@@ -12,6 +12,7 @@ export default function ChatsScreen() {
   const { conversations } = useChatContext();
   const { getAgentById } = useAgentContext();
   const { theme } = useTheme();
+  const { defaultAgentId } = useAgentContext();
 
   const navigateToChat = (id: string) => {
     router.push(`/chat/${id}`);
