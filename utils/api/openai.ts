@@ -18,6 +18,7 @@ export class OpenAIClient {
       throw new Error('Model must be specified');
     }
 
+    try {
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
@@ -45,5 +46,12 @@ export class OpenAIClient {
       }
 
       return data.choices[0].message.content;
+    } catch (error) {
+      console.error('OpenAI API error:', error);
+      if (error instanceof Error) {
+        throw new Error(`Failed to get response from OpenAI: ${error.message}`);
+      }
+      throw new Error('Failed to get response from OpenAI');
+    }
   }
 }
