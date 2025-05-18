@@ -36,46 +36,22 @@ export class OpenAIClient {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         const errorMessage = errorData.error?.message || `HTTP error ${response.status}`;
-        
-        // Categorize common OpenAI API errors
-        if (errorMessage.includes('Incorrect API key provided')) {
-          throw new Error('INVALID_API_KEY');
-        } else if (errorMessage.includes('Rate limit reached')) {
-          throw new Error('RATE_LIMIT_EXCEEDED');
-        } else if (errorMessage.includes('You exceeded your current quota')) {
-          throw new Error('QUOTA_EXCEEDED');
-        } else if (errorMessage.includes('The model') && errorMessage.includes('does not exist')) {
-          throw new Error('MODEL_NOT_FOUND');
-        } else if (response.status === 503) {
-          throw new Error('SERVICE_UNAVAILABLE');
-        } else {
-          throw new Error(`API_ERROR: ${errorMessage}`);
-        }
+        throw new Error(`OpenAI API error: ${errorMessage}`);
       }
 
       const data = await response.json();
       
       if (!data.choices?.[0]?.message?.content) {
-        throw new Error('INVALID_RESPONSE');
+        throw new Error('Invalid response format from OpenAI');
       }
 
       return data.choices[0].message.content;
     } catch (error) {
       console.error('OpenAI API error:', error);
       if (error instanceof Error) {
-        // Pass through our categorized errors
-        if (error.message.startsWith('INVALID_API_KEY') ||
-            error.message.startsWith('RATE_LIMIT_EXCEEDED') ||
-            error.message.startsWith('QUOTA_EXCEEDED') ||
-            error.message.startsWith('MODEL_NOT_FOUND') ||
-            error.message.startsWith('SERVICE_UNAVAILABLE') ||
-            error.message.startsWith('INVALID_RESPONSE') ||
-            error.message.startsWith('API_ERROR')) {
-          throw error;
-        }
-        throw new Error(`NETWORK_ERROR: ${error.message}`);
+        throw new Error(`Failed to get response from OpenAI: ${error.message}`);
       }
-      throw new Error('UNKNOWN_ERROR');
+      throw new Error('Failed to get response from OpenAI');
     }
   }
 }

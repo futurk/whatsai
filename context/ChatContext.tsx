@@ -17,31 +17,6 @@ interface ChatContextType {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-const getErrorMessage = (error: Error): string => {
-  const errorType = error.message.split(':')[0];
-  
-  switch (errorType) {
-    case 'INVALID_API_KEY':
-      return 'Invalid API key. Please check your API key in settings and ensure it is correct.';
-    case 'RATE_LIMIT_EXCEEDED':
-      return 'Rate limit exceeded. Please wait a moment before sending another message.';
-    case 'QUOTA_EXCEEDED':
-      return 'API quota exceeded. Please check your OpenAI account billing status.';
-    case 'MODEL_NOT_FOUND':
-      return 'The selected AI model is not available. Please choose a different model in settings.';
-    case 'SERVICE_UNAVAILABLE':
-      return 'OpenAI service is temporarily unavailable. Please try again later.';
-    case 'INVALID_RESPONSE':
-      return 'Received an invalid response from OpenAI. Please try again.';
-    case 'NETWORK_ERROR':
-      return 'Network error occurred. Please check your internet connection and try again.';
-    case 'API_ERROR':
-      return `OpenAI API error: ${error.message.split(':')[1]?.trim() || 'Unknown error occurred'}`;
-    default:
-      return 'An unexpected error occurred. Please try again later.';
-  }
-};
-
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isTyping, setIsTyping] = useState(false);
@@ -73,6 +48,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     
     setConversations(prev => [newConversation, ...prev]);
     
+    // Initialize chat manager for this conversation
     if (!chatManagers.has(agentId)) {
       chatManagers.set(
         agentId,
@@ -94,6 +70,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
   const deleteConversations = useCallback((ids: string[]) => {
     setConversations(prev => prev.filter(conv => !ids.includes(conv.id)));
+    // Clean up debug logs for deleted conversations
     setDebugLogs(prev => {
       const newLogs = { ...prev };
       ids.forEach(id => delete newLogs[id]);
@@ -107,6 +84,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       throw new Error('Conversation not found');
     }
 
+    // Add user message
     setConversations(prev =>
       prev.map(conv =>
         conv.id === conversationId
@@ -119,6 +97,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       )
     );
 
+    // If it's a user message, get assistant response
     if (message.sender === 'user') {
       setIsTyping(true);
       try {
@@ -181,10 +160,10 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         );
       } catch (error) {
         console.error('Failed to get agent response:', error);
-        
+        // Add error message to conversation
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
-          text: error instanceof Error ? getErrorMessage(error) : 'An unexpected error occurred. Please try again later.',
+          text: 'Sorry, I encountered an error while processing your message. Please try again.',
           sender: 'assistant',
           timestamp: new Date().toISOString()
         };
