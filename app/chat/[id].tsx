@@ -98,7 +98,7 @@ export default function ChatScreen() {
           headerTitle: agent.name,
           headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
           headerLeft: () => (
-            <Pressable onPress={() => router.back()} style={styles.backButton}>
+            <Pressable onPress={() => router.replace('/')} style={styles.backButton}>
               <ArrowLeft size={24} color={theme.colors.text.primary} />
             </Pressable>
           ),
