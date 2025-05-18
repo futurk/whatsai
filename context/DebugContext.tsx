@@ -8,7 +8,7 @@ interface DebugContextType {
 const DebugContext = createContext<DebugContextType | undefined>(undefined);
 
 export const DebugProvider = ({ children }: { children: ReactNode }) => {
-  const [isDebugMode, setIsDebugMode] = useState(true);
+  const [isDebugMode, setIsDebugMode] = useState(true); // development
 
   const toggleDebugMode = () => {
     setIsDebugMode(prev => !prev);
