@@ -9,13 +9,12 @@ import { useTheme } from '@/context/ThemeContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { agents } = useAgentContext();
+  const { agents, defaultAgentId, setDefaultAgent } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
   const { isDebugMode, toggleDebugMode } = useDebugContext();
   const { isDark, toggleTheme, theme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
-  const { agents, defaultAgentId, setDefaultAgent } = useAgentContext();
 
   const renderSettingItem = ({ 
     icon, 
