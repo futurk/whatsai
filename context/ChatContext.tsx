@@ -17,7 +17,7 @@ interface ChatContextType {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-export const ChatProvider = ({ children }: { children: ReactNode }) => {
+export function ChatProvider({ children }: { children: ReactNode }) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [debugLogs, setDebugLogs] = useState<Record<string, LogEntry[]>>({});
@@ -36,9 +36,11 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       throw new Error('Agent not found');
     }
 
+    const id = Date.now().toString();
     const now = new Date().toISOString();
+    
     const newConversation: Conversation = {
-      id: Date.now().toString(),
+      id,
       agentId,
       title: 'New Conversation',
       messages: [],
@@ -48,7 +50,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     
     setConversations(prev => [newConversation, ...prev]);
     
-    // Initialize chat manager for this conversation
     if (!chatManagers.has(agentId)) {
       chatManagers.set(
         agentId,
@@ -58,19 +59,18 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           isDebugMode ? (log) => {
             setDebugLogs(prev => ({
               ...prev,
-              [newConversation.id]: [...(prev[newConversation.id] || []), log],
+              [id]: [...(prev[id] || []), log],
             }));
           } : undefined
         )
       );
     }
     
-    return newConversation.id;
+    return id;
   }, [getAgentById, apiKeys, isDebugMode]);
 
   const deleteConversations = useCallback((ids: string[]) => {
     setConversations(prev => prev.filter(conv => !ids.includes(conv.id)));
-    // Clean up debug logs for deleted conversations
     setDebugLogs(prev => {
       const newLogs = { ...prev };
       ids.forEach(id => delete newLogs[id]);
@@ -84,7 +84,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       throw new Error('Conversation not found');
     }
 
-    // Add user message
     setConversations(prev =>
       prev.map(conv =>
         conv.id === conversationId
@@ -97,7 +96,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       )
     );
 
-    // If it's a user message, get assistant response
     if (message.sender === 'user') {
       setIsTyping(true);
       try {
@@ -121,24 +119,22 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           chatManagers.set(agent.id, chatManager);
         }
 
-        const messages = conversation.messages.map(msg => ({
-          role: msg.sender as 'user' | 'assistant',
-          content: msg.text
-        }));
-
-        if (agent.instructions) {
-          messages.unshift({
-            role: 'system',
+        const messages = [
+          ...(agent.instructions ? [{
+            role: 'system' as const,
             content: agent.instructions
-          });
-        }
+          }] : []),
+          ...conversation.messages.map(msg => ({
+            role: msg.sender as 'user' | 'assistant',
+            content: msg.text
+          })),
+          {
+            role: 'user' as const,
+            content: message.text
+          }
+        ];
 
-        messages.push({
-          role: 'user',
-          content: message.text
-        });
-
-        const response = await chatManager.sendMessage(agent.id, messages);
+        const response = await chatManager.sendMessage(messages);
 
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -159,8 +155,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
           )
         );
       } catch (error) {
-        console.error('Failed to get agent response:', error);
-        // Add error message to conversation
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
           text: 'Sorry, I encountered an error while processing your message. Please try again.',
@@ -200,12 +194,12 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </ChatContext.Provider>
   );
-};
+}
 
-export const useChatContext = () => {
+export function useChatContext() {
   const context = useContext(ChatContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useChatContext must be used within a ChatProvider');
   }
   return context;
-};
+}

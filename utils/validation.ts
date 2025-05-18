@@ -1,13 +1,19 @@
 export const validateApiKey = (key: string): boolean => {
-  // Add your API key validation logic here
-  return key.length > 0;
+  return Boolean(key && key.trim().length > 0);
 };
 
 export const validateRequired = (value: string): boolean => {
-  return value.trim().length > 0;
+  return Boolean(value && value.trim().length > 0);
 };
 
 export const validateColor = (color: string): boolean => {
-  const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-  return hexColorRegex.test(color);
+  return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color);
+};
+
+export const validateEmail = (email: string): boolean => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+export const validatePassword = (password: string): boolean => {
+  return password.length >= 8;
 };
