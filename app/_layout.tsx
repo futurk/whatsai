@@ -21,9 +21,39 @@ export default function RootLayout() {
             <ApiKeyProvider>
               <AgentProvider>
                 <ChatProvider>
-                  <Stack screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="chat/[id]" options={{ presentation: 'card' }} />
+                  <Stack screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: 'transparent' },
+                  }}>
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen 
+                      name="chat/[id]" 
+                      options={{ 
+                        presentation: 'card',
+                        animation: 'slide_from_right',
+                      }} 
+                    />
+                    <Stack.Screen 
+                      name="agents" 
+                      options={{ 
+                        presentation: 'card',
+                        animation: 'slide_from_right',
+                      }} 
+                    />
+                    <Stack.Screen 
+                      name="manage-agents" 
+                      options={{ 
+                        presentation: 'card',
+                        animation: 'slide_from_right',
+                      }} 
+                    />
+                    <Stack.Screen 
+                      name="api-keys" 
+                      options={{ 
+                        presentation: 'card',
+                        animation: 'slide_from_right',
+                      }} 
+                    />
                     <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
                   </Stack>
                   <StatusBar style="auto" />

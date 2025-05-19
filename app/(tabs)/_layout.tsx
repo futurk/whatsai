@@ -32,15 +32,20 @@ export default function TabLayout() {
         tabBarIconStyle: {
           marginTop: 8,
         },
-        headerShadowVisible: false,
         headerStyle: {
           backgroundColor: theme.colors.background,
+          height: 44 + insets.top,
+          borderBottomWidth: 0,
+          shadowOpacity: 0,
+          elevation: 0,
         },
         headerTitleStyle: {
           color: theme.colors.text.primary,
           fontWeight: '600',
           fontSize: 17,
         },
+        headerTopInsetEnabled: true,
+        headerSafeAreaInsets: { top: insets.top },
       }}
     >
       <Tabs.Screen
