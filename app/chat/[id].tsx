@@ -103,7 +103,10 @@ export default function ChatScreen() {
             </Pressable>
           ),
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: theme.colors.background },
+          headerStyle: { 
+            backgroundColor: theme.colors.background,
+          },
+          headerStatusBarHeight: insets.top,
         }}
       />
       
