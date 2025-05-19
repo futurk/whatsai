@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
-import { Conversation, Message, MessageStatus } from '@/types/chat';
+import { Conversation, Message } from '@/types/chat';
 import { useAgentContext } from './AgentContext';
 import { useApiKeyContext } from './ApiKeyContext';
 import { ChatManager, LogEntry } from '@/utils/chatManager';
@@ -78,48 +78,25 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const updateMessageStatus = useCallback((
-    conversationId: string, 
-    messageId: string, 
-    status: MessageStatus
-  ) => {
-    setConversations(prev =>
-      prev.map(conv =>
-        conv.id === conversationId
-          ? {
-              ...conv,
-              messages: conv.messages.map(msg =>
-                msg.id === messageId
-                  ? { ...msg, status }
-                  : msg
-              )
-            }
-          : conv
-      )
-    );
-  }, []);
-
   const addMessageToConversation = useCallback(async (conversationId: string, message: Message) => {
     const conversation = getConversationById(conversationId);
     if (!conversation) {
       throw new Error('Conversation not found');
     }
 
-    if (message.sender === 'user') {
-      // Add user message with pending status
-      const userMessage = { ...message, status: 'pending' as MessageStatus };
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === conversationId
-            ? {
-                ...conv,
-                messages: [...conv.messages, userMessage],
-                updatedAt: new Date().toISOString()
-              }
-            : conv
-        )
-      );
+    setConversations(prev =>
+      prev.map(conv =>
+        conv.id === conversationId
+          ? {
+              ...conv,
+              messages: [...conv.messages, message],
+              updatedAt: new Date().toISOString()
+            }
+          : conv
+      )
+    );
 
+    if (message.sender === 'user') {
       setIsTyping(true);
       try {
         const agent = getAgentById(conversation.agentId);
@@ -142,18 +119,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           chatManagers.set(agent.id, chatManager);
         }
 
-        // Filter out error messages and failed user messages
-        const validMessages = conversation.messages.filter(msg => 
-          !(msg.sender === 'system' && msg.type === 'error') &&
-          !(msg.sender === 'user' && msg.status === 'failed')
-        );
-
         const messages = [
           ...(agent.instructions ? [{
             role: 'system' as const,
             content: agent.instructions
           }] : []),
-          ...validMessages.map(msg => ({
+          ...conversation.messages.map(msg => ({
             role: msg.sender as 'user' | 'assistant',
             content: msg.text
           })),
@@ -164,9 +135,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         ];
 
         const response = await chatManager.sendMessage(messages);
-
-        // Update user message status to completed
-        updateMessageStatus(conversationId, message.id, 'completed');
 
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -187,14 +155,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           )
         );
       } catch (error) {
-        // Update user message status to failed
-        updateMessageStatus(conversationId, message.id, 'failed');
-
         const errorMessage: Message = {
           id: (Date.now() + 1).toString(),
           text: 'Sorry, I encountered an error while processing your message. Please try again.',
-          sender: 'system',
-          type: 'error',
+          sender: 'assistant',
           timestamp: new Date().toISOString()
         };
 
@@ -212,21 +176,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       } finally {
         setIsTyping(false);
       }
-    } else {
-      // For non-user messages (system, assistant), add directly
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === conversationId
-            ? {
-                ...conv,
-                messages: [...conv.messages, message],
-                updatedAt: new Date().toISOString()
-              }
-            : conv
-        )
-      );
     }
-  }, [getConversationById, getAgentById, apiKeys, isDebugMode, updateMessageStatus]);
+  }, [getConversationById, getAgentById, apiKeys, isDebugMode]);
 
   return (
     <ChatContext.Provider

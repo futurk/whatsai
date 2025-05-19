@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ArrowLeft, Users } from 'lucide-react-native';
 import { useAgentContext } from '@/context/AgentContext';
@@ -10,7 +9,6 @@ import EmptyState from '@/components/EmptyState';
 
 export default function AgentsScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { agents } = useAgentContext();
   const { startNewConversation } = useChatContext();
   const { theme } = useTheme();
@@ -91,11 +89,7 @@ export default function AgentsScreen() {
             </Pressable>
           ),
           headerShadowVisible: false,
-          headerStyle: { 
-            backgroundColor: theme.colors.background,
-            height: 64 + insets.top,
-            paddingTop: insets.top,
-          },
+          headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
