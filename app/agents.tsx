@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ArrowLeft, Users } from 'lucide-react-native';
 import { useAgentContext } from '@/context/AgentContext';
@@ -77,7 +78,7 @@ export default function AgentsScreen() {
   );
 
   return (
-    <>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -92,7 +93,7 @@ export default function AgentsScreen() {
           headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={[styles.content, { backgroundColor: theme.colors.background }]}>
         <FlatList
           data={agents}
           keyExtractor={(item) => item.id}
@@ -101,12 +102,15 @@ export default function AgentsScreen() {
           ListEmptyComponent={renderEmptyState}
         />
       </View>
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  content: {
     flex: 1,
   },
   headerTitle: {
