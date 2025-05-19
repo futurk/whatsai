@@ -21,40 +21,32 @@ export default function RootLayout() {
             <ApiKeyProvider>
               <AgentProvider>
                 <ChatProvider>
-                  <Stack screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: 'transparent' },
-                  }}>
+                  <Stack 
+                    screenOptions={{
+                      headerShown: false,
+                      contentStyle: { backgroundColor: 'transparent' },
+                      animation: 'slide_from_right',
+                      presentation: 'card',
+                      headerStyle: {
+                        borderBottomWidth: 0,
+                        elevation: 0,
+                        shadowOpacity: 0,
+                      },
+                    }}
+                  >
                     <Stack.Screen name="(tabs)" />
+                    <Stack.Screen name="chat/[id]" />
+                    <Stack.Screen name="agents" />
+                    <Stack.Screen name="manage-agents" />
+                    <Stack.Screen name="api-keys" />
                     <Stack.Screen 
-                      name="chat/[id]" 
+                      name="+not-found" 
                       options={{ 
-                        presentation: 'card',
-                        animation: 'slide_from_right',
+                        title: 'Oops!',
+                        presentation: 'modal',
+                        animation: 'fade',
                       }} 
                     />
-                    <Stack.Screen 
-                      name="agents" 
-                      options={{ 
-                        presentation: 'card',
-                        animation: 'slide_from_right',
-                      }} 
-                    />
-                    <Stack.Screen 
-                      name="manage-agents" 
-                      options={{ 
-                        presentation: 'card',
-                        animation: 'slide_from_right',
-                      }} 
-                    />
-                    <Stack.Screen 
-                      name="api-keys" 
-                      options={{ 
-                        presentation: 'card',
-                        animation: 'slide_from_right',
-                      }} 
-                    />
-                    <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
                   </Stack>
                   <StatusBar style="auto" />
                 </ChatProvider>
