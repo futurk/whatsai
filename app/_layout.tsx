@@ -23,18 +23,21 @@ export default function RootLayout() {
                 <ChatProvider>
                   <Stack 
                     screenOptions={{
-                      headerShown: false,
+                      headerShown: true,
                       contentStyle: { backgroundColor: 'transparent' },
                       animation: 'slide_from_right',
-                      presentation: 'card',
                       headerStyle: {
                         borderBottomWidth: 0,
-                        elevation: 0,
                         shadowOpacity: 0,
+                        elevation: 0,
                       },
+                      headerTopInsetEnabled: true,
                     }}
                   >
-                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen 
+                      name="(tabs)" 
+                      options={{ headerShown: false }} 
+                    />
                     <Stack.Screen name="chat/[id]" />
                     <Stack.Screen name="agents" />
                     <Stack.Screen name="manage-agents" />
