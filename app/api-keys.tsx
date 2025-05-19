@@ -13,10 +13,10 @@ export default function ApiKeysScreen() {
   const insets = useSafeAreaInsets();
   const { apiKeys, addApiKey, deleteApiKey, getSupportedVendors } = useApiKeyContext();
   const { theme } = useTheme();
+  const [isAdding, setIsAdding] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [keyName, setKeyName] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState({
     visible: false,
     id: '',
@@ -127,7 +127,10 @@ export default function ApiKeysScreen() {
               data={apiKeys}
               keyExtractor={(item) => item.id}
               renderItem={renderItem}
-              contentContainerStyle={styles.listContent}
+              contentContainerStyle={[
+                styles.listContent,
+                { paddingTop: insets.top + 64 }
+              ]}
               ListEmptyComponent={
                 <View style={styles.emptyState}>
                   <Key size={48} color={theme.colors.primary} />
@@ -148,100 +151,113 @@ export default function ApiKeysScreen() {
             </Pressable>
           </>
         ) : (
-          <Animated.View
-            entering={FadeInUp.springify()}
-            style={styles.formContainer}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.keyboardAvoidingView}
           >
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
-                <Text>Select Vendor </Text>
-                <Text style={styles.required}>*</Text>
-              </Text>
-              <View style={styles.vendorList}>
-                {getSupportedVendors().map((vendor) => (
+            <ScrollView
+              contentContainerStyle={[
+                styles.scrollContent,
+                { paddingTop: insets.top + 64 }
+              ]}
+              showsVerticalScrollIndicator={false}
+            >
+              <Animated.View
+                entering={FadeInUp.springify()}
+                style={styles.formContainer}
+              >
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
+                    <Text>Select Vendor </Text>
+                    <Text style={styles.required}>*</Text>
+                  </Text>
+                  <View style={styles.vendorList}>
+                    {getSupportedVendors().map((vendor) => (
+                      <Pressable
+                        key={vendor}
+                        style={[
+                          styles.vendorChip,
+                          { backgroundColor: theme.colors.card },
+                          selectedVendor === vendor && { backgroundColor: theme.colors.primary + '20' },
+                        ]}
+                        onPress={() => setSelectedVendor(vendor)}
+                      >
+                        <Text
+                          style={[
+                            styles.vendorChipText,
+                            { color: theme.colors.text.secondary },
+                            selectedVendor === vendor && { color: theme.colors.primary, fontWeight: '500' },
+                          ]}
+                        >
+                          {vendor}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
+                    <Text>Key Name </Text>
+                    <Text style={styles.required}>*</Text>
+                  </Text>
+                  <TextInput
+                    style={[styles.input, { 
+                      backgroundColor: theme.colors.card,
+                      borderColor: theme.colors.border,
+                      color: theme.colors.text.primary
+                    }]}
+                    value={keyName}
+                    onChangeText={setKeyName}
+                    placeholder="Enter a name for this key"
+                    placeholderTextColor={theme.colors.text.secondary}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
+                    <Text>API Key </Text>
+                    <Text style={styles.required}>*</Text>
+                  </Text>
+                  <TextInput
+                    style={[styles.input, { 
+                      backgroundColor: theme.colors.card,
+                      borderColor: theme.colors.border,
+                      color: theme.colors.text.primary
+                    }]}
+                    value={apiKey}
+                    onChangeText={setApiKey}
+                    placeholder="Enter your API key"
+                    placeholderTextColor={theme.colors.text.secondary}
+                    secureTextEntry
+                  />
+                </View>
+
+                <View style={styles.buttonGroup}>
                   <Pressable
-                    key={vendor}
-                    style={[
-                      styles.vendorChip,
-                      { backgroundColor: theme.colors.card },
-                      selectedVendor === vendor && { backgroundColor: theme.colors.primary + '20' },
-                    ]}
-                    onPress={() => setSelectedVendor(vendor)}
+                    style={[styles.button, styles.cancelButton, { backgroundColor: theme.colors.card }]}
+                    onPress={() => setIsAdding(false)}
                   >
-                    <Text
-                      style={[
-                        styles.vendorChipText,
-                        { color: theme.colors.text.secondary },
-                        selectedVendor === vendor && { color: theme.colors.primary, fontWeight: '500' },
-                      ]}
-                    >
-                      {vendor}
+                    <Text style={[styles.cancelButtonText, { color: theme.colors.text.secondary }]}>
+                      Cancel
                     </Text>
                   </Pressable>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
-                <Text>Key Name </Text>
-                <Text style={styles.required}>*</Text>
-              </Text>
-              <TextInput
-                style={[styles.input, { 
-                  backgroundColor: theme.colors.card,
-                  borderColor: theme.colors.border,
-                  color: theme.colors.text.primary
-                }]}
-                value={keyName}
-                onChangeText={setKeyName}
-                placeholder="Enter a name for this key"
-                placeholderTextColor={theme.colors.text.secondary}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
-                <Text>API Key </Text>
-                <Text style={styles.required}>*</Text>
-              </Text>
-              <TextInput
-                style={[styles.input, { 
-                  backgroundColor: theme.colors.card,
-                  borderColor: theme.colors.border,
-                  color: theme.colors.text.primary
-                }]}
-                value={apiKey}
-                onChangeText={setApiKey}
-                placeholder="Enter your API key"
-                placeholderTextColor={theme.colors.text.secondary}
-                secureTextEntry
-              />
-            </View>
-
-            <View style={styles.buttonGroup}>
-              <Pressable
-                style={[styles.button, styles.cancelButton, { backgroundColor: theme.colors.card }]}
-                onPress={() => setIsAdding(false)}
-              >
-                <Text style={[styles.cancelButtonText, { color: theme.colors.text.secondary }]}>
-                  Cancel
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[
-                  styles.button,
-                  styles.saveButton,
-                  { backgroundColor: theme.colors.primary },
-                  (!selectedVendor || !apiKey || !keyName) && { opacity: 0.5 },
-                ]}
-                onPress={handleSave}
-                disabled={!selectedVendor || !apiKey || !keyName}
-              >
-                <Text style={styles.saveButtonText}>Save</Text>
-              </Pressable>
-            </View>
-          </Animated.View>
+                  <Pressable
+                    style={[
+                      styles.button,
+                      styles.saveButton,
+                      { backgroundColor: theme.colors.primary },
+                      (!selectedVendor || !apiKey || !keyName) && { opacity: 0.5 },
+                    ]}
+                    onPress={handleSave}
+                    disabled={!selectedVendor || !apiKey || !keyName}
+                  >
+                    <Text style={styles.saveButtonText}>Save</Text>
+                  </Pressable>
+                </View>
+              </Animated.View>
+            </ScrollView>
+          </KeyboardAvoidingView>
         )}
 
         <ConfirmationDialog

@@ -103,7 +103,10 @@ export default function AgentsScreen() {
           data={agents}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingTop: insets.top + 64 }
+          ]}
           ListEmptyComponent={renderEmptyState}
         />
       </View>
