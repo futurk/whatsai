@@ -6,7 +6,6 @@ import { useAgentContext } from '@/context/AgentContext';
 import { useChatContext } from '@/context/ChatContext';
 import { useTheme } from '@/context/ThemeContext';
 import EmptyState from '@/components/EmptyState';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AgentsScreen() {
   const router = useRouter();
@@ -78,7 +77,7 @@ export default function AgentsScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -102,7 +101,7 @@ export default function AgentsScreen() {
           ListEmptyComponent={renderEmptyState}
         />
       </View>
-    </SafeAreaView>
+    </>
   );
 }
 
