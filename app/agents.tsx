@@ -77,7 +77,7 @@ export default function AgentsScreen() {
   );
 
   return (
-    <>
+    <View style={styles.container}>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -101,7 +101,7 @@ export default function AgentsScreen() {
           ListEmptyComponent={renderEmptyState}
         />
       </View>
-    </>
+    </View>
   );
 }
 
