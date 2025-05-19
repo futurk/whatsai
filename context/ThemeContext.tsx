@@ -1,40 +1,70 @@
-import { Agent } from '@/types/agent';
-import { ApiKey, Vendor } from '@/types/apiKey';
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Theme, ThemeMode, lightTheme, darkTheme } from '@/types/theme';
+import { useColorScheme } from 'react-native';
 
-export const sampleAgents: Agent[] = [
-  {
-    id: '1',
-    name: 'Assistant',
-    instructions: 'You are a helpful AI assistant that can answer general questions and provide information.',
-    model: 'gpt-4.1-nano',
-    apiKeyId: 'key1',
-    color: '#3B82F6',
-    tags: ['Helpful', 'Informative', 'General']
-  },
-  {
-    id: '2',
-    name: 'Creative',
-    instructions: 'You are a creative AI that helps with writing, storytelling, and generating creative content.',
-    model: 'claude-3-opus',
-    apiKeyId: 'key2',
-    color: '#8B5CF6',
-    tags: ['Creative', 'Writing', 'Storytelling']
-  }
-];
+interface ThemeContextType {
+  theme: Theme;
+  themeMode: ThemeMode;
+  setThemeMode: (mode: ThemeMode) => void;
+}
 
-export const sampleApiKeys: ApiKey[] = [
-  {
-    id: 'key1',
-    vendor: 'OpenAI',
-    key: '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',
-    name: 'Development Key',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'key2',
-    vendor: 'OpenAI',
-    key: 'sk-sample-key-false',
-    name: 'False Key',
-    createdAt: new Date().toISOString()
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+const THEME_STORAGE_KEY = '@theme_mode';
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const systemColorScheme = useColorScheme();
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+
+  useEffect(() => {
+    loadThemePreference();
+  }, []);
+
+  const loadThemePreference = async () => {
+    try {
+      const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
+      if (savedTheme !== null) {
+        setThemeModeState(savedTheme as ThemeMode);
+      }
+    } catch (error) {
+      console.error('Error loading theme preference:', error);
+    }
+  };
+
+  const setThemeMode = async (mode: ThemeMode) => {
+    try {
+      setThemeModeState(mode);
+      await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
+    } catch (error) {
+      console.error('Error saving theme preference:', error);
+    }
+  };
+
+  const theme = (() => {
+    if (themeMode === 'system') {
+      return systemColorScheme === 'dark' ? darkTheme : lightTheme;
+    }
+    return themeMode === 'dark' ? darkTheme : lightTheme;
+  })();
+
+  return (
+    <ThemeContext.Provider
+      value={{
+        theme,
+        themeMode,
+        setThemeMode,
+      }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
-];
+  return context;
+}
