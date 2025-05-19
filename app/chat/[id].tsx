@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Pressable, FlatList, Keyboard, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, StyleSheet, TextInput, Pressable, FlatList, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { ArrowLeft, Send } from 'lucide-react-native';
@@ -9,6 +9,7 @@ import { useAgentContext } from '@/context/AgentContext';
 import { useDebugContext } from '@/context/DebugContext';
 import { useTheme } from '@/context/ThemeContext';
 import MessageBubble from '@/components/MessageBubble';
+import SuggestionChip from '@/components/SuggestionChip';
 import DebugLogs from '@/components/DebugLogs';
 
 export default function ChatScreen() {
@@ -25,6 +26,13 @@ export default function ChatScreen() {
   
   const conversation = getConversationById(id as string);
   const agent = conversation ? getAgentById(conversation.agentId) : null;
+  
+  const suggestions = [
+    "Tell me about yourself",
+    "What can you help me with?",
+    "Tell me a joke",
+    "What's your specialty?"
+  ];
 
   useEffect(() => {
     if (!conversation) {
@@ -69,12 +77,21 @@ export default function ChatScreen() {
     }
   };
 
+  const handleSuggestion = (suggestion: string) => {
+    setInputText(suggestion);
+    inputRef.current?.focus();
+  };
+
   if (!conversation || !agent) return null;
 
   const currentLogs = debugLogs[id as string] || [];
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['bottom']}>
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
       <Stack.Screen
         options={{
           headerShown: true,
@@ -85,15 +102,12 @@ export default function ChatScreen() {
               <ArrowLeft size={24} color={theme.colors.text.primary} />
             </Pressable>
           ),
-          headerStyle: {
+          headerShadowVisible: false,
+          headerStyle: { 
             backgroundColor: theme.colors.background,
-            height: 44 + insets.top,
-            borderBottomWidth: 0,
-            shadowOpacity: 0,
-            elevation: 0,
+            height: 64 + insets.top,
+            paddingTop: insets.top,
           },
-          headerSafeAreaInsets: { top: insets.top },
-          headerTopInsetEnabled: true,
         }}
       />
       
@@ -101,7 +115,10 @@ export default function ChatScreen() {
         ref={flatListRef}
         data={conversation.messages}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.messagesContainer}
+        contentContainerStyle={[
+          styles.messagesContainer,
+          { paddingBottom: 16 + insets.bottom }
+        ]}
         renderItem={({ item }) => (
           <MessageBubble
             message={item}
@@ -109,11 +126,20 @@ export default function ChatScreen() {
             agentName={agent.name}
           />
         )}
+        onContentSizeChange={() => {
+          if (conversation.messages.length > 0) {
+            flatListRef.current?.scrollToEnd({ animated: true });
+          }
+        }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyText, { color: theme.colors.text.secondary }]}>
-              Start a conversation with {agent.name}
-            </Text>
+            {suggestions.map((suggestion, index) => (
+              <SuggestionChip
+                key={index}
+                text={suggestion}
+                onPress={() => handleSuggestion(suggestion)}
+              />
+            ))}
           </View>
         }
         ListFooterComponent={
@@ -141,6 +167,7 @@ export default function ChatScreen() {
       <View style={[
         styles.inputContainer, 
         { 
+          paddingBottom: Math.max(16, insets.bottom),
           backgroundColor: theme.colors.background,
           borderTopColor: theme.colors.border
         }
@@ -174,7 +201,7 @@ export default function ChatScreen() {
           <Send size={20} color={inputText.trim() ? '#FFFFFF' : theme.colors.text.secondary} />
         </Pressable>
       </View>
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -196,13 +223,11 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
+    marginTop: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    textAlign: 'center',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   typingContainer: {
     paddingHorizontal: 16,
@@ -251,7 +276,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingTop: 12,
     paddingHorizontal: 16,
-    paddingBottom: 12,
     borderTopWidth: 1,
   },
   input: {

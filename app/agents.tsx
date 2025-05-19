@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -80,7 +79,7 @@ export default function AgentsScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['bottom']}>
+    <>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -91,25 +90,24 @@ export default function AgentsScreen() {
               <ArrowLeft size={24} color={theme.colors.text.primary} />
             </Pressable>
           ),
-          headerStyle: {
+          headerShadowVisible: false,
+          headerStyle: { 
             backgroundColor: theme.colors.background,
-            height: 44 + insets.top,
-            borderBottomWidth: 0,
-            shadowOpacity: 0,
-            elevation: 0,
+            height: 64 + insets.top,
+            paddingTop: insets.top,
           },
-          headerSafeAreaInsets: { top: insets.top },
-          headerTopInsetEnabled: true,
         }}
       />
-      <FlatList
-        data={agents}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={renderEmptyState}
-      />
-    </SafeAreaView>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <FlatList
+          data={agents}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={renderEmptyState}
+        />
+      </View>
+    </>
   );
 }
 
