@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, Pressable, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ArrowLeft, Users } from 'lucide-react-native';
@@ -6,6 +6,7 @@ import { useAgentContext } from '@/context/AgentContext';
 import { useChatContext } from '@/context/ChatContext';
 import { useTheme } from '@/context/ThemeContext';
 import EmptyState from '@/components/EmptyState';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AgentsScreen() {
   const router = useRouter();
