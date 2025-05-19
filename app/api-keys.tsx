@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Pressable, FlatList } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Key, Plus, Trash2 } from 'lucide-react-native';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -100,7 +99,7 @@ export default function ApiKeysScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -115,7 +114,7 @@ export default function ApiKeysScreen() {
           headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
-      <View style={[styles.content, { backgroundColor: theme.colors.background }]}>
+      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         {!isAdding ? (
           <>
             <FlatList
@@ -249,16 +248,14 @@ export default function ApiKeysScreen() {
           destructive
         />
       </View>
-    </SafeAreaView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
+    backgroundColor: '#FFFFFF',
   },
   headerTitle: {
     fontWeight: '600',
