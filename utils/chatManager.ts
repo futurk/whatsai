@@ -47,11 +47,41 @@ export class ChatManager {
     this.onLog?.(log);
   }
 
-  async sendMessage(messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>) {
-    try {
-      this.log('request', { messages, model: this.agent.model });
+  private async getBase64FromUrl(url: string): Promise<string> {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result as string;
+        resolve(base64data.split(',')[1]);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
 
-      const response = await this.client.chat(messages, this.agent.model);
+  async sendMessage(messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>, imageUrl?: string) {
+    try {
+      let messageContent = messages[messages.length - 1].content;
+
+      if (imageUrl) {
+        const base64Image = await this.getBase64FromUrl(imageUrl);
+        messageContent = {
+          type: 'image',
+          text: messageContent,
+          imageData: base64Image
+        };
+      }
+
+      const updatedMessages = [
+        ...messages.slice(0, -1),
+        { ...messages[messages.length - 1], content: messageContent }
+      ];
+
+      this.log('request', { messages: updatedMessages, model: this.agent.model });
+
+      const response = await this.client.chat(updatedMessages, this.agent.model);
 
       this.log('response', { response });
       return response;

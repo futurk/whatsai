@@ -163,7 +163,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           }
         ];
 
-        const response = await chatManager.sendMessage(messages);
+        const response = await chatManager.sendMessage(
+          messages,
+          message.type === 'image' ? message.imageUrl : undefined
+        );
 
         // Update user message status to completed
         updateMessageStatus(conversationId, message.id, 'completed');

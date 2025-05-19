@@ -11,7 +11,7 @@ export class OpenAIClient {
     return Boolean(key && typeof key === 'string' && key.startsWith('sk-'));
   }
 
-  async chat(messages: Array<{ role: string; content: string }>, model: string) {
+  async chat(messages: Array<{ role: string; content: any }>, model: string) {
     if (!messages?.length) {
       throw new Error('Messages array cannot be empty');
     }
@@ -19,6 +19,27 @@ export class OpenAIClient {
     if (!model) {
       throw new Error('Model must be specified');
     }
+
+    const formattedMessages = messages.map(msg => {
+      if (typeof msg.content === 'object' && msg.content.type === 'image') {
+        return {
+          role: msg.role,
+          content: [
+            {
+              type: 'text',
+              text: msg.content.text
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:image/jpeg;base64,${msg.content.imageData}`
+              }
+            }
+          ]
+        };
+      }
+      return msg;
+    });
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -28,7 +49,7 @@ export class OpenAIClient {
       },
       body: JSON.stringify({
         model,
-        messages,
+        messages: formattedMessages,
         temperature: 0.7,
         max_tokens: 1000,
       }),
