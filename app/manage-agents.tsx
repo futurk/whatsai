@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Plus, CreditCard as Edit2, Trash2, Key } from 'lucide-react-native';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
@@ -171,7 +172,7 @@ export default function ManageAgentsScreen() {
   };
 
   return (
-    <>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -186,7 +187,7 @@ export default function ManageAgentsScreen() {
           headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={[styles.content, { backgroundColor: theme.colors.background }]}>
         {!isEditing ? (
           <>
             <FlatList
@@ -408,14 +409,16 @@ export default function ManageAgentsScreen() {
           destructive
         />
       </View>
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+  },
+  content: {
+    flex: 1,
   },
   headerTitle: {
     fontWeight: '600',
