@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, SafeAreaView } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ArrowLeft, Users } from 'lucide-react-native';
@@ -77,7 +77,7 @@ export default function AgentsScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -101,7 +101,7 @@ export default function AgentsScreen() {
           ListEmptyComponent={renderEmptyState}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
