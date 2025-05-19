@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image, Platform } from 'react-native';
 import Animated, { FadeInRight, FadeInLeft } from 'react-native-reanimated';
 import { memo } from 'react';
 import { Message } from '@/types/chat';
@@ -20,6 +20,7 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
   const { theme } = useTheme();
   const isUser = message.sender === 'user';
   const isSystem = message.sender === 'system';
+  const isImage = message.type === 'image';
   
   const getStatusIcon = () => {
     if (!isUser || !message.status) return null;
@@ -54,24 +55,33 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
             : isSystem
               ? [styles.systemBubble, { backgroundColor: theme.colors.error + '20' }]
               : [styles.assistantBubble, { backgroundColor: agentColor + '20' }],
+          isImage && styles.imageBubble,
         ]}
       >
-        <Text
-          style={[
-            styles.messageText,
-            isUser 
-              ? [styles.userMessageText, { 
-                  color: message.status === 'failed' 
-                    ? theme.colors.error 
-                    : '#FFFFFF' 
-                }]
-              : isSystem
-                ? [styles.systemMessageText, { color: theme.colors.error }]
-                : [styles.assistantMessageText, { color: theme.colors.text.primary }],
-          ]}
-        >
-          {message.text}
-        </Text>
+        {isImage && message.imageUrl ? (
+          <Image
+            source={{ uri: message.imageUrl }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        ) : (
+          <Text
+            style={[
+              styles.messageText,
+              isUser 
+                ? [styles.userMessageText, { 
+                    color: message.status === 'failed' 
+                      ? theme.colors.error 
+                      : '#FFFFFF' 
+                  }]
+                : isSystem
+                  ? [styles.systemMessageText, { color: theme.colors.error }]
+                  : [styles.assistantMessageText, { color: theme.colors.text.primary }],
+            ]}
+          >
+            {message.text}
+          </Text>
+        )}
       </View>
       <View style={styles.footer}>
         {getStatusIcon()}
@@ -106,6 +116,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 12,
+    overflow: 'hidden',
+  },
+  imageBubble: {
+    padding: 0,
+    borderRadius: 12,
   },
   userBubble: {
     borderBottomRightRadius: 4,
@@ -138,6 +153,11 @@ const styles = StyleSheet.create({
   timestampText: {
     fontSize: 12,
   },
+  image: {
+    width: Platform.OS === 'web' ? 300 : 200,
+    height: Platform.OS === 'web' ? 300 : 200,
+    backgroundColor: '#F3F4F6',
+  },
 });
 
-export default MessageBubble
+export default memo(MessageBubble);

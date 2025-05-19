@@ -3,7 +3,8 @@ import { View, StyleSheet, TextInput, Pressable, FlatList, Keyboard, KeyboardAvo
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { ArrowLeft, Send } from 'lucide-react-native';
+import { ArrowLeft, Send, Image as ImageIcon } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useChatContext } from '@/context/ChatContext';
 import { useAgentContext } from '@/context/AgentContext';
 import { useDebugContext } from '@/context/DebugContext';
@@ -66,8 +67,28 @@ export default function ChatScreen() {
       id: Date.now().toString(),
       text: userMessage,
       sender: 'user',
+      type: 'text',
       timestamp: new Date().toISOString()
     });
+  };
+
+  const handleImagePick = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+      allowsEditing: true,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      await addMessageToConversation(id as string, {
+        id: Date.now().toString(),
+        text: 'Sent an image',
+        sender: 'user',
+        type: 'image',
+        imageUrl: result.assets[0].uri,
+        timestamp: new Date().toISOString()
+      });
+    }
   };
 
   const handleKeyPress = (e: any) => {
@@ -168,6 +189,13 @@ export default function ChatScreen() {
           borderTopColor: theme.colors.border
         }
       ]}>
+        <Pressable
+          style={[styles.imageButton, { backgroundColor: theme.colors.surface }]}
+          onPress={handleImagePick}
+        >
+          <ImageIcon size={20} color={theme.colors.text.secondary} />
+        </Pressable>
+
         <TextInput
           ref={inputRef}
           style={[
@@ -273,6 +301,14 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingHorizontal: 16,
     borderTopWidth: 1,
+  },
+  imageButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
   },
   input: {
     flex: 1,

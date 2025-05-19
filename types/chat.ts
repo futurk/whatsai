@@ -1,13 +1,15 @@
 export type MessageStatus = 'pending' | 'completed' | 'failed';
 export type MessageSender = 'user' | 'assistant' | 'system';
+export type MessageType = 'text' | 'image';
 
 export interface Message {
   id: string;
   text: string;
   sender: MessageSender;
   timestamp: string;
-  status?: MessageStatus; // For user messages
-  type?: 'error';        // For system messages
+  status?: MessageStatus;
+  type?: 'error' | MessageType;
+  imageUrl?: string;
 }
 
 export interface Conversation {
