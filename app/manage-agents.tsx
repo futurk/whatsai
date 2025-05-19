@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, Plus, CreditCard as Edit2, Trash2, Key } from 'lucide-react-native';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
@@ -11,7 +10,6 @@ import ConfirmationDialog from '@/components/ConfirmationDialog';
 
 export default function ManageAgentsScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { agents, addAgent, updateAgent, deleteAgent } = useAgentContext();
   const { apiKeys, getModelsByVendor } = useApiKeyContext();
   const { theme } = useTheme();
@@ -185,11 +183,7 @@ export default function ManageAgentsScreen() {
             </Pressable>
           ),
           headerShadowVisible: false,
-          headerStyle: { 
-            backgroundColor: theme.colors.background,
-            height: 64 + insets.top,
-            paddingTop: insets.top,
-          },
+          headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
