@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Pressable, FlatList } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { ArrowLeft, Key, Plus, Trash2 } from 'lucide-react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { useRouter, Stack } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ArrowLeft, Plus, Key, Trash2 } from 'lucide-react-native';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useTheme } from '@/context/ThemeContext';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -9,6 +10,7 @@ import ConfirmationDialog from '@/components/ConfirmationDialog';
 
 export default function ApiKeysScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { apiKeys, addApiKey, deleteApiKey, getSupportedVendors } = useApiKeyContext();
   const { theme } = useTheme();
   const [selectedVendor, setSelectedVendor] = useState('');
@@ -111,7 +113,11 @@ export default function ApiKeysScreen() {
             </Pressable>
           ),
           headerShadowVisible: false,
-          headerStyle: { backgroundColor: theme.colors.background },
+          headerStyle: { 
+            backgroundColor: theme.colors.background,
+            height: 64 + insets.top,
+            paddingTop: insets.top,
+          },
         }}
       />
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
