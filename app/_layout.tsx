@@ -9,6 +9,9 @@ import { ChatProvider } from '@/context/ChatContext';
 import { ApiKeyProvider } from '@/context/ApiKeyContext';
 import { DebugProvider } from '@/context/DebugContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import 'react-native-url-polyfill/auto';
+import { Buffer } from 'buffer';
+global.Buffer = Buffer;
 
 export default function RootLayout() {
   useFrameworkReady();
