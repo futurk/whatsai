@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -79,7 +80,7 @@ export default function AgentsScreen() {
   );
 
   return (
-    <>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['bottom']}>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -101,16 +102,14 @@ export default function AgentsScreen() {
           headerTopInsetEnabled: true,
         }}
       />
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <FlatList
-          data={agents}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={renderEmptyState}
-        />
-      </View>
-    </>
+      <FlatList
+        data={agents}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={renderEmptyState}
+      />
+    </SafeAreaView>
   );
 }
 
