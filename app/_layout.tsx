@@ -9,6 +9,12 @@ import { ChatProvider } from '@/context/ChatContext';
 import { ApiKeyProvider } from '@/context/ApiKeyContext';
 import { DebugProvider } from '@/context/DebugContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { Buffer } from 'buffer';
+
+// Polyfill Buffer for React Native Web
+if (typeof window !== 'undefined') {
+  window.Buffer = window.Buffer || Buffer;
+}
 
 export default function RootLayout() {
   useFrameworkReady();
