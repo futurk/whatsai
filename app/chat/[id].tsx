@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, TextInput, Pressable, FlatList, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import Animated, { FadeIn, SlideInLeft, SlideOutRight } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { ArrowLeft, Send } from 'lucide-react-native';
 import { useChatContext } from '@/context/ChatContext';
 import { useAgentContext } from '@/context/AgentContext';
@@ -82,140 +82,127 @@ export default function ChatScreen() {
     inputRef.current?.focus();
   };
 
-  const handleBack = () => {
-    router.replace('/');
-  };
-
   if (!conversation || !agent) return null;
 
   const currentLogs = debugLogs[id as string] || [];
 
   return (
-    <Animated.View 
-      entering={SlideInLeft} 
-      exiting={SlideOutRight}
+    <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoidingView}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-      >
-        <Stack.Screen
-          options={{
-            headerShown: true,
-            headerTitle: agent.name,
-            headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
-            headerLeft: () => (
-              <Pressable onPress={handleBack} style={styles.backButton}>
-                <ArrowLeft size={24} color={theme.colors.text.primary} />
-              </Pressable>
-            ),
-            headerShadowVisible: false,
-            headerStyle: { backgroundColor: theme.colors.background },
-          }}
-        />
-        
-        <FlatList
-          ref={flatListRef}
-          data={conversation.messages}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={[
-            styles.messagesContainer,
-            { paddingBottom: 16 + insets.bottom }
-          ]}
-          renderItem={({ item }) => (
-            <MessageBubble
-              message={item}
-              agentColor={agent.color}
-              agentName={agent.name}
-            />
-          )}
-          onContentSizeChange={() => {
-            if (conversation.messages.length > 0) {
-              flatListRef.current?.scrollToEnd({ animated: true });
-            }
-          }}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              {suggestions.map((suggestion, index) => (
-                <SuggestionChip
-                  key={index}
-                  text={suggestion}
-                  onPress={() => handleSuggestion(suggestion)}
-                />
-              ))}
-            </View>
-          }
-          ListFooterComponent={
-            isDebugMode && currentLogs.length > 0 ? (
-              <DebugLogs logs={currentLogs} />
-            ) : null
-          }
-        />
-        
-        {isTyping && (
-          <Animated.View
-            entering={FadeIn.duration(300)}
-            style={styles.typingContainer}
-          >
-            <View style={[styles.typingBubble, { backgroundColor: agent.color + '20' }]}>
-              <View style={styles.typingIndicator}>
-                <View style={[styles.typingDot, styles.typingDot1]} />
-                <View style={[styles.typingDot, styles.typingDot2]} />
-                <View style={[styles.typingDot, styles.typingDot3]} />
-              </View>
-            </View>
-          </Animated.View>
-        )}
-        
-        <View style={[
-          styles.inputContainer, 
-          { 
-            paddingBottom: Math.max(16, insets.bottom),
-            backgroundColor: theme.colors.background,
-            borderTopColor: theme.colors.border
-          }
-        ]}>
-          <TextInput
-            ref={inputRef}
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.surface,
-                color: theme.colors.text.primary,
-              }
-            ]}
-            placeholder="Type your message..."
-            placeholderTextColor={theme.colors.text.secondary}
-            value={inputText}
-            onChangeText={setInputText}
-            onKeyPress={handleKeyPress}
-            multiline
-            maxLength={500}
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: agent.name,
+          headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
+          headerLeft: () => (
+            <Pressable onPress={() => router.replace('/')} style={styles.backButton}>
+              <ArrowLeft size={24} color={theme.colors.text.primary} />
+            </Pressable>
+          ),
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: theme.colors.background },
+        }}
+      />
+      
+      <FlatList
+        ref={flatListRef}
+        data={conversation.messages}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={[
+          styles.messagesContainer,
+          { paddingBottom: 16 + insets.bottom }
+        ]}
+        renderItem={({ item }) => (
+          <MessageBubble
+            message={item}
+            agentColor={agent.color}
+            agentName={agent.name}
           />
-          <Pressable
-            style={[
-              styles.sendButton,
-              !inputText.trim() && styles.sendButtonDisabled,
-              { backgroundColor: inputText.trim() ? theme.colors.primary : theme.colors.surface }
-            ]}
-            onPress={handleSend}
-            disabled={!inputText.trim()}
-          >
-            <Send size={20} color={inputText.trim() ? '#FFFFFF' : theme.colors.text.secondary} />
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
-    </Animated.View>
+        )}
+        onContentSizeChange={() => {
+          if (conversation.messages.length > 0) {
+            flatListRef.current?.scrollToEnd({ animated: true });
+          }
+        }}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            {suggestions.map((suggestion, index) => (
+              <SuggestionChip
+                key={index}
+                text={suggestion}
+                onPress={() => handleSuggestion(suggestion)}
+              />
+            ))}
+          </View>
+        }
+        ListFooterComponent={
+          isDebugMode && currentLogs.length > 0 ? (
+            <DebugLogs logs={currentLogs} />
+          ) : null
+        }
+      />
+      
+      {isTyping && (
+        <Animated.View
+          entering={FadeIn.duration(300)}
+          style={styles.typingContainer}
+        >
+          <View style={[styles.typingBubble, { backgroundColor: agent.color + '20' }]}>
+            <View style={styles.typingIndicator}>
+              <View style={[styles.typingDot, styles.typingDot1]} />
+              <View style={[styles.typingDot, styles.typingDot2]} />
+              <View style={[styles.typingDot, styles.typingDot3]} />
+            </View>
+          </View>
+        </Animated.View>
+      )}
+      
+      <View style={[
+        styles.inputContainer, 
+        { 
+          paddingBottom: Math.max(16, insets.bottom),
+          backgroundColor: theme.colors.background,
+          borderTopColor: theme.colors.border
+        }
+      ]}>
+        <TextInput
+          ref={inputRef}
+          style={[
+            styles.input,
+            {
+              backgroundColor: theme.colors.surface,
+              color: theme.colors.text.primary,
+            }
+          ]}
+          placeholder="Type your message..."
+          placeholderTextColor={theme.colors.text.secondary}
+          value={inputText}
+          onChangeText={setInputText}
+          onKeyPress={handleKeyPress}
+          multiline
+          maxLength={500}
+        />
+        <Pressable
+          style={[
+            styles.sendButton,
+            !inputText.trim() && styles.sendButtonDisabled,
+            { backgroundColor: inputText.trim() ? theme.colors.primary : theme.colors.surface }
+          ]}
+          onPress={handleSend}
+          disabled={!inputText.trim()}
+        >
+          <Send size={20} color={inputText.trim() ? '#FFFFFF' : theme.colors.text.secondary} />
+        </Pressable>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
     flex: 1,
   },
   headerTitle: {

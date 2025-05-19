@@ -21,24 +21,9 @@ export default function RootLayout() {
             <ApiKeyProvider>
               <AgentProvider>
                 <ChatProvider>
-                  <Stack
-                    screenOptions={{
-                      headerShown: false,
-                      animation: 'slide_from_right',
-                      animationDuration: 200,
-                      gestureEnabled: true,
-                      gestureDirection: 'horizontal',
-                      fullScreenGestureEnabled: true,
-                    }}
-                  >
+                  <Stack screenOptions={{ headerShown: false }}>
                     <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen 
-                      name="chat/[id]" 
-                      options={{ 
-                        presentation: 'card',
-                        animation: 'slide_from_right',
-                      }} 
-                    />
+                    <Stack.Screen name="chat/[id]" options={{ presentation: 'card' }} />
                     <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
                   </Stack>
                   <StatusBar style="auto" />
