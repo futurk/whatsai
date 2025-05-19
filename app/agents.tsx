@@ -90,12 +90,15 @@ export default function AgentsScreen() {
               <ArrowLeft size={24} color={theme.colors.text.primary} />
             </Pressable>
           ),
-          headerShadowVisible: false,
-          headerStyle: { 
+          headerStyle: {
             backgroundColor: theme.colors.background,
-            height: 64 + insets.top,
-            paddingTop: insets.top,
+            height: 44 + insets.top,
+            borderBottomWidth: 0,
+            shadowOpacity: 0,
+            elevation: 0,
           },
+          headerSafeAreaInsets: { top: insets.top },
+          headerTopInsetEnabled: true,
         }}
       />
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>

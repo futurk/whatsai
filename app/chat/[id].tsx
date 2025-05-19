@@ -26,13 +26,6 @@ export default function ChatScreen() {
   
   const conversation = getConversationById(id as string);
   const agent = conversation ? getAgentById(conversation.agentId) : null;
-  
-  const suggestions = [
-    "Tell me about yourself",
-    "What can you help me with?",
-    "Tell me a joke",
-    "What's your specialty?"
-  ];
 
   useEffect(() => {
     if (!conversation) {
@@ -77,11 +70,6 @@ export default function ChatScreen() {
     }
   };
 
-  const handleSuggestion = (suggestion: string) => {
-    setInputText(suggestion);
-    inputRef.current?.focus();
-  };
-
   if (!conversation || !agent) return null;
 
   const currentLogs = debugLogs[id as string] || [];
@@ -102,12 +90,15 @@ export default function ChatScreen() {
               <ArrowLeft size={24} color={theme.colors.text.primary} />
             </Pressable>
           ),
-          headerShadowVisible: false,
-          headerStyle: { 
+          headerStyle: {
             backgroundColor: theme.colors.background,
-            height: 64 + insets.top,
-            paddingTop: insets.top,
+            height: 44 + insets.top,
+            borderBottomWidth: 0,
+            shadowOpacity: 0,
+            elevation: 0,
           },
+          headerSafeAreaInsets: { top: insets.top },
+          headerTopInsetEnabled: true,
         }}
       />
       
@@ -126,20 +117,11 @@ export default function ChatScreen() {
             agentName={agent.name}
           />
         )}
-        onContentSizeChange={() => {
-          if (conversation.messages.length > 0) {
-            flatListRef.current?.scrollToEnd({ animated: true });
-          }
-        }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            {suggestions.map((suggestion, index) => (
-              <SuggestionChip
-                key={index}
-                text={suggestion}
-                onPress={() => handleSuggestion(suggestion)}
-              />
-            ))}
+            <Text style={[styles.emptyText, { color: theme.colors.text.secondary }]}>
+              Start a conversation with {agent.name}
+            </Text>
           </View>
         }
         ListFooterComponent={
@@ -223,11 +205,13 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    marginTop: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    paddingTop: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    textAlign: 'center',
   },
   typingContainer: {
     paddingHorizontal: 16,
