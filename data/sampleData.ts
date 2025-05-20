@@ -10,7 +10,7 @@ export const sampleAgents: Agent[] = [
     apiKeyId: 'key1',
     color: '#3B82F6',
     tags: ['Helpful', 'Informative', 'General'],
-    temperature: 0.7,
+    temperature: 1.0,
     maxTokens: 1000
   },
   {
