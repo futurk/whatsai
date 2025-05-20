@@ -62,7 +62,7 @@ export default function ManageAgentsScreen() {
     setSelectedApiKeyId(agent.apiKeyId);
     setColor(agent.color);
     setTags(agent.tags.join(', '));
-    setTemperature(String(agent.temperature ?? 0.7));
+    setTemperature(String(agent.temperature ?? 1.0));
     setMaxTokens(String(agent.maxTokens ?? 1000));
     setShowAdvanced(false);
   };
