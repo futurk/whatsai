@@ -9,7 +9,9 @@ export const sampleAgents: Agent[] = [
     model: 'gpt-4.1-nano',
     apiKeyId: 'key1',
     color: '#3B82F6',
-    tags: ['Helpful', 'Informative', 'General']
+    tags: ['Helpful', 'Informative', 'General'],
+    temperature: 0.7,
+    maxTokens: 1000
   },
   {
     id: '2',
@@ -18,7 +20,9 @@ export const sampleAgents: Agent[] = [
     model: 'claude-3-opus',
     apiKeyId: 'key2',
     color: '#8B5CF6',
-    tags: ['Creative', 'Writing', 'Storytelling']
+    tags: ['Creative', 'Writing', 'Storytelling'],
+    temperature: 0.9,
+    maxTokens: 2000
   }
 ];
 

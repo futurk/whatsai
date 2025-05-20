@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
-import { ArrowLeft, Plus, CreditCard as Edit2, Trash2, Key } from 'lucide-react-native';
+import { ArrowLeft, Plus, CreditCard as Edit2, Trash2, Key, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useTheme } from '@/context/ThemeContext';
@@ -21,6 +21,9 @@ export default function ManageAgentsScreen() {
   const [selectedApiKeyId, setSelectedApiKeyId] = useState('');
   const [color, setColor] = useState('#3B82F6');
   const [tags, setTags] = useState('');
+  const [temperature, setTemperature] = useState('0.7');
+  const [maxTokens, setMaxTokens] = useState('1000');
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState({
     visible: false,
     id: '',
@@ -45,6 +48,9 @@ export default function ManageAgentsScreen() {
     setSelectedApiKeyId('');
     setColor('#3B82F6');
     setTags('');
+    setTemperature('0.7');
+    setMaxTokens('1000');
+    setShowAdvanced(false);
   };
 
   const handleEditAgent = (agent) => {
@@ -56,6 +62,9 @@ export default function ManageAgentsScreen() {
     setSelectedApiKeyId(agent.apiKeyId);
     setColor(agent.color);
     setTags(agent.tags.join(', '));
+    setTemperature(String(agent.temperature ?? 0.7));
+    setMaxTokens(String(agent.maxTokens ?? 1000));
+    setShowAdvanced(false);
   };
 
   const handleSave = () => {
@@ -75,6 +84,8 @@ export default function ManageAgentsScreen() {
       apiKeyId: selectedKey.id,
       color,
       tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+      temperature: parseFloat(temperature),
+      maxTokens: parseInt(maxTokens, 10),
     };
 
     if (editingAgent) {
@@ -352,6 +363,7 @@ export default function ManageAgentsScreen() {
                     placeholderTextColor={theme.colors.text.secondary}
                   />
                 </View>
+
                 <View style={styles.inputGroup}>
                   <Text style={[styles.label, { color: theme.colors.text.primary }]}>Tags (comma-separated)</Text>
                   <TextInput
@@ -366,6 +378,67 @@ export default function ManageAgentsScreen() {
                     placeholderTextColor={theme.colors.text.secondary}
                   />
                 </View>
+
+                <Pressable
+                  style={[styles.advancedButton, { backgroundColor: theme.colors.surface }]}
+                  onPress={() => setShowAdvanced(!showAdvanced)}
+                >
+                  <Text style={[styles.advancedButtonText, { color: theme.colors.text.primary }]}>
+                    Advanced Settings
+                  </Text>
+                  {showAdvanced ? (
+                    <ChevronUp size={20} color={theme.colors.text.secondary} />
+                  ) : (
+                    <ChevronDown size={20} color={theme.colors.text.secondary} />
+                  )}
+                </Pressable>
+
+                {showAdvanced && (
+                  <>
+                    <View style={styles.inputGroup}>
+                      <Text style={[styles.label, { color: theme.colors.text.primary }]}>
+                        Temperature (0.0 - 1.0)
+                      </Text>
+                      <TextInput
+                        style={[styles.input, {
+                          backgroundColor: theme.colors.surface,
+                          borderColor: theme.colors.border,
+                          color: theme.colors.text.primary
+                        }]}
+                        value={temperature}
+                        onChangeText={setTemperature}
+                        placeholder="0.7"
+                        placeholderTextColor={theme.colors.text.secondary}
+                        keyboardType="decimal-pad"
+                      />
+                      <Text style={[styles.helpText, { color: theme.colors.text.secondary }]}>
+                        Controls randomness: 0 is focused, 1 is creative
+                      </Text>
+                    </View>
+
+                    <View style={styles.inputGroup}>
+                      <Text style={[styles.label, { color: theme.colors.text.primary }]}>
+                        Max Tokens
+                      </Text>
+                      <TextInput
+                        style={[styles.input, {
+                          backgroundColor: theme.colors.surface,
+                          borderColor: theme.colors.border,
+                          color: theme.colors.text.primary
+                        }]}
+                        value={maxTokens}
+                        onChangeText={setMaxTokens}
+                        placeholder="1000"
+                        placeholderTextColor={theme.colors.text.secondary}
+                        keyboardType="number-pad"
+                      />
+                      <Text style={[styles.helpText, { color: theme.colors.text.secondary }]}>
+                        Maximum length of the generated response
+                      </Text>
+                    </View>
+                  </>
+                )}
+
                 <View style={styles.buttonGroup}>
                   <Pressable
                     style={[styles.button, styles.cancelButton, {
@@ -613,6 +686,22 @@ const styles = StyleSheet.create({
   },
   modelDescriptionSelected: {
     color: '#3B82F6',
+  },
+  advancedButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  advancedButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  helpText: {
+    fontSize: 12,
+    marginTop: 4,
   },
   buttonGroup: {
     flexDirection: 'row',

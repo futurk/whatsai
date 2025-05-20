@@ -87,18 +87,27 @@ export class ChatManager {
               ]
             }
           ],
-          model: this.agent.model
+          model: this.agent.model,
+          temperature: this.agent.temperature,
+          maxTokens: this.agent.maxTokens
         };
       } else {
         requestPayload = {
           messages,
-          model: this.agent.model
+          model: this.agent.model,
+          temperature: this.agent.temperature,
+          maxTokens: this.agent.maxTokens
         };
       }
 
       this.log('request', requestPayload);
 
-      const response = await this.client.chat(requestPayload.messages, this.agent.model);
+      const response = await this.client.chat(
+        requestPayload.messages, 
+        this.agent.model,
+        this.agent.temperature,
+        this.agent.maxTokens
+      );
       this.log('response', response);
 
       return response.choices?.[0]?.message?.content || response;

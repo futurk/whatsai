@@ -11,7 +11,7 @@ export class OpenAIClient {
     return Boolean(key && typeof key === 'string' && key.startsWith('sk-'));
   }
 
-  async chat(messages: Array<{ role: string; content: any }>, model: string) {
+  async chat(messages: Array<{ role: string; content: any }>, model: string, temperature?: number, maxTokens?: number) {
     if (!messages?.length) {
       throw new Error('Messages array cannot be empty');
     }
@@ -49,8 +49,8 @@ export class OpenAIClient {
       body: JSON.stringify({
         model,
         messages: formattedMessages,
-        temperature: 0.7,
-        max_tokens: 1000,
+        temperature: temperature ?? 0.7,
+        max_tokens: maxTokens ?? 1000,
       }),
     });
 

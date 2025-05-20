@@ -11,7 +11,7 @@ export class AnthropicClient {
     return Boolean(key && typeof key === 'string');
   }
 
-  async chat(messages: Array<{ role: string; content: string }>, model: string) {
+  async chat(messages: Array<{ role: string; content: string }>, model: string, temperature?: number, maxTokens?: number) {
     if (!messages?.length) {
       throw new Error('Messages array cannot be empty');
     }
@@ -34,7 +34,8 @@ export class AnthropicClient {
       },
       body: JSON.stringify({
         model,
-        max_tokens: 1000,
+        max_tokens: maxTokens ?? 1000,
+        temperature: temperature ?? 0.7,
         messages: anthropicMessages,
       }),
     });
