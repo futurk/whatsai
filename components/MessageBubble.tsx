@@ -4,6 +4,7 @@ import { memo } from 'react';
 import { Message } from '@/types/chat';
 import { useTheme } from '@/context/ThemeContext';
 import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2 } from 'lucide-react-native';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
 
 interface MessageBubbleProps {
   message: Message;
@@ -64,23 +65,30 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
             style={styles.image}
             resizeMode="cover"
           />
-        ) : (
+        ) : isUser ? (
           <Text
             style={[
               styles.messageText,
-              isUser 
-                ? [styles.userMessageText, { 
-                    color: message.status === 'failed' 
-                      ? theme.colors.error 
-                      : '#FFFFFF' 
-                  }]
-                : isSystem
-                  ? [styles.systemMessageText, { color: theme.colors.error }]
-                  : [styles.assistantMessageText, { color: theme.colors.text.primary }],
+              styles.userMessageText,
+              { color: message.status === 'failed' ? theme.colors.error : '#FFFFFF' }
             ]}
           >
             {message.text}
           </Text>
+        ) : isSystem ? (
+          <Text
+            style={[
+              styles.messageText,
+              styles.systemMessageText,
+              { color: theme.colors.error }
+            ]}
+          >
+            {message.text}
+          </Text>
+        ) : (
+          <MarkdownRenderer>
+            {message.text}
+          </MarkdownRenderer>
         )}
       </View>
       <View style={styles.footer}>
