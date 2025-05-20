@@ -17,7 +17,7 @@ export const sampleAgents: Agent[] = [
     id: '2',
     name: 'Creative',
     instructions: 'You are a creative AI that helps with writing, storytelling, and generating creative content.',
-    model: 'claude-3-opus',
+    model: 'gpt-4.1-nano',
     apiKeyId: 'key2',
     color: '#8B5CF6',
     tags: ['Creative', 'Writing', 'Storytelling'],
