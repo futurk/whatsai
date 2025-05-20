@@ -21,24 +21,15 @@ export default function DebugLogs({ logs }: DebugLogsProps) {
     }
   }, [logs]);
 
+  const formatTimestamp = (timestamp: string) => {
+    return new Date(timestamp).toISOString();
+  };
+
   const formatData = (data: any) => {
     try {
       return JSON.stringify(data, null, 2);
     } catch (error) {
       return String(data);
-    }
-  };
-
-  const getLogColor = (type: LogEntry['type']) => {
-    switch (type) {
-      case 'request':
-        return '#3B82F6';
-      case 'response':
-        return '#10B981';
-      case 'error':
-        return '#EF4444';
-      default:
-        return '#6B7280';
     }
   };
 
@@ -55,11 +46,13 @@ export default function DebugLogs({ logs }: DebugLogsProps) {
       >
         {logs.map((log, index) => (
           <View key={index} style={styles.logEntry}>
-            <Text style={styles.timestamp}>{log.timestamp}</Text>
-            <Text style={[styles.type, { color: getLogColor(log.type) }]}>
+            <Text style={styles.timestamp}>{formatTimestamp(log.timestamp)}</Text>
+            <Text style={[styles.type, { color: log.type === 'request' ? '#3B82F6' : log.type === 'response' ? '#10B981' : '#EF4444' }]}>
               {log.type.toUpperCase()}
             </Text>
-            <Text style={styles.data}>{formatData(log.data)}</Text>
+            <View style={styles.codeBlock}>
+              <Text style={styles.code}>{formatData(log.data)}</Text>
+            </View>
           </View>
         ))}
       </ScrollView>
@@ -73,7 +66,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     margin: 12,
-    maxHeight: 300,
+    maxHeight: 400,
   },
   title: {
     color: '#F3F4F6',
@@ -97,13 +90,20 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     fontSize: 12,
     marginBottom: 4,
+    fontFamily: 'monospace',
   },
   type: {
     fontSize: 12,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: 8,
+    fontFamily: 'monospace',
   },
-  data: {
+  codeBlock: {
+    backgroundColor: '#1F2937',
+    borderRadius: 4,
+    padding: 8,
+  },
+  code: {
     color: '#E5E7EB',
     fontSize: 12,
     fontFamily: 'monospace',
