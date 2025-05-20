@@ -20,27 +20,6 @@ export class OpenAIClient {
       throw new Error('Model must be specified');
     }
 
-    const formattedMessages = messages.map(msg => {
-      if (typeof msg.content === 'object' && msg.content.type === 'image') {
-        return {
-          role: msg.role,
-          content: [
-            {
-              type: 'text',
-              text: msg.content.text
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:image/jpeg;base64,${msg.content.imageData}`
-              }
-            }
-          ]
-        };
-      }
-      return msg;
-    });
-
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -49,7 +28,7 @@ export class OpenAIClient {
       },
       body: JSON.stringify({
         model,
-        messages: formattedMessages,
+        messages,
         temperature: 0.7,
         max_tokens: 1000,
       }),
@@ -60,12 +39,6 @@ export class OpenAIClient {
       throw new Error(error.error?.message || `HTTP error ${response.status}`);
     }
 
-    const data = await response.json();
-    
-    if (!data.choices?.[0]?.message?.content) {
-      throw new Error('Invalid response format from OpenAI');
-    }
-
-    return data.choices[0].message.content;
+    return response.json();
   }
 }

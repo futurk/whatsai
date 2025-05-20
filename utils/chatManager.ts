@@ -64,30 +64,48 @@ export class ChatManager {
   async sendMessage(messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>, imageUrl?: string) {
     try {
       let messageContent = messages[messages.length - 1].content;
+      let requestPayload;
 
       if (imageUrl) {
         const base64Image = await this.getBase64FromUrl(imageUrl);
-        messageContent = {
-          type: 'image',
-          text: messageContent,
-          imageData: base64Image
+        const lastMessage = messages[messages.length - 1];
+        
+        requestPayload = {
+          messages: [
+            ...messages.slice(0, -1),
+            {
+              role: lastMessage.role,
+              content: [
+                {
+                  type: 'text',
+                  text: messageContent
+                },
+                {
+                  type: 'image_url',
+                  image_url: `data:image/jpeg;base64,${base64Image}`
+                }
+              ]
+            }
+          ],
+          model: this.agent.model
+        };
+      } else {
+        requestPayload = {
+          messages,
+          model: this.agent.model
         };
       }
 
-      const updatedMessages = [
-        ...messages.slice(0, -1),
-        { ...messages[messages.length - 1], content: messageContent }
-      ];
+      this.log('request', requestPayload);
 
-      this.log('request', { messages: updatedMessages, model: this.agent.model });
+      const response = await this.client.chat(requestPayload.messages, this.agent.model);
+      this.log('response', response);
 
-      const response = await this.client.chat(updatedMessages, this.agent.model);
-
-      this.log('response', { response });
-      return response;
+      return response.choices?.[0]?.message?.content || response;
     } catch (error) {
       this.log('error', {
         error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       });
       throw error;
     }
