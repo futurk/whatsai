@@ -20,6 +20,26 @@ export class OpenAIClient {
       throw new Error('Model must be specified');
     }
 
+    const formattedMessages = messages.map(msg => {
+      if (Array.isArray(msg.content)) {
+        return {
+          role: msg.role,
+          content: msg.content.map(content => {
+            if (content.type === 'image_url' && typeof content.image_url === 'string') {
+              return {
+                type: 'image_url',
+                image_url: {
+                  url: content.image_url
+                }
+              };
+            }
+            return content;
+          })
+        };
+      }
+      return msg;
+    });
+
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -28,7 +48,7 @@ export class OpenAIClient {
       },
       body: JSON.stringify({
         model,
-        messages,
+        messages: formattedMessages,
         temperature: 0.7,
         max_tokens: 1000,
       }),
