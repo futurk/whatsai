@@ -49,7 +49,7 @@ export class OpenAIClient {
       body: JSON.stringify({
         model,
         messages: formattedMessages,
-        temperature: temperature ?? 0.7,
+        temperature: temperature ?? 1.0,
         max_tokens: maxTokens ?? 1000,
       }),
     });
