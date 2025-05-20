@@ -27,8 +27,14 @@ export default function AgentSelectionModal({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={[styles.overlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
-        <View style={[styles.modal, { backgroundColor: theme.colors.background }]}>
+      <Pressable 
+        style={[styles.overlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}
+        onPress={onClose}
+      >
+        <Pressable 
+          style={[styles.modal, { backgroundColor: theme.colors.background }]}
+          onPress={e => e.stopPropagation()}
+        >
           <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
             <Text style={[styles.title, { color: theme.colors.text.primary }]}>
               Select Default Agent
@@ -97,8 +103,8 @@ export default function AgentSelectionModal({
               )}
             </Pressable>
           </ScrollView>
-        </View>
-      </View>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }
