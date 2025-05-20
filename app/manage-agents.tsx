@@ -407,7 +407,7 @@ export default function ManageAgentsScreen() {
                         }]}
                         value={temperature}
                         onChangeText={setTemperature}
-                        placeholder="0.7"
+                        placeholder="1.0"
                         placeholderTextColor={theme.colors.text.secondary}
                         keyboardType="decimal-pad"
                       />
