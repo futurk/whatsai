@@ -21,7 +21,7 @@ export default function ManageAgentsScreen() {
   const [selectedApiKeyId, setSelectedApiKeyId] = useState('');
   const [color, setColor] = useState('#3B82F6');
   const [tags, setTags] = useState('');
-  const [temperature, setTemperature] = useState('0.7');
+  const [temperature, setTemperature] = useState('1.0');
   const [maxTokens, setMaxTokens] = useState('1000');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState({
