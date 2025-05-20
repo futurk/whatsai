@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, useWindowDimensions } from 'react-native';
+import { StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { useTheme } from '@/context/ThemeContext';
 
