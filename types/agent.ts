@@ -6,4 +6,6 @@ export interface Agent {
   apiKeyId: string;
   color: string;
   tags: string[];
+  temperature?: number;
+  maxTokens?: number;
 }
