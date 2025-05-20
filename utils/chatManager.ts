@@ -54,7 +54,7 @@ export class ChatManager {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64data = reader.result as string;
-        resolve(base64data.split(',')[1]);
+        resolve(base64data);
       };
       reader.onerror = reject;
       reader.readAsDataURL(blob);
@@ -82,7 +82,7 @@ export class ChatManager {
                 },
                 {
                   type: 'image_url',
-                  image_url: `data:image/jpeg;base64,${base64Image}`
+                  image_url: base64Image
                 }
               ]
             }
