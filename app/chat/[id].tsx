@@ -232,8 +232,7 @@ export default function ChatScreen() {
           style={[
             styles.iconButton,
             {
-              backgroundColor: inputText.trim() ? theme.colors.primary : theme.colors.surface,
-              transform: [{ rotate: '-45deg' }]
+              backgroundColor: inputText.trim() ? theme.colors.primary : theme.colors.surface
             }
           ]}
           onPress={handleSend}
