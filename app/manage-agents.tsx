@@ -48,7 +48,7 @@ export default function ManageAgentsScreen() {
     setSelectedApiKeyId('');
     setColor('#3B82F6');
     setTags('');
-    setTemperature('0.7');
+    setTemperature('1.0');
     setMaxTokens('1000');
     setShowAdvanced(false);
   };
