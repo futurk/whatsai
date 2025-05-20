@@ -3,7 +3,7 @@ import { View, StyleSheet, TextInput, Pressable, FlatList, Keyboard, KeyboardAvo
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { ArrowLeft, Send, Image as ImageIcon } from 'lucide-react-native';
+import { ArrowLeft, ArrowUp, Image as ImageIcon } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useChatContext } from '@/context/ChatContext';
 import { useAgentContext } from '@/context/AgentContext';
@@ -181,16 +181,24 @@ export default function ChatScreen() {
         </Animated.View>
       )}
       
-      <View style={[
-        styles.inputContainer, 
-        { 
-          paddingBottom: Math.max(16, insets.bottom),
-          backgroundColor: theme.colors.background,
-          borderTopColor: theme.colors.border
-        }
-      ]}>
+      <View 
+        style={[
+          styles.inputContainer,
+          {
+            paddingBottom: Math.max(16, insets.bottom),
+            backgroundColor: theme.colors.background,
+            borderTopColor: theme.colors.border,
+            borderTopWidth: 1,
+            paddingTop: 12,
+            paddingHorizontal: 16,
+          }
+        ]}
+      >
         <Pressable
-          style={[styles.imageButton, { backgroundColor: theme.colors.surface }]}
+          style={[
+            styles.iconButton,
+            { backgroundColor: theme.colors.surface }
+          ]}
           onPress={handleImagePick}
         >
           <ImageIcon size={20} color={theme.colors.text.secondary} />
@@ -203,6 +211,12 @@ export default function ChatScreen() {
             {
               backgroundColor: theme.colors.surface,
               color: theme.colors.text.primary,
+              borderRadius: 24,
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              marginHorizontal: 8,
+              fontSize: 16,
+              maxHeight: 120,
             }
           ]}
           placeholder="Type your message..."
@@ -213,16 +227,22 @@ export default function ChatScreen() {
           multiline
           maxLength={500}
         />
+
         <Pressable
           style={[
-            styles.sendButton,
-            !inputText.trim() && styles.sendButtonDisabled,
-            { backgroundColor: inputText.trim() ? theme.colors.primary : theme.colors.surface }
+            styles.iconButton,
+            {
+              backgroundColor: inputText.trim() ? theme.colors.primary : theme.colors.surface,
+              transform: [{ rotate: '-45deg' }]
+            }
           ]}
           onPress={handleSend}
           disabled={!inputText.trim()}
         >
-          <Send size={20} color={inputText.trim() ? '#FFFFFF' : theme.colors.text.secondary} />
+          <ArrowUp 
+            size={20} 
+            color={inputText.trim() ? '#FFFFFF' : theme.colors.text.secondary}
+          />
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -298,37 +318,16 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: 'row',
-    paddingTop: 12,
-    paddingHorizontal: 16,
-    borderTopWidth: 1,
-  },
-  imageButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+    alignItems: 'flex-end',
   },
   input: {
     flex: 1,
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
-    maxHeight: 120,
-    fontSize: 16,
   },
-  sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
-    marginLeft: 12,
-    alignSelf: 'flex-end',
-  },
-  sendButtonDisabled: {
-    opacity: 0.5,
+    alignItems: 'center',
   },
 });
