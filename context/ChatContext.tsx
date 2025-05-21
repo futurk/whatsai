@@ -148,56 +148,38 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           !(msg.sender === 'user' && msg.status === 'failed')
         );
 
+        const formatMessageContent = (msg: Message) => {
+          if (msg.type === 'image' && msg.imageUrl) {
+            return [
+              {
+                type: 'text',
+                text: msg.text
+              },
+              {
+                type: 'image_url',
+                image_url: msg.imageUrl
+              }
+            ];
+          }
+          return msg.text;
+        };
+
         const messages = [
           ...(agent.instructions ? [{
             role: 'system' as const,
             content: agent.instructions
           }] : []),
-          ...validMessages.map(msg => {
-            // Handle image messages
-            if (msg.type === 'image' && msg.imageUrl) {
-              return {
-                role: msg.sender as 'user' | 'assistant',
-                content: [
-                  {
-                    type: 'text',
-                    text: msg.text
-                  },
-                  {
-                    type: 'image_url',
-                    image_url: msg.imageUrl
-                  }
-                ]
-              };
-            }
-            // Handle regular text messages
-            return {
-              role: msg.sender as 'user' | 'assistant',
-              content: msg.text
-            };
-          }),
-          // Handle the current message
+          ...validMessages.map(msg => ({
+            role: msg.sender as 'user' | 'assistant',
+            content: formatMessageContent(msg)
+          })),
           {
             role: 'user' as const,
-            content: message.type === 'image' && message.imageUrl
-              ? [
-                  {
-                    type: 'text',
-                    text: message.text
-                  },
-                  {
-                    type: 'image_url',
-                    image_url: message.imageUrl
-                  }
-                ]
-              : message.text
+            content: formatMessageContent(message)
           }
         ];
 
-        const response = await chatManager.sendMessage(
-          messages,
-          message.type === 'image' ? message.imageUrl : undefined
-        );
+        const response = await chatManager.sendMessage(messages, message.type === 'image' ? message.imageUrl : undefined);
 
         // Update user message status to completed
         updateMessageStatus(conversationId, message.id, 'completed');
