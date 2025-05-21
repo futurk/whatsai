@@ -20,13 +20,12 @@ export class OpenAIClient {
       throw new Error('Model must be specified');
     }
 
-    const formattedMessages = messages.map(msg => ({
-      role: msg.role,
-      content: Array.isArray(msg.content) 
-        ? msg.content.map(content => {
-            if (typeof content === 'string') return content;
-            if (content.type === 'text') return content.text;
-            if (content.type === 'image_url') {
+    const formattedMessages = messages.map(msg => {
+      if (Array.isArray(msg.content)) {
+        return {
+          role: msg.role,
+          content: msg.content.map(content => {
+            if (content.type === 'image_url' && typeof content.image_url === 'string') {
               return {
                 type: 'image_url',
                 image_url: {
@@ -36,8 +35,10 @@ export class OpenAIClient {
             }
             return content;
           })
-        : msg.content
-    }));
+        };
+      }
+      return msg;
+    });
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',

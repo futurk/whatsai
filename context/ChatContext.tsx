@@ -142,7 +142,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           chatManagers.set(agent.id, chatManager);
         }
 
-        // Only filter out system error messages and failed user messages
+        // Filter out error messages and failed user messages
         const validMessages = conversation.messages.filter(msg => 
           !(msg.sender === 'system' && msg.type === 'error') &&
           !(msg.sender === 'user' && msg.status === 'failed')
@@ -153,48 +153,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             role: 'system' as const,
             content: agent.instructions
           }] : []),
-          ...validMessages.map(msg => {
-            // Handle image messages
-            if (msg.type === 'image' && msg.imageUrl) {
-              return {
-                role: msg.sender as 'user' | 'assistant',
-                content: [
-                  {
-                    type: 'text',
-                    text: msg.text
-                  },
-                  {
-                    type: 'image_url',
-                    image_url: msg.imageUrl
-                  }
-                ]
-              };
-            }
-            // Handle regular text messages
-            return {
-              role: msg.sender as 'user' | 'assistant',
-              content: msg.text
-            };
-          }),
-          // Handle current message if it's an image
-          message.type === 'image' && message.imageUrl
-            ? {
-                role: 'user' as const,
-                content: [
-                  {
-                    type: 'text',
-                    text: message.text
-                  },
-                  {
-                    type: 'image_url',
-                    image_url: message.imageUrl
-                  }
-                ]
-              }
-            : {
-                role: 'user' as const,
-                content: message.text
-              }
+          ...validMessages.map(msg => ({
+            role: msg.sender as 'user' | 'assistant',
+            content: msg.text
+          })),
+          {
+            role: 'user' as const,
+            content: message.text
+          }
         ];
 
         const response = await chatManager.sendMessage(
