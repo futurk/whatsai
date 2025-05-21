@@ -1,15 +1,19 @@
 import { View, Text, StyleSheet, Image, Platform, Modal, Pressable } from 'react-native';
 import Animated, { FadeInRight, FadeInLeft } from 'react-native-reanimated';
-import { memo, useState } from 'react';
+import { memo, useState, useCallback } from 'react';
 import { Message } from '@/types/chat';
 import { useTheme } from '@/context/ThemeContext';
 import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2, X } from 'lucide-react-native';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
+import MessageContextMenu from '@/components/MessageContextMenu';
+import * as Clipboard from 'expo-clipboard';
 
 interface MessageBubbleProps {
   message: Message;
   agentColor: string;
   agentName: string;
+  onRegenerate?: () => void;
+  isLastMessage?: boolean;
 }
 
 function formatTime(timestamp: string) {
@@ -17,12 +21,16 @@ function formatTime(timestamp: string) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) => {
+const MessageBubble = ({ message, agentColor, agentName, onRegenerate, isLastMessage }: MessageBubbleProps) => {
   const { theme } = useTheme();
   const isUser = message.sender === 'user';
   const isSystem = message.sender === 'system';
   const isImage = message.type === 'image';
   const [showFullImage, setShowFullImage] = useState(false);
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    position: { x: 0, y: 0 },
+  });
   
   const getStatusIcon = () => {
     if (!isUser || !message.status) return null;
@@ -36,6 +44,25 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
         return <AlertTriangle size={16} color={theme.colors.error} />;
     }
   };
+
+  const handleLongPress = useCallback((event) => {
+    const { pageX, pageY } = event.nativeEvent;
+    setContextMenu({
+      visible: true,
+      position: {
+        x: pageX - 70, // Center the menu horizontally
+        y: pageY - 60, // Position above the touch point
+      },
+    });
+  }, []);
+
+  const handleCopy = useCallback(async () => {
+    if (isImage && message.imageUrl) {
+      await Clipboard.setStringAsync(message.imageUrl);
+    } else {
+      await Clipboard.setStringAsync(message.text);
+    }
+  }, [message]);
   
   return (
     <>
@@ -46,69 +73,75 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
           isUser ? styles.userContainer : styles.assistantContainer,
         ]}
       >
-        <View
-          style={[
-            styles.bubble,
-            isUser
-              ? [styles.userBubble, { 
-                  backgroundColor: message.status === 'failed' 
-                    ? theme.colors.error + '20' 
-                    : theme.colors.primary 
-                }]
-              : isSystem
-                ? [styles.systemBubble, { backgroundColor: theme.colors.error + '20' }]
-                : [styles.assistantBubble, { backgroundColor: agentColor + '20' }],
-            isImage && styles.imageBubble,
-          ]}
+        <Pressable
+          style={styles.bubbleContainer}
+          onLongPress={handleLongPress}
+          delayLongPress={200}
         >
-          {isImage && message.imageUrl ? (
-            <Pressable onPress={() => setShowFullImage(true)}>
-              <Image
-                source={{ uri: message.imageUrl }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            </Pressable>
-          ) : isUser ? (
-            <Text
-              style={[
-                styles.messageText,
-                styles.userMessageText,
-                { color: message.status === 'failed' ? theme.colors.error : '#FFFFFF' }
-              ]}
-            >
-              {message.text}
-            </Text>
-          ) : isSystem ? (
-            <Text
-              style={[
-                styles.messageText,
-                styles.systemMessageText,
-                { color: theme.colors.error }
-              ]}
-            >
-              {message.text}
-            </Text>
-          ) : (
-            <MarkdownRenderer>
-              {message.text}
-            </MarkdownRenderer>
-          )}
-        </View>
-        <View style={styles.footer}>
-          {getStatusIcon()}
-          <Text 
+          <View
             style={[
-              styles.timestampText, 
-              { 
-                color: theme.colors.text.secondary,
-                marginLeft: getStatusIcon() ? 4 : 0 
-              }
+              styles.bubble,
+              isUser
+                ? [styles.userBubble, { 
+                    backgroundColor: message.status === 'failed' 
+                      ? theme.colors.error + '20' 
+                      : theme.colors.primary 
+                  }]
+                : isSystem
+                  ? [styles.systemBubble, { backgroundColor: theme.colors.error + '20' }]
+                  : [styles.assistantBubble, { backgroundColor: agentColor + '20' }],
+              isImage && styles.imageBubble,
             ]}
           >
-            {formatTime(message.timestamp)}
-          </Text>
-        </View>
+            {isImage && message.imageUrl ? (
+              <Pressable onPress={() => setShowFullImage(true)}>
+                <Image
+                  source={{ uri: message.imageUrl }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              </Pressable>
+            ) : isUser ? (
+              <Text
+                style={[
+                  styles.messageText,
+                  styles.userMessageText,
+                  { color: message.status === 'failed' ? theme.colors.error : '#FFFFFF' }
+                ]}
+              >
+                {message.text}
+              </Text>
+            ) : isSystem ? (
+              <Text
+                style={[
+                  styles.messageText,
+                  styles.systemMessageText,
+                  { color: theme.colors.error }
+                ]}
+              >
+                {message.text}
+              </Text>
+            ) : (
+              <MarkdownRenderer>
+                {message.text}
+              </MarkdownRenderer>
+            )}
+          </View>
+          <View style={styles.footer}>
+            {getStatusIcon()}
+            <Text 
+              style={[
+                styles.timestampText, 
+                { 
+                  color: theme.colors.text.secondary,
+                  marginLeft: getStatusIcon() ? 4 : 0 
+                }
+              ]}
+            >
+              {formatTime(message.timestamp)}
+            </Text>
+          </View>
+        </Pressable>
       </Animated.View>
 
       <Modal
@@ -138,6 +171,15 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
           </View>
         </Pressable>
       </Modal>
+
+      <MessageContextMenu
+        visible={contextMenu.visible}
+        position={contextMenu.position}
+        onClose={() => setContextMenu({ ...contextMenu, visible: false })}
+        onCopy={handleCopy}
+        onRegenerate={onRegenerate}
+        showRegenerate={isLastMessage && isUser}
+      />
     </>
   );
 };
@@ -152,6 +194,9 @@ const styles = StyleSheet.create({
   },
   assistantContainer: {
     alignSelf: 'flex-start',
+  },
+  bubbleContainer: {
+    maxWidth: '100%',
   },
   bubble: {
     borderRadius: 20,
@@ -236,5 +281,3 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
-
-export default memo(MessageBubble);
