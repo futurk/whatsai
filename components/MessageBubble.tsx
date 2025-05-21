@@ -1,9 +1,19 @@
 import { View, Text, StyleSheet, Image, Platform, Modal, Pressable } from 'react-native';
-import Animated, { FadeInRight, FadeInLeft, FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, { 
+  FadeInRight, 
+  FadeInLeft, 
+  FadeIn, 
+  FadeOut,
+  withSpring,
+  withSequence,
+  withTiming,
+  useAnimatedStyle,
+  useSharedValue
+} from 'react-native-reanimated';
 import { memo, useState, useEffect, useRef } from 'react';
 import { Message } from '@/types/chat';
 import { useTheme } from '@/context/ThemeContext';
-import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2, X, Copy } from 'lucide-react-native';
+import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2, X, Copy, Check } from 'lucide-react-native';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 
 interface MessageBubbleProps {
@@ -24,13 +34,16 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
   const isImage = message.type === 'image';
   const [showFullImage, setShowFullImage] = useState(false);
   const [showCopyButton, setShowCopyButton] = useState(false);
+  const [copied, setCopied] = useState(false);
   const bubbleRef = useRef<View>(null);
+  const scale = useSharedValue(1);
   
   useEffect(() => {
     if (Platform.OS === 'web' && showCopyButton) {
       const handleClickOutside = (event: MouseEvent) => {
         if (bubbleRef.current && !(bubbleRef.current as any).contains(event.target)) {
           setShowCopyButton(false);
+          setCopied(false);
         }
       };
 
@@ -38,6 +51,12 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [showCopyButton]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
   
   const getStatusIcon = () => {
     if (!isUser || !message.status) return null;
@@ -52,10 +71,22 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
     }
   };
 
-  const handleCopy = () => {
+  const handleCopy = async () => {
     if (Platform.OS === 'web') {
-      navigator.clipboard.writeText(message.text);
-      setShowCopyButton(false);
+      try {
+        await navigator.clipboard.writeText(message.text);
+        setCopied(true);
+        scale.value = withSequence(
+          withSpring(1.1, { damping: 10 }),
+          withSpring(1, { damping: 10 })
+        );
+        setTimeout(() => {
+          setShowCopyButton(false);
+          setCopied(false);
+        }, 1500);
+      } catch (err) {
+        console.error('Failed to copy text:', err);
+      }
     }
   };
   
@@ -136,11 +167,12 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
 
             {showCopyButton && !isImage && Platform.OS === 'web' && (
               <Animated.View
-                entering={FadeIn}
-                exiting={FadeOut}
+                entering={FadeIn.springify()}
+                exiting={FadeOut.springify()}
                 style={[
                   styles.copyButton,
-                  { backgroundColor: theme.colors.card }
+                  { backgroundColor: theme.colors.card },
+                  animatedStyle
                 ]}
               >
                 <Pressable
@@ -150,9 +182,20 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
                     pressed && { opacity: 0.7 }
                   ]}
                 >
-                  <Copy size={16} color={theme.colors.text.primary} />
-                  <Text style={[styles.copyText, { color: theme.colors.text.primary }]}>
-                    Copy
+                  {copied ? (
+                    <Check size={16} color={theme.colors.success} />
+                  ) : (
+                    <Copy size={16} color={theme.colors.text.primary} />
+                  )}
+                  <Text 
+                    style={[
+                      styles.copyText, 
+                      { 
+                        color: copied ? theme.colors.success : theme.colors.text.primary 
+                      }
+                    ]}
+                  >
+                    {copied ? 'Copied!' : 'Copy'}
                   </Text>
                 </Pressable>
               </Animated.View>
