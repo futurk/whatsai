@@ -43,6 +43,18 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
   const scale = useSharedValue(1);
   const bubbleScale = useSharedValue(1);
 
+  const bubbleAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: bubbleScale.value }]
+    };
+  });
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }]
+    };
+  });
+
   useEffect(() => {
     // Update the callback reference when a new message bubble is mounted
     if (showCopyButton) {
