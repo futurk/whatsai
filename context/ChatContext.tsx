@@ -83,7 +83,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     messageId: string, 
     status: MessageStatus
   ) => {
-    setConversations(prev =>
+    setConversations(prev =>const mess
       prev.map(conv =>
         conv.id === conversationId
           ? {
