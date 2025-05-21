@@ -72,18 +72,6 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
     }
   }, [showCopyButton]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
-
-  const bubbleAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: bubbleScale.value }],
-    };
-  });
-  
   const getStatusIcon = () => {
     if (!isUser || !message.status) return null;
     
@@ -144,7 +132,7 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
           isUser ? styles.userContainer : styles.assistantContainer,
         ]}
       >
-        <View ref={bubbleRef}>
+        <View ref={bubbleRef} style={styles.bubbleWrapper}>
           <Animated.View style={bubbleAnimatedStyle}>
             <Pressable 
               onPress={handlePress}
@@ -220,7 +208,8 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
               style={[
                 styles.copyButton,
                 { backgroundColor: theme.colors.card },
-                animatedStyle
+                animatedStyle,
+                isUser ? styles.copyButtonRight : styles.copyButtonLeft
               ]}
             >
               <Pressable
@@ -292,6 +281,9 @@ const styles = StyleSheet.create({
   },
   assistantContainer: {
     alignSelf: 'flex-start',
+  },
+  bubbleWrapper: {
+    position: 'relative',
   },
   bubble: {
     borderRadius: 20,
@@ -377,8 +369,7 @@ const styles = StyleSheet.create({
   },
   copyButton: {
     position: 'absolute',
-    top: -36,
-    right: 0,
+    top: -44,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {
@@ -388,6 +379,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3.84,
     elevation: 5,
+    zIndex: 100,
+  },
+  copyButtonLeft: {
+    right: 0,
+  },
+  copyButtonRight: {
+    left: 0,
   },
   copyButtonInner: {
     flexDirection: 'row',
