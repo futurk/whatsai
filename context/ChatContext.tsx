@@ -153,13 +153,44 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             role: 'system' as const,
             content: agent.instructions
           }] : []),
-          ...validMessages.map(msg => ({
-            role: msg.sender as 'user' | 'assistant',
-            content: msg.text
-          })),
+          ...validMessages.map(msg => {
+            // Handle image messages
+            if (msg.type === 'image' && msg.imageUrl) {
+              return {
+                role: msg.sender as 'user' | 'assistant',
+                content: [
+                  {
+                    type: 'text',
+                    text: msg.text
+                  },
+                  {
+                    type: 'image_url',
+                    image_url: msg.imageUrl
+                  }
+                ]
+              };
+            }
+            // Handle regular text messages
+            return {
+              role: msg.sender as 'user' | 'assistant',
+              content: msg.text
+            };
+          }),
+          // Handle the current message
           {
             role: 'user' as const,
-            content: message.text
+            content: message.type === 'image' && message.imageUrl
+              ? [
+                  {
+                    type: 'text',
+                    text: message.text
+                  },
+                  {
+                    type: 'image_url',
+                    image_url: message.imageUrl
+                  }
+                ]
+              : message.text
           }
         ];
 
