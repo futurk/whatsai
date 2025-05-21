@@ -92,117 +92,117 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
   
   return (
     <>
-      <View ref={bubbleRef}>
-        <Pressable onPress={() => !isImage && setShowCopyButton(true)}>
-          <Animated.View
-            entering={isUser ? FadeInRight.springify() : FadeInLeft.springify()}
+      <Animated.View
+        entering={isUser ? FadeInRight.springify() : FadeInLeft.springify()}
+        style={[
+          styles.container,
+          isUser ? styles.userContainer : styles.assistantContainer,
+        ]}
+      >
+        <View ref={bubbleRef}>
+          <Pressable 
+            onPress={() => !isImage && setShowCopyButton(true)}
             style={[
-              styles.container,
-              isUser ? styles.userContainer : styles.assistantContainer,
+              styles.bubble,
+              isUser
+                ? [styles.userBubble, { 
+                    backgroundColor: message.status === 'failed' 
+                      ? theme.colors.error + '20' 
+                      : theme.colors.primary 
+                  }]
+                : isSystem
+                  ? [styles.systemBubble, { backgroundColor: theme.colors.error + '20' }]
+                  : [styles.assistantBubble, { backgroundColor: agentColor + '20' }],
+              isImage && styles.imageBubble,
             ]}
           >
-            <View
+            {isImage && message.imageUrl ? (
+              <Pressable onPress={() => setShowFullImage(true)}>
+                <Image
+                  source={{ uri: message.imageUrl }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              </Pressable>
+            ) : isUser ? (
+              <Text
+                style={[
+                  styles.messageText,
+                  styles.userMessageText,
+                  { color: message.status === 'failed' ? theme.colors.error : '#FFFFFF' }
+                ]}
+              >
+                {message.text}
+              </Text>
+            ) : isSystem ? (
+              <Text
+                style={[
+                  styles.messageText,
+                  styles.systemMessageText,
+                  { color: theme.colors.error }
+                ]}
+              >
+                {message.text}
+              </Text>
+            ) : (
+              <MarkdownRenderer>
+                {message.text}
+              </MarkdownRenderer>
+            )}
+          </Pressable>
+
+          <View style={styles.footer}>
+            {getStatusIcon()}
+            <Text 
               style={[
-                styles.bubble,
-                isUser
-                  ? [styles.userBubble, { 
-                      backgroundColor: message.status === 'failed' 
-                        ? theme.colors.error + '20' 
-                        : theme.colors.primary 
-                    }]
-                  : isSystem
-                    ? [styles.systemBubble, { backgroundColor: theme.colors.error + '20' }]
-                    : [styles.assistantBubble, { backgroundColor: agentColor + '20' }],
-                isImage && styles.imageBubble,
+                styles.timestampText, 
+                { 
+                  color: theme.colors.text.secondary,
+                  marginLeft: getStatusIcon() ? 4 : 0 
+                }
               ]}
             >
-              {isImage && message.imageUrl ? (
-                <Pressable onPress={() => setShowFullImage(true)}>
-                  <Image
-                    source={{ uri: message.imageUrl }}
-                    style={styles.image}
-                    resizeMode="cover"
-                  />
-                </Pressable>
-              ) : isUser ? (
-                <Text
-                  style={[
-                    styles.messageText,
-                    styles.userMessageText,
-                    { color: message.status === 'failed' ? theme.colors.error : '#FFFFFF' }
-                  ]}
-                >
-                  {message.text}
-                </Text>
-              ) : isSystem ? (
-                <Text
-                  style={[
-                    styles.messageText,
-                    styles.systemMessageText,
-                    { color: theme.colors.error }
-                  ]}
-                >
-                  {message.text}
-                </Text>
-              ) : (
-                <MarkdownRenderer>
-                  {message.text}
-                </MarkdownRenderer>
-              )}
-            </View>
-            <View style={styles.footer}>
-              {getStatusIcon()}
-              <Text 
-                style={[
-                  styles.timestampText, 
-                  { 
-                    color: theme.colors.text.secondary,
-                    marginLeft: getStatusIcon() ? 4 : 0 
-                  }
-                ]}
-              >
-                {formatTime(message.timestamp)}
-              </Text>
-            </View>
+              {formatTime(message.timestamp)}
+            </Text>
+          </View>
 
-            {showCopyButton && !isImage && Platform.OS === 'web' && (
-              <Animated.View
-                entering={FadeIn.springify()}
-                exiting={FadeOut.springify()}
-                style={[
-                  styles.copyButton,
-                  { backgroundColor: theme.colors.card },
-                  animatedStyle
+          {showCopyButton && !isImage && Platform.OS === 'web' && (
+            <Animated.View
+              entering={FadeIn.springify()}
+              exiting={FadeOut.springify()}
+              style={[
+                styles.copyButton,
+                { backgroundColor: theme.colors.card },
+                animatedStyle
+              ]}
+            >
+              <Pressable
+                onPress={handleCopy}
+                style={({ pressed }) => [
+                  styles.copyButtonInner,
+                  pressed && { opacity: 0.7 }
                 ]}
               >
-                <Pressable
-                  onPress={handleCopy}
-                  style={({ pressed }) => [
-                    styles.copyButtonInner,
-                    pressed && { opacity: 0.7 }
+                {copied ? (
+                  <Check size={16} color={theme.colors.success} />
+                ) : (
+                  <Copy size={16} color={theme.colors.text.primary} />
+                )}
+                <Text 
+                  style={[
+                    styles.copyText, 
+                    { 
+                      color: copied ? theme.colors.success : theme.colors.text.primary 
+                    }
                   ]}
                 >
-                  {copied ? (
-                    <Check size={16} color={theme.colors.success} />
-                  ) : (
-                    <Copy size={16} color={theme.colors.text.primary} />
-                  )}
-                  <Text 
-                    style={[
-                      styles.copyText, 
-                      { 
-                        color: copied ? theme.colors.success : theme.colors.text.primary 
-                      }
-                    ]}
-                  >
-                    {copied ? 'Copied!' : 'Copy'}
-                  </Text>
-                </Pressable>
-              </Animated.View>
-            )}
-          </Animated.View>
-        </Pressable>
-      </View>
+                  {copied ? 'Copied!' : 'Copy'}
+                </Text>
+              </Pressable>
+            </Animated.View>
+          )}
+        </View>
+      </Animated.View>
 
       <Modal
         visible={showFullImage}
