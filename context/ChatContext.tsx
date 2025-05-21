@@ -106,7 +106,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     }
 
     if (message.sender === 'user') {
-      // Add user message with pending status
       const userMessage = { ...message, status: 'pending' as MessageStatus };
       setConversations(prev =>
         prev.map(conv =>
@@ -142,7 +141,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           chatManagers.set(agent.id, chatManager);
         }
 
-        // Filter out error messages and failed user messages
         const validMessages = conversation.messages.filter(msg => 
           !(msg.sender === 'system' && msg.type === 'error') &&
           !(msg.sender === 'user' && msg.status === 'failed')
@@ -157,7 +155,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               },
               {
                 type: 'image_url',
-                image_url: msg.imageUrl
+                image_url: {
+                  url: msg.imageUrl
+                }
               }
             ];
           }
@@ -179,9 +179,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           }
         ];
 
-        const response = await chatManager.sendMessage(messages, message.type === 'image' ? message.imageUrl : undefined);
+        const response = await chatManager.sendMessage(messages);
 
-        // Update user message status to completed
         updateMessageStatus(conversationId, message.id, 'completed');
 
         const assistantMessage: Message = {
@@ -203,7 +202,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           )
         );
       } catch (error) {
-        // Update user message status to failed
         updateMessageStatus(conversationId, message.id, 'failed');
 
         const errorMessage: Message = {
@@ -229,7 +227,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         setIsTyping(false);
       }
     } else {
-      // For non-user messages (system, assistant), add directly
       setConversations(prev =>
         prev.map(conv =>
           conv.id === conversationId

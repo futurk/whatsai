@@ -47,67 +47,24 @@ export class ChatManager {
     this.onLog?.(log);
   }
 
-  private async getBase64FromUrl(url: string): Promise<string> {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64data = reader.result as string;
-        resolve(base64data);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  async sendMessage(messages: Array<{ role: 'user' | 'assistant' | 'system'; content: string }>, imageUrl?: string) {
+  async sendMessage(messages: Array<{ role: string; content: any }>, imageUrl?: string) {
     try {
-      let messageContent = messages[messages.length - 1].content;
-      let requestPayload;
-
-      if (imageUrl) {
-        const base64Image = await this.getBase64FromUrl(imageUrl);
-        const lastMessage = messages[messages.length - 1];
-        
-        requestPayload = {
-          messages: [
-            ...messages.slice(0, -1),
-            {
-              role: lastMessage.role,
-              content: [
-                {
-                  type: 'text',
-                  text: messageContent
-                },
-                {
-                  type: 'image_url',
-                  image_url: base64Image
-                }
-              ]
-            }
-          ],
-          model: this.agent.model,
-          temperature: this.agent.temperature,
-          maxTokens: this.agent.maxTokens
-        };
-      } else {
-        requestPayload = {
-          messages,
-          model: this.agent.model,
-          temperature: this.agent.temperature,
-          maxTokens: this.agent.maxTokens
-        };
-      }
+      const requestPayload = {
+        messages,
+        model: this.agent.model,
+        temperature: this.agent.temperature,
+        maxTokens: this.agent.maxTokens
+      };
 
       this.log('request', requestPayload);
 
       const response = await this.client.chat(
-        requestPayload.messages, 
+        messages,
         this.agent.model,
         this.agent.temperature,
         this.agent.maxTokens
       );
+      
       this.log('response', response);
 
       return response.choices?.[0]?.message?.content || response;
