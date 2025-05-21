@@ -22,7 +22,6 @@ export default function ChatScreen() {
   const { isDebugMode } = useDebugContext();
   const { theme } = useTheme();
   const [inputText, setInputText] = useState('');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const flatListRef = useRef(null);
   const inputRef = useRef<TextInput>(null);
   
@@ -59,21 +58,18 @@ export default function ChatScreen() {
   }, [conversation?.messages, isTyping]);
 
   const handleSend = async () => {
-    if (!inputText.trim() && !selectedImage) return;
+    if (!inputText.trim()) return;
     
-    const messageText = inputText.trim();
+    const userMessage = inputText.trim();
     setInputText('');
     
     await addMessageToConversation(id as string, {
       id: Date.now().toString(),
-      text: messageText,
+      text: userMessage,
       sender: 'user',
-      type: selectedImage ? 'image' : 'text',
-      imageUrl: selectedImage,
+      type: 'text',
       timestamp: new Date().toISOString()
     });
-
-    setSelectedImage(null);
   };
 
   const handleImagePick = async () => {
@@ -84,8 +80,14 @@ export default function ChatScreen() {
     });
 
     if (!result.canceled && result.assets[0]) {
-      setSelectedImage(result.assets[0].uri);
-      inputRef.current?.focus();
+      await addMessageToConversation(id as string, {
+        id: Date.now().toString(),
+        text: 'Sent an image',
+        sender: 'user',
+        type: 'image',
+        imageUrl: result.assets[0].uri,
+        timestamp: new Date().toISOString()
+      });
     }
   };
 
@@ -178,20 +180,6 @@ export default function ChatScreen() {
           </View>
         </Animated.View>
       )}
-
-      {selectedImage && (
-        <View style={[styles.selectedImageContainer, { backgroundColor: theme.colors.surface }]}>
-          <Text style={[styles.selectedImageText, { color: theme.colors.text.secondary }]}>
-            Image selected
-          </Text>
-          <Pressable
-            onPress={() => setSelectedImage(null)}
-            style={[styles.removeImageButton, { backgroundColor: theme.colors.error + '20' }]}
-          >
-            <X size={16} color={theme.colors.error} />
-          </Pressable>
-        </View>
-      )}
       
       <View 
         style={[
@@ -231,7 +219,7 @@ export default function ChatScreen() {
               maxHeight: 120,
             }
           ]}
-          placeholder={selectedImage ? "Add a message..." : "Type your message..."}
+          placeholder="Type your message..."
           placeholderTextColor={theme.colors.text.secondary}
           value={inputText}
           onChangeText={setInputText}
@@ -244,15 +232,15 @@ export default function ChatScreen() {
           style={[
             styles.iconButton,
             {
-              backgroundColor: (inputText.trim() || selectedImage) ? theme.colors.primary : theme.colors.surface
+              backgroundColor: inputText.trim() ? theme.colors.primary : theme.colors.surface
             }
           ]}
           onPress={handleSend}
-          disabled={!inputText.trim() && !selectedImage}
+          disabled={!inputText.trim()}
         >
           <ArrowUp 
             size={20} 
-            color={(inputText.trim() || selectedImage) ? '#FFFFFF' : theme.colors.text.secondary}
+            color={inputText.trim() ? '#FFFFFF' : theme.colors.text.secondary}
           />
         </Pressable>
       </View>
@@ -326,22 +314,6 @@ const styles = StyleSheet.create({
     animationDuration: '0.6s',
     animationDelay: '0.4s',
     animationIterationCount: 'infinite',
-  },
-  selectedImageContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
-  },
-  selectedImageText: {
-    fontSize: 14,
-  },
-  removeImageButton: {
-    padding: 6,
-    borderRadius: 16,
   },
   inputContainer: {
     flexDirection: 'row',
