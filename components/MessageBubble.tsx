@@ -16,6 +16,10 @@ import { useTheme } from '@/context/ThemeContext';
 import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2, X, Copy, Check } from 'lucide-react-native';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 
+// Global state to track active message ID
+let activeMessageId: string | null = null;
+let setShowCopyButtonCallback: ((show: boolean) => void) | null = null;
+
 interface MessageBubbleProps {
   message: Message;
   agentColor: string;
@@ -38,6 +42,20 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
   const bubbleRef = useRef<View>(null);
   const scale = useSharedValue(1);
   const bubbleScale = useSharedValue(1);
+
+  useEffect(() => {
+    // Update the callback reference when a new message bubble is mounted
+    if (showCopyButton) {
+      setShowCopyButtonCallback = setShowCopyButton;
+    }
+
+    return () => {
+      // Clean up when unmounted
+      if (setShowCopyButtonCallback === setShowCopyButton) {
+        setShowCopyButtonCallback = null;
+      }
+    };
+  }, [showCopyButton]);
   
   useEffect(() => {
     if (Platform.OS === 'web' && showCopyButton) {
@@ -45,6 +63,7 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
         if (bubbleRef.current && !(bubbleRef.current as any).contains(event.target)) {
           setShowCopyButton(false);
           setCopied(false);
+          activeMessageId = null;
         }
       };
 
@@ -90,6 +109,7 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
         setTimeout(() => {
           setShowCopyButton(false);
           setCopied(false);
+          activeMessageId = null;
         }, 1500);
       } catch (err) {
         console.error('Failed to copy text:', err);
@@ -99,7 +119,15 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
 
   const handlePress = () => {
     if (!isImage) {
+      // Hide previous copy button if it exists
+      if (activeMessageId && activeMessageId !== message.id && setShowCopyButtonCallback) {
+        setShowCopyButtonCallback(false);
+      }
+      
+      // Update active message
+      activeMessageId = message.id;
       setShowCopyButton(true);
+      
       bubbleScale.value = withSequence(
         withSpring(0.95, { damping: 10 }),
         withSpring(1, { damping: 10 })
