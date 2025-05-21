@@ -43,18 +43,6 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
   const scale = useSharedValue(1);
   const bubbleScale = useSharedValue(1);
 
-  const bubbleAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: bubbleScale.value }]
-    };
-  });
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }]
-    };
-  });
-
   useEffect(() => {
     // Update the callback reference when a new message bubble is mounted
     if (showCopyButton) {
@@ -84,6 +72,18 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
     }
   }, [showCopyButton]);
 
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  const bubbleAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: bubbleScale.value }],
+    };
+  });
+  
   const getStatusIcon = () => {
     if (!isUser || !message.status) return null;
     
@@ -144,7 +144,7 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
           isUser ? styles.userContainer : styles.assistantContainer,
         ]}
       >
-        <View ref={bubbleRef} style={styles.bubbleWrapper}>
+        <View ref={bubbleRef}>
           <Animated.View style={bubbleAnimatedStyle}>
             <Pressable 
               onPress={handlePress}
@@ -220,8 +220,7 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
               style={[
                 styles.copyButton,
                 { backgroundColor: theme.colors.card },
-                animatedStyle,
-                isUser ? styles.copyButtonRight : styles.copyButtonLeft
+                animatedStyle
               ]}
             >
               <Pressable
@@ -293,9 +292,6 @@ const styles = StyleSheet.create({
   },
   assistantContainer: {
     alignSelf: 'flex-start',
-  },
-  bubbleWrapper: {
-    position: 'relative',
   },
   bubble: {
     borderRadius: 20,
@@ -381,7 +377,8 @@ const styles = StyleSheet.create({
   },
   copyButton: {
     position: 'absolute',
-    top: -44,
+    top: -36,
+    right: 0,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {
@@ -391,13 +388,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3.84,
     elevation: 5,
-    zIndex: 100,
-  },
-  copyButtonLeft: {
-    right: 0,
-  },
-  copyButtonRight: {
-    left: 0,
   },
   copyButtonInner: {
     flexDirection: 'row',
