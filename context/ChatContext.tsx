@@ -142,7 +142,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           chatManagers.set(agent.id, chatManager);
         }
 
-        // Filter out error messages and failed user messages
+        // Only filter out system error messages and failed user messages
+        // Keep all other messages including image messages
         const validMessages = conversation.messages.filter(msg => 
           !(msg.sender === 'system' && msg.type === 'error') &&
           !(msg.sender === 'user' && msg.status === 'failed')
