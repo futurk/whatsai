@@ -64,14 +64,6 @@ export class NetworkError extends APIError {
   }
 }
 
-export interface ErrorResponse {
-  error?: {
-    message?: string;
-    type?: string;
-    code?: string;
-  };
-}
-
 export const getPrettyErrorMessage = (error: APIError, vendor?: string): string => {
   const vendorPrefix = vendor ? `${vendor} ` : '';
 
