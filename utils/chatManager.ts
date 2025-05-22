@@ -47,37 +47,35 @@ export class ChatManager {
     this.onLog?.(log);
   }
 
-  private getErrorMessage(error: any): string {
-    if (error?.message?.includes('Invalid API key')) {
-      return 'Invalid API key. Please check your API key in settings and try again.';
-    }
-    
-    if (error?.message?.includes('Rate limit')) {
-      return 'Rate limit exceeded. Please wait a moment and try again.';
-    }
-    
-    if (error?.message?.includes('insufficient_quota') || error?.message?.includes('billing')) {
-      return 'API quota exceeded. Please check your billing status and try again.';
-    }
-    
-    if (error?.message?.includes('context_length_exceeded')) {
-      return 'Message too long. Please try sending a shorter message or starting a new conversation.';
-    }
-    
-    if (error?.message?.includes('content_filter')) {
-      return 'Message blocked by content filter. Please rephrase your message and try again.';
-    }
-    
-    if (error?.message?.includes('model')) {
-      return 'Selected model is currently unavailable. Please try again later or choose a different model.';
+  private getErrorMessage(error: Error): string {
+    const message = error.message.toLowerCase();
+
+    if (message.includes('invalid api key')) {
+      return 'Your API key appears to be invalid. Please check your settings and update your API key.';
     }
 
-    if (error?.message?.includes('timeout') || error?.message?.includes('ETIMEDOUT')) {
-      return 'Request timed out. Please check your internet connection and try again.';
+    if (message.includes('rate limit')) {
+      return 'You\'ve hit the rate limit. Please wait a moment before sending another message.';
     }
 
-    if (error?.message?.includes('network') || error?.message?.includes('ECONNREFUSED')) {
-      return 'Network error. Please check your internet connection and try again.';
+    if (message.includes('permission denied')) {
+      return 'You don\'t have permission to use this feature. Please check your API key permissions.';
+    }
+
+    if (message.includes('not found')) {
+      return 'The requested AI model is not available. Please try a different model.';
+    }
+
+    if (message.includes('bad request')) {
+      return 'There was an issue with the request. Please try again with a different message.';
+    }
+
+    if (message.includes('network error')) {
+      return 'Unable to connect to the AI service. Please check your internet connection.';
+    }
+
+    if (message.includes('experiencing issues')) {
+      return 'The AI service is currently experiencing technical difficulties. Please try again later.';
     }
 
     return 'An unexpected error occurred. Please try again later.';
@@ -105,7 +103,7 @@ export class ChatManager {
 
       return response.choices?.[0]?.message?.content || response;
     } catch (error) {
-      const errorMessage = this.getErrorMessage(error);
+      const errorMessage = this.getErrorMessage(error instanceof Error ? error : new Error('Unknown error'));
       
       this.log('error', {
         error: errorMessage,
