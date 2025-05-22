@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Modal, Pressable } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ConfirmationDialogProps {
   visible: boolean;
@@ -17,13 +18,14 @@ export default function ConfirmationDialog({
   visible,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   onConfirm,
   onCancel,
   destructive = false,
 }: ConfirmationDialogProps) {
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Modal
@@ -53,7 +55,7 @@ export default function ConfirmationDialog({
               onPress={onCancel}
             >
               <Text style={[styles.buttonText, { color: theme.colors.text.secondary }]}>
-                {cancelText}
+                {cancelText || t('common.cancel')}
               </Text>
             </Pressable>
             
@@ -74,7 +76,7 @@ export default function ConfirmationDialog({
                     : { color: '#FFFFFF' }
                 ]}
               >
-                {confirmText}
+                {confirmText || t('common.confirm')}
               </Text>
             </Pressable>
           </View>

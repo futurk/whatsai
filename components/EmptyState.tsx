@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import React, { ReactNode } from 'react';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useTheme } from '@/context/ThemeContext';
 
 interface EmptyStateProps {
   icon: ReactNode;
@@ -11,20 +12,29 @@ interface EmptyStateProps {
 }
 
 const EmptyState = ({ icon, title, message, actionLabel, onAction }: EmptyStateProps) => {
+  const { theme } = useTheme();
+
   return (
     <Animated.View 
       entering={FadeIn.delay(300).duration(400)} 
       style={styles.container}
     >
-      <View style={styles.iconContainer}>{icon}</View>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.message}>{message}</Text>
+      <View style={[styles.iconContainer, { backgroundColor: theme.colors.surface }]}>
+        {icon}
+      </View>
+      <Text style={[styles.title, { color: theme.colors.text.primary }]}>
+        {title}
+      </Text>
+      <Text style={[styles.message, { color: theme.colors.text.secondary }]}>
+        {message}
+      </Text>
       
       {actionLabel && onAction && (
         <Pressable 
           style={({ pressed }) => [
             styles.actionButton,
-            pressed && styles.actionButtonPressed
+            { backgroundColor: theme.colors.primary },
+            pressed && { opacity: 0.8 }
           ]} 
           onPress={onAction}
         >
@@ -43,7 +53,6 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   iconContainer: {
-    backgroundColor: '#EFF6FF',
     width: 80,
     height: 80,
     borderRadius: 40,
@@ -54,25 +63,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#1F2937',
     marginBottom: 8,
     textAlign: 'center',
   },
   message: {
     fontSize: 16,
-    color: '#6B7280',
     marginBottom: 24,
     textAlign: 'center',
     lineHeight: 22,
   },
   actionButton: {
-    backgroundColor: '#3B82F6',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
-  },
-  actionButtonPressed: {
-    backgroundColor: '#2563EB',
   },
   actionButtonText: {
     color: '#FFFFFF',
