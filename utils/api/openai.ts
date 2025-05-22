@@ -35,12 +35,31 @@ export class OpenAIClient {
         }),
       });
 
+      // Handle specific status codes
+      switch (response.status) {
+        case 400:
+          throw new Error('Bad request: The request was malformed or invalid');
+        case 401:
+          throw new Error('Invalid API key: Please check your API key and try again');
+        case 403:
+          throw new Error('Permission denied: You don\'t have access to this resource');
+        case 404:
+          throw new Error('Not found: The requested resource doesn\'t exist');
+        case 422:
+          throw new Error('Unprocessable entity: The request was well-formed but invalid');
+        case 429:
+          throw new Error('Rate limit exceeded: Please try again later');
+        case 500:
+        case 501:
+        case 502:
+        case 503:
+        case 504:
+          throw new Error('OpenAI API is experiencing issues. Please try again later');
+      }
+
       if (!response.ok) {
         const error = await response.json();
-        if (error.error) {
-          throw new Error(error.error.message || error.error.type);
-        }
-        throw new Error(`HTTP error ${response.status}`);
+        throw new Error(error.error?.message || `Unknown error: ${response.status}`);
       }
 
       return response.json();
