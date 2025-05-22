@@ -2,9 +2,8 @@ import { createContext, useContext, ReactNode, useState, useCallback } from 'rea
 import { Conversation, Message, MessageStatus } from '@/types/chat';
 import { useAgentContext } from './AgentContext';
 import { useApiKeyContext } from './ApiKeyContext';
-import { ChatManager } from '@/utils/chatManager';
+import { ChatManager, LogEntry } from '@/utils/chatManager';
 import { useDebugContext } from './DebugContext';
-import { ErrorLogger } from '@/utils/api/errorLogger';
 
 interface ChatContextType {
   conversations: Conversation[];
@@ -21,11 +20,11 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export function ChatProvider({ children }: { children: ReactNode }) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [debugLogs, setDebugLogs] = useState<Record<string, LogEntry[]>>({});
   const { getAgentById } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
   const { isDebugMode } = useDebugContext();
   const chatManagers = new Map<string, ChatManager>();
-  const errorLogger = ErrorLogger.getInstance();
 
   const getConversationById = useCallback((id: string) => {
     return conversations.find(conversation => conversation.id === id);
@@ -58,8 +57,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           agent,
           apiKeys,
           isDebugMode ? (log) => {
-            const logs = errorLogger.getLogsForConversation(id);
-            logs.push(log);
+            setDebugLogs(prev => ({
+              ...prev,
+              [id]: [...(prev[id] || []), log],
+            }));
           } : undefined
         )
       );
@@ -70,8 +71,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const deleteConversations = useCallback((ids: string[]) => {
     setConversations(prev => prev.filter(conv => !ids.includes(conv.id)));
-    ids.forEach(id => {
-      errorLogger.clearLogsForConversation(id);
+    setDebugLogs(prev => {
+      const newLogs = { ...prev };
+      ids.forEach(id => delete newLogs[id]);
+      return newLogs;
     });
   }, []);
 
@@ -130,8 +133,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             agent,
             apiKeys,
             isDebugMode ? (log) => {
-              const logs = errorLogger.getLogsForConversation(conversationId);
-              logs.push(log);
+              setDebugLogs(prev => ({
+                ...prev,
+                [conversationId]: [...(prev[conversationId] || []), log],
+              }));
             } : undefined
           );
           chatManagers.set(agent.id, chatManager);
@@ -175,7 +180,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           }
         ];
 
-        const response = await chatManager.sendMessage(messages, conversationId);
+        const response = await chatManager.sendMessage(messages);
 
         updateMessageStatus(conversationId, message.id, 'completed');
 
@@ -247,12 +252,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         addMessageToConversation,
         deleteConversations,
         isTyping,
-        debugLogs: Object.fromEntries(
-          Array.from(conversations).map(conv => [
-            conv.id,
-            errorLogger.getLogsForConversation(conv.id)
-          ])
-        ),
+        debugLogs,
       }}
     >
       {children}
