@@ -1,6 +1,5 @@
 import {
   APIError,
-  ErrorResponse,
   BadRequestError,
   AuthenticationError,
   PermissionDeniedError,
@@ -24,9 +23,7 @@ export class AnthropicClient {
     return Boolean(key && typeof key === 'string');
   }
 
-  private handleErrorResponse(status: number, data?: ErrorResponse): never {
-    const message = data?.error?.message;
-
+  private handleErrorResponse(status: number, message?: string): never {
     switch (status) {
       case 400:
         throw new BadRequestError(message);
@@ -82,8 +79,8 @@ export class AnthropicClient {
       });
 
       if (!response.ok) {
-        const data = await response.json() as ErrorResponse;
-        this.handleErrorResponse(response.status, data);
+        const data = await response.json();
+        this.handleErrorResponse(response.status, data?.error?.message);
       }
 
       return response.json();
