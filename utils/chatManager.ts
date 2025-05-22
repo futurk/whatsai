@@ -47,6 +47,42 @@ export class ChatManager {
     this.onLog?.(log);
   }
 
+  private getErrorMessage(error: any): string {
+    if (error?.message?.includes('Invalid API key')) {
+      return 'Invalid API key. Please check your API key in settings and try again.';
+    }
+    
+    if (error?.message?.includes('Rate limit')) {
+      return 'Rate limit exceeded. Please wait a moment and try again.';
+    }
+    
+    if (error?.message?.includes('insufficient_quota') || error?.message?.includes('billing')) {
+      return 'API quota exceeded. Please check your billing status and try again.';
+    }
+    
+    if (error?.message?.includes('context_length_exceeded')) {
+      return 'Message too long. Please try sending a shorter message or starting a new conversation.';
+    }
+    
+    if (error?.message?.includes('content_filter')) {
+      return 'Message blocked by content filter. Please rephrase your message and try again.';
+    }
+    
+    if (error?.message?.includes('model')) {
+      return 'Selected model is currently unavailable. Please try again later or choose a different model.';
+    }
+
+    if (error?.message?.includes('timeout') || error?.message?.includes('ETIMEDOUT')) {
+      return 'Request timed out. Please check your internet connection and try again.';
+    }
+
+    if (error?.message?.includes('network') || error?.message?.includes('ECONNREFUSED')) {
+      return 'Network error. Please check your internet connection and try again.';
+    }
+
+    return 'An unexpected error occurred. Please try again later.';
+  }
+
   async sendMessage(messages: Array<{ role: string; content: any }>, imageUrl?: string) {
     try {
       const requestPayload = {
@@ -69,11 +105,15 @@ export class ChatManager {
 
       return response.choices?.[0]?.message?.content || response;
     } catch (error) {
+      const errorMessage = this.getErrorMessage(error);
+      
       this.log('error', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: errorMessage,
+        originalError: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined
       });
-      throw error;
+      
+      throw new Error(errorMessage);
     }
   }
 
