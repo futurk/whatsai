@@ -3,6 +3,8 @@ import { AnthropicClient } from './api/anthropic';
 import { APIError, getPrettyErrorMessage } from './api/types';
 import { Agent } from '@/types/agent';
 import { ApiKey, Vendor } from '@/types/apiKey';
+import { RetryHandler } from './api/retryHandler';
+import { ErrorLogger } from './api/errorLogger';
 
 export interface LogEntry {
   timestamp: string;
@@ -12,7 +14,8 @@ export interface LogEntry {
 
 export class ChatManager {
   private client: OpenAIClient | AnthropicClient;
-  private logs: LogEntry[] = [];
+  private retryHandler: RetryHandler;
+  private errorLogger: ErrorLogger;
   private vendor: Vendor;
 
   constructor(
@@ -27,6 +30,8 @@ export class ChatManager {
 
     this.vendor = apiKey.vendor;
     this.client = this.createClient(apiKey);
+    this.retryHandler = new RetryHandler();
+    this.errorLogger = ErrorLogger.getInstance();
   }
 
   private createClient(apiKey: ApiKey) {
@@ -40,17 +45,21 @@ export class ChatManager {
     }
   }
 
-  private log(type: LogEntry['type'], data: any) {
+  private log(type: LogEntry['type'], data: any, conversationId?: string) {
     const log: LogEntry = {
       timestamp: new Date().toISOString(),
       type,
       data,
     };
-    this.logs.push(log);
+    
+    if (conversationId) {
+      this.errorLogger.log(conversationId, log);
+    }
+    
     this.onLog?.(log);
   }
 
-  async sendMessage(messages: Array<{ role: string; content: any }>, imageUrl?: string) {
+  async sendMessage(messages: Array<{ role: string; content: any }>, conversationId: string) {
     try {
       const requestPayload = {
         messages,
@@ -59,16 +68,19 @@ export class ChatManager {
         maxTokens: this.agent.maxTokens
       };
 
-      this.log('request', requestPayload);
+      this.log('request', requestPayload, conversationId);
 
-      const response = await this.client.chat(
-        messages,
-        this.agent.model,
-        this.agent.temperature,
-        this.agent.maxTokens
+      const response = await this.retryHandler.execute(() =>
+        this.client.chat(
+          messages,
+          this.agent.model,
+          this.agent.temperature,
+          this.agent.maxTokens
+        )
       );
       
-      this.log('response', response);
+      this.log('response', response, conversationId);
+      this.retryHandler.reset();
 
       return response.choices?.[0]?.message?.content || response;
     } catch (error) {
@@ -77,16 +89,23 @@ export class ChatManager {
         : 'An unexpected error occurred. Please try again later.';
       
       this.log('error', {
-        error: userMessage,
-        originalError: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
+        userMessage,
+        error: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        } : 'Unknown error'
+      }, conversationId);
       
       throw new Error(userMessage);
     }
   }
 
-  getLogs(): LogEntry[] {
-    return [...this.logs];
+  getLogsForConversation(conversationId: string): LogEntry[] {
+    return this.errorLogger.getLogsForConversation(conversationId);
+  }
+
+  clearLogsForConversation(conversationId: string) {
+    this.errorLogger.clearLogsForConversation(conversationId);
   }
 }
