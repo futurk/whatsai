@@ -20,25 +20,35 @@ export class OpenAIClient {
       throw new Error('Model must be specified');
     }
 
-    const response = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature: temperature,
-        max_tokens: maxTokens ?? 1000,
-      }),
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: temperature,
+          max_tokens: maxTokens ?? 1000,
+        }),
+      });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error?.message || `HTTP error ${response.status}`);
+      if (!response.ok) {
+        const error = await response.json();
+        if (error.error) {
+          throw new Error(error.error.message || error.error.type);
+        }
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Network error: Unable to connect to OpenAI API');
+      }
+      throw error;
     }
-
-    return response.json();
   }
 }

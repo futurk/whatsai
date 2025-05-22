@@ -25,26 +25,36 @@ export class AnthropicClient {
       content: msg.content,
     }));
 
-    const response = await fetch(`${this.baseUrl}/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': this.apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: maxTokens ?? 1000,
-        temperature: temperature ?? 0.7,
-        messages: anthropicMessages,
-      }),
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': this.apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: maxTokens ?? 1000,
+          temperature: temperature ?? 0.7,
+          messages: anthropicMessages,
+        }),
+      });
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.error?.message || `HTTP error ${response.status}`);
+      if (!response.ok) {
+        const error = await response.json();
+        if (error.error) {
+          throw new Error(error.error.message || error.error.type);
+        }
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Network error: Unable to connect to Anthropic API');
+      }
+      throw error;
     }
-
-    return response.json();
   }
 }
