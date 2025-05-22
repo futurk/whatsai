@@ -1,26 +1,68 @@
-import { Vendor } from '@/types/apiKey';
-
 export class APIError extends Error {
   constructor(
     message: string,
-    public readonly code: number,
-    public readonly type: APIErrorType
+    public readonly code: number
   ) {
     super(message);
     this.name = 'APIError';
   }
 }
 
-export type APIErrorType = 
-  | 'BAD_REQUEST'
-  | 'AUTHENTICATION'
-  | 'PERMISSION_DENIED'
-  | 'NOT_FOUND'
-  | 'UNPROCESSABLE_ENTITY'
-  | 'RATE_LIMIT'
-  | 'INTERNAL_SERVER'
-  | 'NETWORK'
-  | 'UNKNOWN';
+export class BadRequestError extends APIError {
+  constructor(message: string = 'The request was malformed or invalid') {
+    super(message, 400);
+    this.name = 'BadRequestError';
+  }
+}
+
+export class AuthenticationError extends APIError {
+  constructor(message: string = 'Invalid API key provided') {
+    super(message, 401);
+    this.name = 'AuthenticationError';
+  }
+}
+
+export class PermissionDeniedError extends APIError {
+  constructor(message: string = 'You don\'t have access to this resource') {
+    super(message, 403);
+    this.name = 'PermissionDeniedError';
+  }
+}
+
+export class NotFoundError extends APIError {
+  constructor(message: string = 'The requested resource doesn\'t exist') {
+    super(message, 404);
+    this.name = 'NotFoundError';
+  }
+}
+
+export class UnprocessableEntityError extends APIError {
+  constructor(message: string = 'The request was well-formed but invalid') {
+    super(message, 422);
+    this.name = 'UnprocessableEntityError';
+  }
+}
+
+export class RateLimitError extends APIError {
+  constructor(message: string = 'Rate limit exceeded') {
+    super(message, 429);
+    this.name = 'RateLimitError';
+  }
+}
+
+export class InternalServerError extends APIError {
+  constructor(message: string = 'The server encountered an internal error') {
+    super(message, 500);
+    this.name = 'InternalServerError';
+  }
+}
+
+export class NetworkError extends APIError {
+  constructor(message: string = 'Network connection error') {
+    super(message, 0);
+    this.name = 'NetworkError';
+  }
+}
 
 export interface ErrorResponse {
   error?: {
@@ -30,70 +72,29 @@ export interface ErrorResponse {
   };
 }
 
-export const ERROR_STATUS_MAP: Record<number, { type: APIErrorType; defaultMessage: string }> = {
-  400: {
-    type: 'BAD_REQUEST',
-    defaultMessage: 'The request was malformed or invalid'
-  },
-  401: {
-    type: 'AUTHENTICATION',
-    defaultMessage: 'Invalid API key provided'
-  },
-  403: {
-    type: 'PERMISSION_DENIED',
-    defaultMessage: 'You don\'t have access to this resource'
-  },
-  404: {
-    type: 'NOT_FOUND',
-    defaultMessage: 'The requested resource doesn\'t exist'
-  },
-  422: {
-    type: 'UNPROCESSABLE_ENTITY',
-    defaultMessage: 'The request was well-formed but invalid'
-  },
-  429: {
-    type: 'RATE_LIMIT',
-    defaultMessage: 'Rate limit exceeded'
-  },
-  500: {
-    type: 'INTERNAL_SERVER',
-    defaultMessage: 'The server encountered an internal error'
-  },
-  501: {
-    type: 'INTERNAL_SERVER',
-    defaultMessage: 'The server encountered an internal error'
-  },
-  502: {
-    type: 'INTERNAL_SERVER',
-    defaultMessage: 'The server encountered an internal error'
-  },
-  503: {
-    type: 'INTERNAL_SERVER',
-    defaultMessage: 'The server encountered an internal error'
-  },
-  504: {
-    type: 'INTERNAL_SERVER',
-    defaultMessage: 'The server encountered an internal error'
-  }
-};
+export const getPrettyErrorMessage = (error: APIError, vendor?: string): string => {
+  const vendorPrefix = vendor ? `${vendor} ` : '';
 
-export const getPrettyErrorMessage = (error: APIError, vendor?: Vendor): string => {
-  switch (error.type) {
-    case 'AUTHENTICATION':
-      return `Your ${vendor ? vendor + ' ' : ''}API key appears to be invalid. Please check your settings and update your API key.`;
-    case 'RATE_LIMIT':
-      return 'You\'ve hit the rate limit. Please wait a moment before sending another message.';
-    case 'PERMISSION_DENIED':
-      return 'You don\'t have permission to use this feature. Please check your API key permissions.';
-    case 'NOT_FOUND':
-      return 'The requested AI model is not available. Please try a different model.';
-    case 'BAD_REQUEST':
-      return 'There was an issue with the request. Please try again with a different message.';
-    case 'NETWORK':
-      return `Unable to connect to the ${vendor || 'AI'} service. Please check your internet connection.`;
-    case 'INTERNAL_SERVER':
-      return `The ${vendor || 'AI'} service is currently experiencing technical difficulties. Please try again later.`;
-    default:
-      return 'An unexpected error occurred. Please try again later.';
+  if (error instanceof AuthenticationError) {
+    return `Your ${vendorPrefix}API key appears to be invalid. Please check your settings and update your API key.`;
   }
+  if (error instanceof RateLimitError) {
+    return 'You\'ve hit the rate limit. Please wait a moment before sending another message.';
+  }
+  if (error instanceof PermissionDeniedError) {
+    return 'You don\'t have permission to use this feature. Please check your API key permissions.';
+  }
+  if (error instanceof NotFoundError) {
+    return 'The requested AI model is not available. Please try a different model.';
+  }
+  if (error instanceof BadRequestError) {
+    return 'There was an issue with the request. Please try again with a different message.';
+  }
+  if (error instanceof NetworkError) {
+    return `Unable to connect to the ${vendorPrefix}service. Please check your internet connection.`;
+  }
+  if (error instanceof InternalServerError) {
+    return `The ${vendorPrefix}service is currently experiencing technical difficulties. Please try again later.`;
+  }
+  return 'An unexpected error occurred. Please try again later.';
 };
