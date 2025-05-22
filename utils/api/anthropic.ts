@@ -1,11 +1,22 @@
-import { APIError, APIErrorType, ErrorResponse, ERROR_STATUS_MAP } from './types';
+import {
+  APIError,
+  ErrorResponse,
+  BadRequestError,
+  AuthenticationError,
+  PermissionDeniedError,
+  NotFoundError,
+  UnprocessableEntityError,
+  RateLimitError,
+  InternalServerError,
+  NetworkError
+} from './types';
 
 export class AnthropicClient {
   private baseUrl = 'https://api.anthropic.com/v1';
 
   constructor(private readonly apiKey: string) {
     if (!this.isValidApiKey(apiKey)) {
-      throw new APIError('Invalid Anthropic API key', 401, 'AUTHENTICATION');
+      throw new AuthenticationError('Invalid Anthropic API key');
     }
   }
 
@@ -14,22 +25,39 @@ export class AnthropicClient {
   }
 
   private handleErrorResponse(status: number, data?: ErrorResponse): never {
-    const errorInfo = ERROR_STATUS_MAP[status] || {
-      type: 'UNKNOWN' as APIErrorType,
-      defaultMessage: 'An unknown error occurred'
-    };
+    const message = data?.error?.message;
 
-    const errorMessage = data?.error?.message || errorInfo.defaultMessage;
-    throw new APIError(errorMessage, status, errorInfo.type);
+    switch (status) {
+      case 400:
+        throw new BadRequestError(message);
+      case 401:
+        throw new AuthenticationError(message);
+      case 403:
+        throw new PermissionDeniedError(message);
+      case 404:
+        throw new NotFoundError(message);
+      case 422:
+        throw new UnprocessableEntityError(message);
+      case 429:
+        throw new RateLimitError(message);
+      case 500:
+      case 501:
+      case 502:
+      case 503:
+      case 504:
+        throw new InternalServerError(message);
+      default:
+        throw new APIError(message || 'An unknown error occurred', status);
+    }
   }
 
   async chat(messages: Array<{ role: string; content: string }>, model: string, temperature?: number, maxTokens?: number) {
     if (!messages?.length) {
-      throw new APIError('Messages array cannot be empty', 400, 'BAD_REQUEST');
+      throw new BadRequestError('Messages array cannot be empty');
     }
 
     if (!model) {
-      throw new APIError('Model must be specified', 400, 'BAD_REQUEST');
+      throw new BadRequestError('Model must be specified');
     }
 
     const anthropicMessages = messages.map(msg => ({
@@ -65,13 +93,12 @@ export class AnthropicClient {
       }
 
       if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        throw new APIError('Unable to connect to Anthropic API', 0, 'NETWORK');
+        throw new NetworkError('Unable to connect to Anthropic API');
       }
 
       throw new APIError(
         error instanceof Error ? error.message : 'Unknown error occurred',
-        0,
-        'UNKNOWN'
+        0
       );
     }
   }
