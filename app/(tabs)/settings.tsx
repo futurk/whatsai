@@ -1,12 +1,14 @@
 import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor, Sun, Moon } from 'lucide-react-native';
+import { Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor, Sun, Moon, Languages } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useDebugContext } from '@/context/DebugContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
 import AgentSelectionModal from '@/components/AgentSelectionModal';
+import LanguageSelectionModal from '@/components/LanguageSelectionModal';
 import { ThemeMode } from '@/types/theme';
 
 export default function SettingsScreen() {
@@ -15,9 +17,11 @@ export default function SettingsScreen() {
   const { apiKeys } = useApiKeyContext();
   const { isDebugMode, toggleDebugMode } = useDebugContext();
   const { theme, themeMode, setThemeMode } = useTheme();
+  const { language } = useLanguage();
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
   const [showAgentModal, setShowAgentModal] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
 
   const getThemeIcon = (mode: ThemeMode) => {
     switch (mode) {
@@ -126,6 +130,12 @@ export default function SettingsScreen() {
               ? `New chats will start with ${getAgentById(defaultAgentId)?.name}`
               : 'Select an agent to start new chats immediately',
             onPress: () => setShowAgentModal(true)
+          })}
+          {renderSettingItem({
+            icon: <Languages size={22} color={theme.colors.primary} />,
+            title: 'Language',
+            description: 'Change the app language',
+            onPress: () => setShowLanguageModal(true)
           })}
         </View>
 
@@ -236,6 +246,11 @@ export default function SettingsScreen() {
         agents={agents}
         selectedAgentId={defaultAgentId}
         onSelect={setDefaultAgent}
+      />
+
+      <LanguageSelectionModal
+        visible={showLanguageModal}
+        onClose={() => setShowLanguageModal(false)}
       />
     </>
   );
