@@ -1,6 +1,6 @@
 import { OpenAIClient } from './api/openai';
 import { AnthropicClient } from './api/anthropic';
-import { APIError } from './api/types';
+import { APIError, getPrettyErrorMessage } from './api/types';
 import { Agent } from '@/types/agent';
 import { ApiKey, Vendor } from '@/types/apiKey';
 
@@ -13,6 +13,7 @@ export interface LogEntry {
 export class ChatManager {
   private client: OpenAIClient | AnthropicClient;
   private logs: LogEntry[] = [];
+  private vendor: Vendor;
 
   constructor(
     private readonly agent: Agent,
@@ -24,6 +25,7 @@ export class ChatManager {
       throw new Error(`No API key found for agent: ${agent.name}`);
     }
 
+    this.vendor = apiKey.vendor;
     this.client = this.createClient(apiKey);
   }
 
@@ -46,27 +48,6 @@ export class ChatManager {
     };
     this.logs.push(log);
     this.onLog?.(log);
-  }
-
-  private getUserFriendlyErrorMessage(error: APIError): string {
-    switch (error.type) {
-      case 'AUTHENTICATION':
-        return 'Your API key appears to be invalid. Please check your settings and update your API key.';
-      case 'RATE_LIMIT':
-        return 'You\'ve hit the rate limit. Please wait a moment before sending another message.';
-      case 'PERMISSION_DENIED':
-        return 'You don\'t have permission to use this feature. Please check your API key permissions.';
-      case 'NOT_FOUND':
-        return 'The requested AI model is not available. Please try a different model.';
-      case 'BAD_REQUEST':
-        return 'There was an issue with the request. Please try again with a different message.';
-      case 'NETWORK':
-        return 'Unable to connect to the AI service. Please check your internet connection.';
-      case 'INTERNAL_SERVER':
-        return 'The AI service is currently experiencing technical difficulties. Please try again later.';
-      default:
-        return 'An unexpected error occurred. Please try again later.';
-    }
   }
 
   async sendMessage(messages: Array<{ role: string; content: any }>, imageUrl?: string) {
@@ -92,7 +73,7 @@ export class ChatManager {
       return response.choices?.[0]?.message?.content || response;
     } catch (error) {
       const userMessage = error instanceof APIError
-        ? this.getUserFriendlyErrorMessage(error)
+        ? getPrettyErrorMessage(error, this.vendor)
         : 'An unexpected error occurred. Please try again later.';
       
       this.log('error', {
