@@ -1,3 +1,5 @@
+import { Vendor } from '@/types/apiKey';
+
 export class APIError extends Error {
   constructor(
     message: string,
@@ -72,5 +74,26 @@ export const ERROR_STATUS_MAP: Record<number, { type: APIErrorType; defaultMessa
   504: {
     type: 'INTERNAL_SERVER',
     defaultMessage: 'The server encountered an internal error'
+  }
+};
+
+export const getPrettyErrorMessage = (error: APIError, vendor?: Vendor): string => {
+  switch (error.type) {
+    case 'AUTHENTICATION':
+      return `Your ${vendor ? vendor + ' ' : ''}API key appears to be invalid. Please check your settings and update your API key.`;
+    case 'RATE_LIMIT':
+      return 'You\'ve hit the rate limit. Please wait a moment before sending another message.';
+    case 'PERMISSION_DENIED':
+      return 'You don\'t have permission to use this feature. Please check your API key permissions.';
+    case 'NOT_FOUND':
+      return 'The requested AI model is not available. Please try a different model.';
+    case 'BAD_REQUEST':
+      return 'There was an issue with the request. Please try again with a different message.';
+    case 'NETWORK':
+      return `Unable to connect to the ${vendor || 'AI'} service. Please check your internet connection.`;
+    case 'INTERNAL_SERVER':
+      return `The ${vendor || 'AI'} service is currently experiencing technical difficulties. Please try again later.`;
+    default:
+      return 'An unexpected error occurred. Please try again later.';
   }
 };
