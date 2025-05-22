@@ -81,7 +81,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const updateMessageStatus = useCallback((
     conversationId: string, 
     messageId: string, 
-    status: MessageStatus
+    status: MessageStatus,
+    errorMessage?: string
   ) => {
     setConversations(prev =>
       prev.map(conv =>
@@ -90,7 +91,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               ...conv,
               messages: conv.messages.map(msg =>
                 msg.id === messageId
-                  ? { ...msg, status }
+                  ? { ...msg, status, errorMessage }
                   : msg
               )
             }
@@ -202,11 +203,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           )
         );
       } catch (error) {
-        updateMessageStatus(conversationId, message.id, 'failed');
+        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+        updateMessageStatus(conversationId, message.id, 'failed', errorMessage);
 
-        const errorMessage: Message = {
+        const errorSystemMessage: Message = {
           id: (Date.now() + 1).toString(),
-          text: 'Sorry, I encountered an error while processing your message. Please try again.',
+          text: errorMessage,
           sender: 'system',
           type: 'error',
           timestamp: new Date().toISOString()
@@ -217,7 +219,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             conv.id === conversationId
               ? {
                   ...conv,
-                  messages: [...conv.messages, errorMessage],
+                  messages: [...conv.messages, errorSystemMessage],
                   updatedAt: new Date().toISOString()
                 }
               : conv
