@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, Modal, Pressable, ScrollView } from 'react-native';
 import { Check, X } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
-import { useTranslation } from '@/hooks/useTranslation';
 import { Agent } from '@/types/agent';
 
 interface AgentSelectionModalProps {
@@ -20,7 +19,6 @@ export default function AgentSelectionModal({
   onSelect,
 }: AgentSelectionModalProps) {
   const { theme } = useTheme();
-  const { t } = useTranslation();
 
   return (
     <Modal
@@ -39,7 +37,7 @@ export default function AgentSelectionModal({
         >
           <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
             <Text style={[styles.title, { color: theme.colors.text.primary }]}>
-              {t('settings.items.defaultAgent')}
+              Select Default Agent
             </Text>
             <Pressable onPress={onClose} style={styles.closeButton}>
               <X size={24} color={theme.colors.text.secondary} />
@@ -48,7 +46,7 @@ export default function AgentSelectionModal({
 
           <ScrollView style={styles.content}>
             <Text style={[styles.description, { color: theme.colors.text.secondary }]}>
-              {t('settings.descriptions.defaultAgent')}
+              Choose an agent to start new chats with immediately
             </Text>
 
             {agents.map((agent) => (
@@ -94,10 +92,10 @@ export default function AgentSelectionModal({
               </View>
               <View style={styles.agentInfo}>
                 <Text style={[styles.agentName, { color: theme.colors.text.primary }]}>
-                  {t('settings.items.noDefaultAgent')}
+                  No Default Agent
                 </Text>
                 <Text style={[styles.agentModel, { color: theme.colors.text.secondary }]}>
-                  {t('settings.descriptions.noDefaultAgent')}
+                  Select agent manually for each chat
                 </Text>
               </View>
               {selectedAgentId === null && (

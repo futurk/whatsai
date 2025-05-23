@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, Modal, Pressable, ScrollView } from 'react-native';
 import { Check, X } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
-import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/context/LanguageContext';
 import { SUPPORTED_LANGUAGES } from '@/types/language';
 
@@ -15,7 +14,6 @@ export default function LanguageSelectionModal({
   onClose,
 }: LanguageSelectionModalProps) {
   const { theme } = useTheme();
-  const { t } = useTranslation();
   const { language, setLanguage } = useLanguage();
 
   return (
@@ -35,7 +33,7 @@ export default function LanguageSelectionModal({
         >
           <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
             <Text style={[styles.title, { color: theme.colors.text.primary }]}>
-              {t('settings.items.language')}
+              Select Language
             </Text>
             <Pressable onPress={onClose} style={styles.closeButton}>
               <X size={24} color={theme.colors.text.secondary} />
@@ -44,7 +42,7 @@ export default function LanguageSelectionModal({
 
           <ScrollView style={styles.content}>
             <Text style={[styles.description, { color: theme.colors.text.secondary }]}>
-              {t('settings.descriptions.language')}
+              Choose your preferred language
             </Text>
 
             {SUPPORTED_LANGUAGES.map((lang) => (
