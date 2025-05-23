@@ -5,6 +5,7 @@ import { ArrowLeft, Plus, CreditCard as Edit2, Trash2, Key, ChevronDown, Chevron
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
 
@@ -13,6 +14,7 @@ export default function ManageAgentsScreen() {
   const { agents, addAgent, updateAgent, deleteAgent } = useAgentContext();
   const { apiKeys, getModelsByVendor } = useApiKeyContext();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editingAgent, setEditingAgent] = useState(null);
   const [name, setName] = useState('');
@@ -186,7 +188,11 @@ export default function ManageAgentsScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: isEditing ? (editingAgent ? 'Edit Agent' : 'New Agent') : 'Manage Agents',
+          headerTitle: isEditing 
+            ? editingAgent 
+              ? t('agents.edit.title') 
+              : t('agents.new.title')
+            : t('settings.items.manageAgents'),
           headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
           headerLeft: () => (
             <Pressable onPress={handleBack} style={styles.backButton}>
@@ -228,7 +234,7 @@ export default function ManageAgentsScreen() {
               >
                 <View style={styles.inputGroup}>
                   <Text style={[styles.label, { color: theme.colors.text.primary }]}>
-                    <Text>Name </Text>
+                    <Text>{t('agents.form.name')} </Text>
                     <Text style={styles.required}>*</Text>
                   </Text>
                   <TextInput
@@ -239,12 +245,14 @@ export default function ManageAgentsScreen() {
                     }]}
                     value={name}
                     onChangeText={setName}
-                    placeholder="Enter agent name"
+                    placeholder={t('agents.form.namePlaceholder')}
                     placeholderTextColor={theme.colors.text.secondary}
                   />
                 </View>
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>Instructions</Text>
+                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>
+                    {t('agents.form.instructions')}
+                  </Text>
                   <TextInput
                     style={[styles.input, styles.textArea, {
                       backgroundColor: theme.colors.surface,
@@ -253,7 +261,7 @@ export default function ManageAgentsScreen() {
                     }]}
                     value={instructions}
                     onChangeText={setInstructions}
-                    placeholder="Enter agent instructions (optional)"
+                    placeholder={t('agents.form.instructionsPlaceholder')}
                     placeholderTextColor={theme.colors.text.secondary}
                     multiline
                     numberOfLines={4}
@@ -262,7 +270,7 @@ export default function ManageAgentsScreen() {
 
                 <View style={styles.inputGroup}>
                   <Text style={[styles.label, { color: theme.colors.text.primary }]}>
-                    <Text>API Key </Text>
+                    <Text>{t('agents.form.apiKey')} </Text>
                     <Text style={styles.required}>*</Text>
                   </Text>
                   <View style={styles.apiKeyList}>
@@ -303,7 +311,7 @@ export default function ManageAgentsScreen() {
                 {selectedApiKeyId && (
                   <View style={styles.inputGroup}>
                     <Text style={[styles.label, { color: theme.colors.text.primary }]}>
-                      <Text>Model </Text>
+                      <Text>{t('agents.form.model')} </Text>
                       <Text style={styles.required}>*</Text>
                     </Text>
                     <View style={styles.modelList}>
@@ -350,7 +358,9 @@ export default function ManageAgentsScreen() {
                 )}
 
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>Color</Text>
+                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>
+                    {t('agents.form.color')}
+                  </Text>
                   <TextInput
                     style={[styles.input, {
                       backgroundColor: theme.colors.surface,
@@ -365,7 +375,9 @@ export default function ManageAgentsScreen() {
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>Tags (comma-separated)</Text>
+                  <Text style={[styles.label, { color: theme.colors.text.primary }]}>
+                    {t('agents.form.tags')}
+                  </Text>
                   <TextInput
                     style={[styles.input, {
                       backgroundColor: theme.colors.surface,
@@ -374,7 +386,7 @@ export default function ManageAgentsScreen() {
                     }]}
                     value={tags}
                     onChangeText={setTags}
-                    placeholder="General, Helpful, Assistant"
+                    placeholder={t('agents.form.tagsPlaceholder')}
                     placeholderTextColor={theme.colors.text.secondary}
                   />
                 </View>
@@ -384,7 +396,7 @@ export default function ManageAgentsScreen() {
                   onPress={() => setShowAdvanced(!showAdvanced)}
                 >
                   <Text style={[styles.advancedButtonText, { color: theme.colors.text.primary }]}>
-                    Advanced Settings
+                    {t('agents.form.advancedSettings')}
                   </Text>
                   {showAdvanced ? (
                     <ChevronUp size={20} color={theme.colors.text.secondary} />
@@ -397,7 +409,7 @@ export default function ManageAgentsScreen() {
                   <>
                     <View style={styles.inputGroup}>
                       <Text style={[styles.label, { color: theme.colors.text.primary }]}>
-                        Temperature (0.0 - 1.0)
+                        {t('agents.form.temperature')}
                       </Text>
                       <TextInput
                         style={[styles.input, {
@@ -412,13 +424,13 @@ export default function ManageAgentsScreen() {
                         keyboardType="decimal-pad"
                       />
                       <Text style={[styles.helpText, { color: theme.colors.text.secondary }]}>
-                        Controls randomness: 0 is focused, 1 is creative
+                        {t('agents.form.temperatureHelp')}
                       </Text>
                     </View>
 
                     <View style={styles.inputGroup}>
                       <Text style={[styles.label, { color: theme.colors.text.primary }]}>
-                        Max Tokens
+                        {t('agents.form.maxTokens')}
                       </Text>
                       <TextInput
                         style={[styles.input, {
@@ -433,7 +445,7 @@ export default function ManageAgentsScreen() {
                         keyboardType="number-pad"
                       />
                       <Text style={[styles.helpText, { color: theme.colors.text.secondary }]}>
-                        Maximum length of the generated response
+                        {t('agents.form.maxTokensHelp')}
                       </Text>
                     </View>
                   </>
@@ -448,7 +460,7 @@ export default function ManageAgentsScreen() {
                   >
                     <Text style={[styles.cancelButtonText, {
                       color: theme.colors.text.primary
-                    }]}>Cancel</Text>
+                    }]}>{t('common.cancel')}</Text>
                   </Pressable>
                   <Pressable
                     style={[
@@ -463,7 +475,7 @@ export default function ManageAgentsScreen() {
                     onPress={handleSave}
                     disabled={!name || !selectedModel || !selectedApiKeyId}
                   >
-                    <Text style={styles.saveButtonText}>Save</Text>
+                    <Text style={styles.saveButtonText}>{t('common.save')}</Text>
                   </Pressable>
                 </View>
               </Animated.View>
@@ -473,9 +485,9 @@ export default function ManageAgentsScreen() {
 
         <ConfirmationDialog
           visible={deleteConfirmation.visible}
-          title="Delete Agent"
-          message={`Are you sure you want to delete the agent "${deleteConfirmation.name}"? This action cannot be undone.`}
-          confirmText="Delete"
+          title={t('dialogs.deleteAgent.title')}
+          message={t('dialogs.deleteAgent.message')}
+          confirmText={t('common.delete')}
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
           destructive

@@ -4,6 +4,7 @@ import { Stack, useRouter } from 'expo-router';
 import { ArrowLeft, Key, Plus, Trash2 } from 'lucide-react-native';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
 
@@ -11,6 +12,7 @@ export default function ApiKeysScreen() {
   const router = useRouter();
   const { apiKeys, addApiKey, deleteApiKey, getSupportedVendors } = useApiKeyContext();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [selectedVendor, setSelectedVendor] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [keyName, setKeyName] = useState('');
@@ -103,7 +105,7 @@ export default function ApiKeysScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: 'My API Keys',
+          headerTitle: t('apiKeys.title'),
           headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
           headerLeft: () => (
             <Pressable onPress={handleBack} style={styles.backButton}>
@@ -126,15 +128,15 @@ export default function ApiKeysScreen() {
                 <View style={styles.emptyState}>
                   <Key size={48} color={theme.colors.primary} />
                   <Text style={[styles.emptyTitle, { color: theme.colors.text.primary }]}>
-                    No API Keys
+                    {t('apiKeys.empty.title')}
                   </Text>
                   <Text style={[styles.emptyMessage, { color: theme.colors.text.secondary }]}>
-                    Add your API keys to use with different AI models
+                    {t('apiKeys.empty.message')}
                   </Text>
                 </View>
               }
             />
-            <Pressable 
+            <Pressable  
               style={[styles.fab, { backgroundColor: theme.colors.primary }]} 
               onPress={() => setIsAdding(true)}
             >
@@ -148,7 +150,7 @@ export default function ApiKeysScreen() {
           >
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
-                <Text>Select Vendor </Text>
+                <Text>{t('apiKeys.form.vendor')} </Text>
                 <Text style={styles.required}>*</Text>
               </Text>
               <View style={styles.vendorList}>
@@ -178,7 +180,7 @@ export default function ApiKeysScreen() {
 
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
-                <Text>Key Name </Text>
+                <Text>{t('apiKeys.form.name')} </Text>
                 <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
@@ -189,14 +191,14 @@ export default function ApiKeysScreen() {
                 }]}
                 value={keyName}
                 onChangeText={setKeyName}
-                placeholder="Enter a name for this key"
+                placeholder={t('apiKeys.form.namePlaceholder')}
                 placeholderTextColor={theme.colors.text.secondary}
               />
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={[styles.label, { color: theme.colors.text.secondary }]}>
-                <Text>API Key </Text>
+                <Text>{t('apiKeys.form.key')} </Text>
                 <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
@@ -207,7 +209,7 @@ export default function ApiKeysScreen() {
                 }]}
                 value={apiKey}
                 onChangeText={setApiKey}
-                placeholder="Enter your API key"
+                placeholder={t('apiKeys.form.keyPlaceholder')}
                 placeholderTextColor={theme.colors.text.secondary}
                 secureTextEntry
               />
@@ -219,7 +221,7 @@ export default function ApiKeysScreen() {
                 onPress={() => setIsAdding(false)}
               >
                 <Text style={[styles.cancelButtonText, { color: theme.colors.text.secondary }]}>
-                  Cancel
+                  {t('common.cancel')}
                 </Text>
               </Pressable>
               <Pressable
@@ -232,7 +234,7 @@ export default function ApiKeysScreen() {
                 onPress={handleSave}
                 disabled={!selectedVendor || !apiKey || !keyName}
               >
-                <Text style={styles.saveButtonText}>Save</Text>
+                <Text style={styles.saveButtonText}>{t('common.save')}</Text>
               </Pressable>
             </View>
           </Animated.View>
@@ -240,9 +242,9 @@ export default function ApiKeysScreen() {
 
         <ConfirmationDialog
           visible={deleteConfirmation.visible}
-          title="Delete API Key"
-          message={`Are you sure you want to delete the API key "${deleteConfirmation.name}"? This action cannot be undone.`}
-          confirmText="Delete"
+          title={t('dialogs.deleteKey.title')}
+          message={t('dialogs.deleteKey.message')}
+          confirmText={t('common.delete')}
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
           destructive
