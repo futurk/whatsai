@@ -7,6 +7,7 @@ import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useDebugContext } from '@/context/DebugContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import AgentSelectionModal from '@/components/AgentSelectionModal';
 import LanguageSelectionModal from '@/components/LanguageSelectionModal';
 import { ThemeMode } from '@/types/theme';
@@ -18,6 +19,7 @@ export default function SettingsScreen() {
   const { isDebugMode, toggleDebugMode } = useDebugContext();
   const { theme, themeMode, setThemeMode } = useTheme();
   const { language } = useLanguage();
+  const { t } = useTranslation();
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
   const [showAgentModal, setShowAgentModal] = useState(false);
@@ -37,11 +39,11 @@ export default function SettingsScreen() {
   const getThemeLabel = (mode: ThemeMode) => {
     switch (mode) {
       case 'system':
-        return 'System';
+        return t('settings.items.theme.system');
       case 'light':
-        return 'Light';
+        return t('settings.items.theme.light');
       case 'dark':
-        return 'Dark';
+        return t('settings.items.theme.dark');
     }
   };
 
@@ -104,43 +106,49 @@ export default function SettingsScreen() {
         contentContainerStyle={styles.contentContainer}
       >
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>AI Agents</Text>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.aiAgents')}
+          </Text>
           {renderSettingItem({
             icon: <Users size={22} color={theme.colors.primary} />,
-            title: 'Manage Agents',
-            description: 'Create, edit, and delete AI agents',
+            title: t('settings.items.manageAgents'),
+            description: t('settings.descriptions.apiKeys'),
             badge: agents.length.toString(),
             onPress: () => router.push('/manage-agents')
           })}
           {renderSettingItem({
             icon: <Key size={22} color={theme.colors.primary} />,
-            title: 'My API Keys',
-            description: 'Manage your API keys for different vendors',
+            title: t('settings.items.apiKeys'),
+            description: t('settings.descriptions.apiKeys'),
             badge: apiKeys.length.toString(),
             onPress: () => router.push('/api-keys')
           })}
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>Preferences</Text>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.preferences')}
+          </Text>
           {renderSettingItem({
             icon: <MessageSquare size={22} color={theme.colors.primary} />,
-            title: 'Default Agent',
+            title: t('settings.items.defaultAgent'),
             description: defaultAgentId 
-              ? `New chats will start with ${getAgentById(defaultAgentId)?.name}`
-              : 'Select an agent to start new chats immediately',
+              ? `${t('settings.descriptions.defaultAgent')} ${getAgentById(defaultAgentId)?.name}`
+              : t('settings.descriptions.defaultAgent'),
             onPress: () => setShowAgentModal(true)
           })}
           {renderSettingItem({
             icon: <Languages size={22} color={theme.colors.primary} />,
-            title: 'Language',
-            description: 'Change the app language',
+            title: t('settings.items.language'),
+            description: t('settings.descriptions.language'),
             onPress: () => setShowLanguageModal(true)
           })}
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>Appearance</Text>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.appearance')}
+          </Text>
           <View style={[styles.themeSelector, { backgroundColor: theme.colors.card }]}>
             {(['system', 'light', 'dark'] as ThemeMode[]).map((mode) => (
               <Pressable
@@ -172,19 +180,21 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>Notifications</Text>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.notifications')}
+          </Text>
           {renderSettingItem({
             icon: <Bell size={22} color={theme.colors.primary} />,
-            title: 'Push Notifications',
-            description: 'Get notified about new messages',
+            title: t('settings.items.pushNotifications'),
+            description: t('settings.descriptions.pushNotifications'),
             hasSwitch: true,
             switchValue: notifications,
             onSwitchChange: setNotifications
           })}
           {renderSettingItem({
             icon: <Volume2 size={22} color={theme.colors.primary} />,
-            title: 'Sounds',
-            description: 'Play sounds for new messages',
+            title: t('settings.items.sounds'),
+            description: t('settings.descriptions.sounds'),
             hasSwitch: true,
             switchValue: sounds,
             onSwitchChange: setSounds
@@ -192,11 +202,13 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>Developer</Text>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.developer')}
+          </Text>
           {renderSettingItem({
             icon: <Bug size={22} color={theme.colors.primary} />,
-            title: 'Debug Mode',
-            description: 'Enable developer debugging features',
+            title: t('settings.items.debugMode'),
+            description: t('settings.descriptions.debugMode'),
             hasSwitch: true,
             switchValue: isDebugMode,
             onSwitchChange: toggleDebugMode
@@ -204,36 +216,40 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>About</Text>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.about')}
+          </Text>
           {renderSettingItem({
             icon: <Shield size={22} color={theme.colors.primary} />,
-            title: 'Privacy Policy',
+            title: t('settings.items.privacyPolicy'),
             onPress: () => {}
           })}
           {renderSettingItem({
             icon: <HelpCircle size={22} color={theme.colors.primary} />,
-            title: 'Help & Support',
+            title: t('settings.items.helpSupport'),
             onPress: () => {}
           })}
           {renderSettingItem({
             icon: <Info size={22} color={theme.colors.primary} />,
-            title: 'App Version',
+            title: t('settings.items.appVersion'),
             description: '1.0.0'
           })}
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>Account</Text>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.account')}
+          </Text>
           {renderSettingItem({
             icon: <LogOut size={22} color={theme.colors.error} />,
-            title: 'Sign Out',
+            title: t('settings.items.signOut'),
             destructive: true,
             onPress: () => {}
           })}
           {renderSettingItem({
             icon: <Trash2 size={22} color={theme.colors.error} />,
-            title: 'Clear All Conversations',
-            description: 'This cannot be undone',
+            title: t('settings.items.clearConversations'),
+            description: t('settings.descriptions.clearConversations'),
             destructive: true,
             onPress: () => {}
           })}
