@@ -14,11 +14,16 @@ export default {
     newChat: 'Yeni Sohbet',
     typeMessage: 'Mesajınızı yazın...',
     sendImage: 'Resim gönderildi',
+    empty: {
+      title: 'Henüz sohbet yok',
+      message: 'Sohbetlerinizi burada görmek için bir yapay zeka ajanıyla sohbet etmeye başlayın.',
+      action: 'Ajan bul'
+    },
     suggestions: {
       aboutYou: 'Kendinden bahset',
       help: 'Bana nasıl yardımcı olabilirsin?',
       joke: 'Bana bir fıkra anlat',
-      specialty: 'Uzmanlık alanın nedir?',
+      specialty: 'Uzmanlık alanın nedir?'
     },
     status: {
       typing: 'yazıyor...',
