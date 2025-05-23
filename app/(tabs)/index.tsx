@@ -5,6 +5,7 @@ import { MessageSquare, Plus, Trash2 } from 'lucide-react-native';
 import { useChatContext } from '@/context/ChatContext';
 import { useAgentContext } from '@/context/AgentContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import EmptyState from '@/components/EmptyState';
 import { useState } from 'react';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
@@ -14,6 +15,7 @@ export default function ChatsScreen() {
   const { conversations, startNewConversation, deleteConversations } = useChatContext();
   const { getAgentById, defaultAgentId } = useAgentContext();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [selectedChats, setSelectedChats] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
@@ -65,7 +67,7 @@ export default function ChatsScreen() {
       return null;
     }
     
-    const lastMessage = item.messages[item.messages.length - 1]?.text || 'Start a conversation';
+    const lastMessage = item.messages[item.messages.length - 1]?.text || t('chat.newChat');
     const messagePreview = lastMessage.length > 40 ? lastMessage.substring(0, 40) + '...' : lastMessage;
     const isSelected = selectedChats.has(item.id);
     
@@ -108,9 +110,9 @@ export default function ChatsScreen() {
   const renderEmptyState = () => (
     <EmptyState
       icon={<MessageSquare size={48} color={theme.colors.primary} />}
-      title="No conversations yet"
-      message="Start chatting with an AI agent to see your conversations here."
-      actionLabel="Find an agent"
+      title={t('agents.empty.title')}
+      message={t('agents.empty.message')}
+      actionLabel={t('agents.empty.action')}
       onAction={() => router.push('/agents')}
     />
   );
@@ -127,7 +129,9 @@ export default function ChatsScreen() {
               style={[styles.selectionButton, { backgroundColor: theme.colors.surface }]}
               onPress={cancelSelection}
             >
-              <Text style={[styles.buttonText, { color: theme.colors.text.primary }]}>Cancel</Text>
+              <Text style={[styles.buttonText, { color: theme.colors.text.primary }]}>
+                {t('common.cancel')}
+              </Text>
             </Pressable>
             <Pressable
               style={[styles.selectionButton, { backgroundColor: theme.colors.error + '20' }]}
@@ -135,7 +139,7 @@ export default function ChatsScreen() {
             >
               <Trash2 size={20} color={theme.colors.error} />
               <Text style={[styles.buttonText, { color: theme.colors.error, marginLeft: 8 }]}>
-                Delete
+                {t('common.delete')}
               </Text>
             </Pressable>
           </View>
@@ -166,9 +170,9 @@ export default function ChatsScreen() {
 
       <ConfirmationDialog
         visible={showDeleteDialog}
-        title="Delete Conversations"
-        message={`Are you sure you want to delete ${selectedChats.size} conversation${selectedChats.size === 1 ? '' : 's'}? This action cannot be undone.`}
-        confirmText="Delete"
+        title={t('dialogs.clearConversations.title')}
+        message={t('dialogs.clearConversations.message')}
+        confirmText={t('common.delete')}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
         destructive
