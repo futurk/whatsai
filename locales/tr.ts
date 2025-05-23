@@ -13,7 +13,7 @@ export default {
   chat: {
     newChat: 'Yeni Sohbet',
     typeMessage: 'Mesajınızı yazın...',
-    sendImage: 'Resim Gönder',
+    sendImage: 'Resim gönderildi',
     suggestions: {
       aboutYou: 'Kendinden bahset',
       help: 'Bana nasıl yardımcı olabilirsin?',
@@ -71,6 +71,28 @@ export default {
       title: 'Hiç ajan yok',
       message: 'Yakında yeni yapay zeka ajanlarıyla sohbet etmek için tekrar kontrol edin.',
       action: 'Yenile',
+    },
+    edit: {
+      title: 'Ajanı Düzenle',
+    },
+    new: {
+      title: 'Yeni Ajan',
+    },
+    form: {
+      name: 'İsim',
+      namePlaceholder: 'Ajan adını girin',
+      instructions: 'Talimatlar',
+      instructionsPlaceholder: 'Ajan için talimatları girin (isteğe bağlı)',
+      apiKey: 'API Anahtarı',
+      model: 'Model',
+      color: 'Renk',
+      tags: 'Etiketler (virgülle ayrılmış)',
+      tagsPlaceholder: 'Genel, Yardımcı, Asistan',
+      advancedSettings: 'Gelişmiş Ayarlar',
+      temperature: 'Sıcaklık (0.0 - 1.0)',
+      temperatureHelp: 'Rastgeleliği kontrol eder: 0 odaklı, 1 yaratıcıdır',
+      maxTokens: 'Maksimum Token',
+      maxTokensHelp: 'Oluşturulan yanıtın maksimum uzunluğu',
     },
   },
   apiKeys: {

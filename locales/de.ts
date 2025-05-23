@@ -13,7 +13,7 @@ export default {
   chat: {
     newChat: 'Neuer Chat',
     typeMessage: 'Nachricht eingeben...',
-    sendImage: 'Bild senden',
+    sendImage: 'Bild gesendet',
     suggestions: {
       aboutYou: 'Erzähl mir von dir',
       help: 'Womit kannst du mir helfen?',
@@ -71,6 +71,28 @@ export default {
       title: 'Keine Agenten verfügbar',
       message: 'Schauen Sie später wieder vorbei, um mit neuen KI-Agenten zu chatten.',
       action: 'Aktualisieren',
+    },
+    edit: {
+      title: 'Agent bearbeiten',
+    },
+    new: {
+      title: 'Neuer Agent',
+    },
+    form: {
+      name: 'Name',
+      namePlaceholder: 'Agentennamen eingeben',
+      instructions: 'Anweisungen',
+      instructionsPlaceholder: 'Anweisungen für den Agenten eingeben (optional)',
+      apiKey: 'API-Schlüssel',
+      model: 'Modell',
+      color: 'Farbe',
+      tags: 'Tags (durch Komma getrennt)',
+      tagsPlaceholder: 'Allgemein, Hilfreich, Assistent',
+      advancedSettings: 'Erweiterte Einstellungen',
+      temperature: 'Temperatur (0.0 - 1.0)',
+      temperatureHelp: 'Steuert Zufälligkeit: 0 ist fokussiert, 1 ist kreativ',
+      maxTokens: 'Maximale Token',
+      maxTokensHelp: 'Maximale Länge der generierten Antwort',
     },
   },
   apiKeys: {
