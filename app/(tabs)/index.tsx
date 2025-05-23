@@ -110,9 +110,9 @@ export default function ChatsScreen() {
   const renderEmptyState = () => (
     <EmptyState
       icon={<MessageSquare size={48} color={theme.colors.primary} />}
-      title={t('agents.empty.title')}
-      message={t('agents.empty.message')}
-      actionLabel={t('agents.empty.action')}
+      title={t('chat.empty.title')}
+      message={t('chat.empty.message')}
+      actionLabel={t('chat.empty.action')}
       onAction={() => router.push('/agents')}
     />
   );
