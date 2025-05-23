@@ -9,6 +9,7 @@ import { useChatContext } from '@/context/ChatContext';
 import { useAgentContext } from '@/context/AgentContext';
 import { useDebugContext } from '@/context/DebugContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import MessageBubble from '@/components/MessageBubble';
 import SuggestionChip from '@/components/SuggestionChip';
 import DebugLogs from '@/components/DebugLogs';
@@ -21,6 +22,7 @@ export default function ChatScreen() {
   const { getAgentById } = useAgentContext();
   const { isDebugMode } = useDebugContext();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef(null);
   const inputRef = useRef<TextInput>(null);
@@ -29,10 +31,10 @@ export default function ChatScreen() {
   const agent = conversation ? getAgentById(conversation.agentId) : null;
   
   const suggestions = [
-    "Tell me about yourself",
-    "What can you help me with?",
-    "Tell me a joke",
-    "What's your specialty?"
+    t('chat.suggestions.aboutYou'),
+    t('chat.suggestions.help'),
+    t('chat.suggestions.joke'),
+    t('chat.suggestions.specialty')
   ];
 
   useEffect(() => {
@@ -82,7 +84,7 @@ export default function ChatScreen() {
     if (!result.canceled && result.assets[0]) {
       await addMessageToConversation(id as string, {
         id: Date.now().toString(),
-        text: 'Sent an image',
+        text: t('chat.sendImage'),
         sender: 'user',
         type: 'image',
         imageUrl: result.assets[0].uri,
@@ -219,7 +221,7 @@ export default function ChatScreen() {
               maxHeight: 120,
             }
           ]}
-          placeholder="Type your message..."
+          placeholder={t('chat.typeMessage')}
           placeholderTextColor={theme.colors.text.secondary}
           value={inputText}
           onChangeText={setInputText}

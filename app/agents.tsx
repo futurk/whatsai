@@ -5,6 +5,7 @@ import { ArrowLeft, Users } from 'lucide-react-native';
 import { useAgentContext } from '@/context/AgentContext';
 import { useChatContext } from '@/context/ChatContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import EmptyState from '@/components/EmptyState';
 
 export default function AgentsScreen() {
@@ -12,6 +13,7 @@ export default function AgentsScreen() {
   const { agents } = useAgentContext();
   const { startNewConversation } = useChatContext();
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
   const handleAgentPress = (agentId: string) => {
     const conversationId = startNewConversation(agentId);
@@ -69,9 +71,9 @@ export default function AgentsScreen() {
   const renderEmptyState = () => (
     <EmptyState
       icon={<Users size={48} color={theme.colors.primary} />}
-      title="No agents available"
-      message="Check back soon for new AI agents to chat with."
-      actionLabel="Refresh"
+      title={t('agents.empty.title')}
+      message={t('agents.empty.message')}
+      actionLabel={t('agents.empty.action')}
       onAction={() => {}}
     />
   );
@@ -81,7 +83,7 @@ export default function AgentsScreen() {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: 'Available Agents',
+          headerTitle: t('agents.title'),
           headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
           headerLeft: () => (
             <Pressable onPress={() => router.back()} style={styles.backButton}>
