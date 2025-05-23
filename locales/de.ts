@@ -14,11 +14,16 @@ export default {
     newChat: 'Neuer Chat',
     typeMessage: 'Nachricht eingeben...',
     sendImage: 'Bild gesendet',
+    empty: {
+      title: 'Noch keine Gespräche',
+      message: 'Starte einen Chat mit einem KI-Agenten, um deine Gespräche hier zu sehen.',
+      action: 'Agent finden'
+    },
     suggestions: {
       aboutYou: 'Erzähl mir von dir',
       help: 'Womit kannst du mir helfen?',
       joke: 'Erzähl mir einen Witz',
-      specialty: 'Was ist deine Spezialität?',
+      specialty: 'Was ist deine Spezialität?'
     },
     status: {
       typing: 'schreibt...',
