@@ -14,11 +14,16 @@ export default {
     newChat: 'New Chat',
     typeMessage: 'Type your message...',
     sendImage: 'Sent an image',
+    empty: {
+      title: 'No conversations yet',
+      message: 'Start chatting with an AI agent to see your conversations here.',
+      action: 'Find an agent'
+    },
     suggestions: {
       aboutYou: 'Tell me about yourself',
       help: 'What can you help me with?',
       joke: 'Tell me a joke',
-      specialty: "What's your specialty?",
+      specialty: "What's your specialty?"
     },
     status: {
       typing: 'typing...',
