@@ -13,7 +13,7 @@ export default {
   chat: {
     newChat: 'New Chat',
     typeMessage: 'Type your message...',
-    sendImage: 'Send Image',
+    sendImage: 'Sent an image',
     suggestions: {
       aboutYou: 'Tell me about yourself',
       help: 'What can you help me with?',
@@ -71,6 +71,28 @@ export default {
       title: 'No agents available',
       message: 'Check back soon for new AI agents to chat with.',
       action: 'Refresh',
+    },
+    edit: {
+      title: 'Edit Agent',
+    },
+    new: {
+      title: 'New Agent',
+    },
+    form: {
+      name: 'Name',
+      namePlaceholder: 'Enter agent name',
+      instructions: 'Instructions',
+      instructionsPlaceholder: 'Enter agent instructions (optional)',
+      apiKey: 'API Key',
+      model: 'Model',
+      color: 'Color',
+      tags: 'Tags (comma-separated)',
+      tagsPlaceholder: 'General, Helpful, Assistant',
+      advancedSettings: 'Advanced Settings',
+      temperature: 'Temperature (0.0 - 1.0)',
+      temperatureHelp: 'Controls randomness: 0 is focused, 1 is creative',
+      maxTokens: 'Max Tokens',
+      maxTokensHelp: 'Maximum length of the generated response',
     },
   },
   apiKeys: {
