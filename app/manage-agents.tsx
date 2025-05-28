@@ -32,19 +32,28 @@ export default function ManageAgentsScreen() {
     id: '',
     name: '',
   });
+  const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const handleBack = () => {
+    if (isEditing && hasUnsavedChanges) {
+      setShowUnsavedChangesDialog(true);
+    } else {
+      navigateBack();
+    }
+  };
+
+  const navigateBack = () => {
     if (isEditing) {
       setIsEditing(false);
       setEditingAgent(null);
+      resetForm();
     } else {
       router.back();
     }
   };
 
-  const handleAddAgent = () => {
-    setIsEditing(true);
-    setEditingAgent(null);
+  const resetForm = () => {
     setName('');
     setInstructions('');
     setSelectedModel('');
@@ -54,6 +63,13 @@ export default function ManageAgentsScreen() {
     setTemperature('1.0');
     setMaxTokens('1000');
     setShowAdvanced(false);
+    setHasUnsavedChanges(false);
+  };
+
+  const handleAddAgent = () => {
+    setIsEditing(true);
+    setEditingAgent(null);
+    resetForm();
   };
 
   const handleEditAgent = (agent) => {
@@ -68,6 +84,31 @@ export default function ManageAgentsScreen() {
     setTemperature(String(agent.temperature ?? 1.0));
     setMaxTokens(String(agent.maxTokens ?? 1000));
     setShowAdvanced(false);
+    setHasUnsavedChanges(false);
+  };
+
+  const handleFormChange = () => {
+    if (!isEditing) return;
+
+    const hasChanges = editingAgent
+      ? name !== editingAgent.name ||
+        instructions !== (editingAgent.instructions || '') ||
+        selectedModel !== editingAgent.model ||
+        selectedApiKeyId !== editingAgent.apiKeyId ||
+        color !== editingAgent.color ||
+        tags !== editingAgent.tags.join(', ') ||
+        temperature !== String(editingAgent.temperature ?? 1.0) ||
+        maxTokens !== String(editingAgent.maxTokens ?? 1000)
+      : name !== '' ||
+        instructions !== '' ||
+        selectedModel !== '' ||
+        selectedApiKeyId !== '' ||
+        color !== '#3B82F6' ||
+        tags !== '' ||
+        temperature !== '1.0' ||
+        maxTokens !== '1000';
+
+    setHasUnsavedChanges(hasChanges);
   };
 
   const handleSave = () => {
@@ -75,16 +116,11 @@ export default function ManageAgentsScreen() {
       return;
     }
 
-    const selectedKey = apiKeys.find(key => key.id === selectedApiKeyId);
-    if (!selectedKey) {
-      return;
-    }
-
     const agentData = {
       name,
       instructions,
       model: selectedModel,
-      apiKeyId: selectedKey.id,
+      apiKeyId: selectedApiKeyId,
       color,
       tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
       temperature: parseFloat(temperature),
@@ -99,6 +135,7 @@ export default function ManageAgentsScreen() {
 
     setIsEditing(false);
     setEditingAgent(null);
+    resetForm();
   };
 
   const handleDelete = (agentId: string, agentName: string) => {
@@ -124,6 +161,12 @@ export default function ManageAgentsScreen() {
       id: '',
       name: '',
     });
+  };
+
+  // Update form values and trigger change detection
+  const updateFormValue = (setter: (value: string) => void, value: string) => {
+    setter(value);
+    setTimeout(handleFormChange, 0);
   };
 
   const renderItem = ({ item, index }) => {
@@ -245,7 +288,7 @@ export default function ManageAgentsScreen() {
                       color: theme.colors.text.primary
                     }]}
                     value={name}
-                    onChangeText={setName}
+                    onChangeText={(value) => updateFormValue(setName, value)}
                     placeholder={t('agents.form.namePlaceholder')}
                     placeholderTextColor={theme.colors.text.secondary}
                   />
@@ -262,7 +305,7 @@ export default function ManageAgentsScreen() {
                       color: theme.colors.text.primary
                     }]}
                     value={instructions}
-                    onChangeText={setInstructions}
+                    onChangeText={(value) => updateFormValue(setInstructions, value)}
                     placeholder={t('agents.form.instructionsPlaceholder')}
                     placeholderTextColor={theme.colors.text.secondary}
                     multiline
@@ -288,7 +331,7 @@ export default function ManageAgentsScreen() {
                           }
                         ]}
                         onPress={() => {
-                          setSelectedApiKeyId(key.id);
+                          updateFormValue(setSelectedApiKeyId, key.id);
                           setSelectedModel('');
                         }}
                       >
@@ -331,7 +374,7 @@ export default function ManageAgentsScreen() {
                                 : theme.colors.border
                             }
                           ]}
-                          onPress={() => setSelectedModel(model.id)}
+                          onPress={() => updateFormValue(setSelectedModel, model.id)}
                         >
                           <Text style={[
                             styles.modelName,
@@ -370,7 +413,7 @@ export default function ManageAgentsScreen() {
                       color: theme.colors.text.primary
                     }]}
                     value={color}
-                    onChangeText={setColor}
+                    onChangeText={(value) => updateFormValue(setColor, value)}
                     placeholder="#3B82F6"
                     placeholderTextColor={theme.colors.text.secondary}
                   />
@@ -387,7 +430,7 @@ export default function ManageAgentsScreen() {
                       color: theme.colors.text.primary
                     }]}
                     value={tags}
-                    onChangeText={setTags}
+                    onChangeText={(value) => updateFormValue(setTags, value)}
                     placeholder={t('agents.form.tagsPlaceholder')}
                     placeholderTextColor={theme.colors.text.secondary}
                   />
@@ -417,7 +460,7 @@ export default function ManageAgentsScreen() {
                         <Slider
                           style={styles.slider}
                           value={parseFloat(temperature)}
-                          onValueChange={(value) => setTemperature(value.toFixed(1))}
+                          onValueChange={(value) => updateFormValue(setTemperature, value.toFixed(1))}
                           minimumValue={0}
                           maximumValue={1}
                           step={0.1}
@@ -445,7 +488,7 @@ export default function ManageAgentsScreen() {
                           color: theme.colors.text.primary
                         }]}
                         value={maxTokens}
-                        onChangeText={setMaxTokens}
+                        onChangeText={(value) => updateFormValue(setMaxTokens, value)}
                         placeholder="1000"
                         placeholderTextColor={theme.colors.text.secondary}
                         keyboardType="number-pad"
@@ -462,7 +505,7 @@ export default function ManageAgentsScreen() {
                     style={[styles.button, styles.cancelButton, {
                       backgroundColor: theme.colors.surface
                     }]}
-                    onPress={() => setIsEditing(false)}
+                    onPress={handleBack}
                   >
                     <Text style={[styles.cancelButtonText, {
                       color: theme.colors.text.primary
@@ -496,6 +539,20 @@ export default function ManageAgentsScreen() {
           confirmText={t('common.delete')}
           onConfirm={confirmDelete}
           onCancel={cancelDelete}
+          destructive
+        />
+
+        <ConfirmationDialog
+          visible={showUnsavedChangesDialog}
+          title={t('dialogs.unsavedChanges.title')}
+          message={t('dialogs.unsavedChanges.message')}
+          confirmText={t('dialogs.unsavedChanges.discard')}
+          cancelText={t('dialogs.unsavedChanges.continue')}
+          onConfirm={() => {
+            setShowUnsavedChangesDialog(false);
+            navigateBack();
+          }}
+          onCancel={() => setShowUnsavedChangesDialog(false)}
           destructive
         />
       </View>
