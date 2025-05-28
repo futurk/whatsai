@@ -16,6 +16,11 @@ export default function LanguageSelectionModal({
   const { theme } = useTheme();
   const { language, setLanguage } = useLanguage();
 
+  const getLanguageDisplay = (name: string, nativeName: string) => {
+    if (name === 'System') return 'System';
+    return `${name} (${nativeName})`;
+  };
+
   return (
     <Modal
       visible={visible}
@@ -59,13 +64,8 @@ export default function LanguageSelectionModal({
               >
                 <View style={styles.languageInfo}>
                   <Text style={[styles.languageName, { color: theme.colors.text.primary }]}>
-                    {lang.name}
+                    {getLanguageDisplay(lang.name, lang.nativeName)}
                   </Text>
-                  {lang.id !== 'system' && (
-                    <Text style={[styles.nativeName, { color: theme.colors.text.secondary }]}>
-                      {lang.nativeName}
-                    </Text>
-                  )}
                 </View>
                 {language === lang.id && (
                   <Check size={20} color={theme.colors.primary} />
@@ -133,9 +133,5 @@ const styles = StyleSheet.create({
   languageName: {
     fontSize: 16,
     fontWeight: '500',
-    marginBottom: 2,
-  },
-  nativeName: {
-    fontSize: 14,
   },
 });
