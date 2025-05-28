@@ -106,32 +106,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       throw new Error('Conversation not found');
     }
 
-    // For retry attempts, remove the failed message and its error message
-    if (message.sender === 'user' && message.status === undefined) {
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === conversationId
-            ? {
-                ...conv,
-                messages: conv.messages.filter(msg => 
-                  !(msg.sender === 'system' && msg.type === 'error') &&
-                  !(msg.text === message.text && msg.status === 'failed')
-                ),
-                updatedAt: new Date().toISOString()
-              }
-            : conv
-        )
-      );
-    }
-
     if (message.sender === 'user') {
-      const userMessage = { 
-        ...message,
-        id: Date.now().toString(),
-        timestamp: new Date().toISOString(),
-        status: 'pending' as MessageStatus 
-      };
-
+      const userMessage = { ...message, status: 'pending' as MessageStatus };
       setConversations(prev =>
         prev.map(conv =>
           conv.id === conversationId
@@ -206,7 +182,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
         const response = await chatManager.sendMessage(messages);
 
-        updateMessageStatus(conversationId, userMessage.id, 'completed');
+        updateMessageStatus(conversationId, message.id, 'completed');
 
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -228,7 +204,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         );
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-        updateMessageStatus(conversationId, userMessage.id, 'failed', errorMessage);
+        updateMessageStatus(conversationId, message.id, 'failed', errorMessage);
 
         const errorSystemMessage: Message = {
           id: (Date.now() + 1).toString(),
