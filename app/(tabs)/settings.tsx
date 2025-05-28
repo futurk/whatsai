@@ -192,7 +192,7 @@ export default function SettingsScreen() {
             ))}
           </View>
         </View>
-{/* disabled on purpose
+{/* temporarily disabled on purpose
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
             {t('settings.sections.notifications')}
