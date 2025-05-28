@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Platform, Slider } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { ArrowLeft, Plus, CreditCard as Edit2, Trash2, Key, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useAgentContext } from '@/context/AgentContext';
@@ -8,6 +8,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
+import Slider from '@react-native-community/slider';
 
 export default function ManageAgentsScreen() {
   const router = useRouter();
@@ -249,6 +250,7 @@ export default function ManageAgentsScreen() {
                     placeholderTextColor={theme.colors.text.secondary}
                   />
                 </View>
+
                 <View style={styles.inputGroup}>
                   <Text style={[styles.label, { color: theme.colors.text.primary }]}>
                     {t('agents.form.instructions')}
