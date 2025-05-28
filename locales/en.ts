@@ -64,7 +64,8 @@ export default {
       apiKeys: 'Manage your API keys for different vendors',
       defaultAgent: 'Select an agent to start new chats immediately',
       language: 'Change the app language',
-      pushNotifications: 'Get notified about new messages',
+      pushNot
+      ifications: 'Get notified about new messages',
       sounds: 'Play sounds for new messages',
       debugMode: 'Enable developer debugging features',
       clearConversations: 'This cannot be undone',
@@ -127,5 +128,11 @@ export default {
       title: 'Clear All Conversations',
       message: 'Are you sure you want to delete all conversations? This action cannot be undone.',
     },
+    unsavedChanges: {
+      title: 'Unsaved Changes',
+      message: 'You have unsaved changes. Are you sure you want to leave?',
+      discard: 'Discard',
+      continue: 'Continue Editing'
+    }
   },
 };
