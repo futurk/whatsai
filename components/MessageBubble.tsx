@@ -53,7 +53,7 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
       setShowCopyButtonCallback = setShowCopyButton;
       copyButtonOpacity.value = withSpring(1, { damping: 15 });
     } else {
-      copyButtonOpacity.value = withTiming(0, { duration: 500 });
+      copyButtonOpacity.value = withTiming(0, { duration: 1000 });
     }
 
     return () => {
