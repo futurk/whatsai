@@ -157,7 +157,44 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
           isUser ? styles.userContainer : styles.assistantContainer,
         ]}
       >
-        <View ref={bubbleRef}>
+        <View ref={bubbleRef} style={styles.bubbleWrapper}>
+          {showCopyButton && !isImage && Platform.OS === 'web' && (
+            <Animated.View
+              entering={FadeIn.springify()}
+              exiting={FadeOut.springify()}
+              style={[
+                styles.copyButton,
+                { backgroundColor: theme.colors.card },
+                isUser ? styles.copyButtonLeft : styles.copyButtonRight,
+                animatedStyle
+              ]}
+            >
+              <Pressable
+                onPress={handleCopy}
+                style={({ pressed }) => [
+                  styles.copyButtonInner,
+                  pressed && { opacity: 0.7 }
+                ]}
+              >
+                {copied ? (
+                  <Check size={16} color={theme.colors.success} />
+                ) : (
+                  <Copy size={16} color={theme.colors.text.primary} />
+                )}
+                <Text 
+                  style={[
+                    styles.copyText, 
+                    { 
+                      color: copied ? theme.colors.success : theme.colors.text.primary 
+                    }
+                  ]}
+                >
+                  {copied ? 'Copied!' : 'Copy'}
+                </Text>
+              </Pressable>
+            </Animated.View>
+          )}
+
           <Animated.View style={bubbleAnimatedStyle}>
             <Pressable 
               onPress={handlePress}
@@ -241,42 +278,6 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
               {formatTime(message.timestamp)}
             </Text>
           </View>
-
-          {showCopyButton && !isImage && Platform.OS === 'web' && (
-            <Animated.View
-              entering={FadeIn.springify()}
-              exiting={FadeOut.springify()}
-              style={[
-                styles.copyButton,
-                { backgroundColor: theme.colors.card },
-                animatedStyle
-              ]}
-            >
-              <Pressable
-                onPress={handleCopy}
-                style={({ pressed }) => [
-                  styles.copyButtonInner,
-                  pressed && { opacity: 0.7 }
-                ]}
-              >
-                {copied ? (
-                  <Check size={16} color={theme.colors.success} />
-                ) : (
-                  <Copy size={16} color={theme.colors.text.primary} />
-                )}
-                <Text 
-                  style={[
-                    styles.copyText, 
-                    { 
-                      color: copied ? theme.colors.success : theme.colors.text.primary 
-                    }
-                  ]}
-                >
-                  {copied ? 'Copied!' : 'Copy'}
-                </Text>
-              </Pressable>
-            </Animated.View>
-          )}
         </View>
       </Animated.View>
 
@@ -321,6 +322,9 @@ const styles = StyleSheet.create({
   },
   assistantContainer: {
     alignSelf: 'flex-start',
+  },
+  bubbleWrapper: {
+    position: 'relative',
   },
   bubble: {
     borderRadius: 20,
@@ -406,8 +410,8 @@ const styles = StyleSheet.create({
   },
   copyButton: {
     position: 'absolute',
-    top: -36,
-    right: 0,
+    top: '50%',
+    transform: [{ translateY: -20 }],
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {
@@ -417,6 +421,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3.84,
     elevation: 5,
+    zIndex: 10,
+  },
+  copyButtonLeft: {
+    right: '100%',
+    marginRight: 8,
+  },
+  copyButtonRight: {
+    left: '100%',
+    marginLeft: 8,
   },
   copyButtonInner: {
     flexDirection: 'row',
