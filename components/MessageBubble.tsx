@@ -46,10 +46,14 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
   const bubbleRef = useRef<View>(null);
   const scale = useSharedValue(1);
   const bubbleScale = useSharedValue(1);
+  const copyButtonOpacity = useSharedValue(0);
 
   useEffect(() => {
     if (showCopyButton) {
       setShowCopyButtonCallback = setShowCopyButton;
+      copyButtonOpacity.value = withSpring(1, { damping: 15 });
+    } else {
+      copyButtonOpacity.value = withTiming(0, { duration: 200 });
     }
 
     return () => {
@@ -77,6 +81,7 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ scale: scale.value }],
+      opacity: copyButtonOpacity.value,
     };
   });
 
@@ -105,8 +110,8 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
         await navigator.clipboard.writeText(message.text);
         setCopied(true);
         scale.value = withSequence(
-          withSpring(1.1, { damping: 10 }),
-          withSpring(1, { damping: 10 })
+          withSpring(1.1, { damping: 12, stiffness: 200 }),
+          withSpring(1, { damping: 12, stiffness: 200 })
         );
         setTimeout(() => {
           setShowCopyButton(false);
@@ -129,8 +134,8 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
       setShowCopyButton(true);
       
       bubbleScale.value = withSequence(
-        withSpring(0.95, { damping: 10 }),
-        withSpring(1, { damping: 10 })
+        withSpring(0.98, { damping: 15, stiffness: 300 }),
+        withSpring(1, { damping: 15, stiffness: 300 })
       );
     }
   };
@@ -192,7 +197,7 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
                 onPress={handleCopy}
                 style={({ pressed }) => [
                   styles.copyButtonInner,
-                  pressed && { opacity: 0.7 }
+                  pressed && { opacity: 0.7, transform: [{ scale: 0.97 }] }
                 ]}
               >
                 {copied ? (
