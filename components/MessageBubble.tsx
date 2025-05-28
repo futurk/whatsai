@@ -1,14 +1,13 @@
 import { View, Text, StyleSheet, Image, Platform, Modal, Pressable } from 'react-native';
 import Animated, { 
   FadeInRight, 
-  FadeInLeft, 
-  FadeIn, 
-  FadeOut,
+  FadeInLeft,
+  useAnimatedStyle,
   withSpring,
   withSequence,
   withTiming,
-  useAnimatedStyle,
-  useSharedValue
+  useSharedValue,
+  Easing
 } from 'react-native-reanimated';
 import { memo, useState, useEffect, useRef } from 'react';
 import { Message } from '@/types/chat';
@@ -17,7 +16,7 @@ import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2, X, 
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { useChatContext } from '@/context/ChatContext';
 
-// Global state to track active message ID
+// Global state for active message and copy button visibility
 let activeMessageId: string | null = null;
 let setShowCopyButtonCallback: ((show: boolean) => void) | null = null;
 
@@ -30,46 +29,69 @@ interface MessageBubbleProps {
 }
 
 function formatTime(timestamp: string) {
-  const date = new Date(timestamp);
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return new Date(timestamp).toLocaleTimeString([], { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
 }
 
-const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastUserMessage }: MessageBubbleProps) => {
+const MessageBubble = ({ 
+  message, 
+  agentColor, 
+  agentName, 
+  conversationId, 
+  isLastUserMessage 
+}: MessageBubbleProps) => {
   const { theme } = useTheme();
   const { addMessageToConversation } = useChatContext();
   const isUser = message.sender === 'user';
   const isSystem = message.sender === 'system';
   const isImage = message.type === 'image';
+  
   const [showFullImage, setShowFullImage] = useState(false);
   const [showCopyButton, setShowCopyButton] = useState(false);
   const [copied, setCopied] = useState(false);
   const bubbleRef = useRef<View>(null);
-  const scale = useSharedValue(1);
-  const bubbleScale = useSharedValue(1);
+
+  // Animated values
+  const copyButtonScale = useSharedValue(1);
   const copyButtonOpacity = useSharedValue(0);
+  const bubbleScale = useSharedValue(1);
+  const checkmarkScale = useSharedValue(0);
 
+  // Cleanup copy button state when component unmounts
   useEffect(() => {
-    if (showCopyButton) {
-      setShowCopyButtonCallback = setShowCopyButton;
-      copyButtonOpacity.value = withSpring(1, { damping: 15 });
-    } else {
-      copyButtonOpacity.value = withTiming(0, { duration: 200 });
-    }
-
     return () => {
       if (setShowCopyButtonCallback === setShowCopyButton) {
         setShowCopyButtonCallback = null;
+        activeMessageId = null;
       }
     };
+  }, []);
+
+  // Handle copy button visibility
+  useEffect(() => {
+    if (showCopyButton) {
+      setShowCopyButtonCallback = setShowCopyButton;
+      copyButtonOpacity.value = withSpring(1, {
+        mass: 0.5,
+        damping: 12,
+        stiffness: 100
+      });
+    } else {
+      copyButtonOpacity.value = withTiming(0, {
+        duration: 150,
+        easing: Easing.inOut(Easing.ease)
+      });
+    }
   }, [showCopyButton]);
-  
+
+  // Handle click outside for web
   useEffect(() => {
     if (Platform.OS === 'web' && showCopyButton) {
       const handleClickOutside = (event: MouseEvent) => {
         if (bubbleRef.current && !(bubbleRef.current as any).contains(event.target)) {
-          setShowCopyButton(false);
-          setCopied(false);
-          activeMessageId = null;
+          handleCopyReset();
         }
       };
 
@@ -78,52 +100,65 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
     }
   }, [showCopyButton]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: copyButtonOpacity.value,
-    };
-  });
+  // Animated styles
+  const copyButtonAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: copyButtonScale.value }],
+    opacity: copyButtonOpacity.value,
+  }));
 
-  const bubbleAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: bubbleScale.value }],
-    };
-  });
-  
-  const getStatusIcon = () => {
-    if (!isUser || !message.status) return null;
-    
-    switch (message.status) {
-      case 'pending':
-        return <Clock size={16} color={theme.colors.text.secondary} />;
-      case 'completed':
-        return <CheckCircle2 size={16} color={theme.colors.success} />;
-      case 'failed':
-        return <AlertTriangle size={16} color={theme.colors.error} />;
-    }
+  const bubbleAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: bubbleScale.value }],
+  }));
+
+  const checkmarkAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: checkmarkScale.value }],
+    opacity: checkmarkScale.value,
+  }));
+
+  // Reset copy button state
+  const handleCopyReset = () => {
+    setShowCopyButton(false);
+    setCopied(false);
+    activeMessageId = null;
   };
 
+  // Handle copy action
   const handleCopy = async () => {
     if (Platform.OS === 'web') {
       try {
         await navigator.clipboard.writeText(message.text);
-        setCopied(true);
-        scale.value = withSequence(
-          withSpring(1.1, { damping: 12, stiffness: 200 }),
-          withSpring(1, { damping: 12, stiffness: 200 })
+        
+        // Animate copy button
+        copyButtonScale.value = withSequence(
+          withSpring(1.1, { 
+            mass: 0.5,
+            damping: 12,
+            stiffness: 200 
+          }),
+          withSpring(1, { 
+            mass: 0.5,
+            damping: 12,
+            stiffness: 200 
+          })
         );
-        setTimeout(() => {
-          setShowCopyButton(false);
-          setCopied(false);
-          activeMessageId = null;
-        }, 1500);
+
+        // Animate checkmark
+        setCopied(true);
+        checkmarkScale.value = withSpring(1, {
+          mass: 0.5,
+          damping: 15,
+          stiffness: 200
+        });
+
+        // Reset after delay
+        setTimeout(handleCopyReset, 1500);
       } catch (err) {
         console.error('Failed to copy text:', err);
       }
     }
   };
 
+  // Handle message press
   const handlePress = () => {
     if (!isImage) {
       if (activeMessageId && activeMessageId !== message.id && setShowCopyButtonCallback) {
@@ -134,12 +169,21 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
       setShowCopyButton(true);
       
       bubbleScale.value = withSequence(
-        withSpring(0.98, { damping: 15, stiffness: 300 }),
-        withSpring(1, { damping: 15, stiffness: 300 })
+        withSpring(0.98, {
+          mass: 0.5,
+          damping: 15,
+          stiffness: 300
+        }),
+        withSpring(1, {
+          mass: 0.5,
+          damping: 15,
+          stiffness: 300
+        })
       );
     }
   };
 
+  // Handle retry for failed messages
   const handleRetry = async () => {
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -153,6 +197,21 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
     await addMessageToConversation(conversationId, newMessage);
   };
 
+  // Get status icon based on message state
+  const getStatusIcon = () => {
+    if (!isUser || !message.status) return null;
+    
+    switch (message.status) {
+      case 'pending':
+        return <Clock size={16} color={theme.colors.text.secondary} />;
+      case 'completed':
+        return <CheckCircle2 size={16} color={theme.colors.success} />;
+      case 'failed':
+        return <AlertTriangle size={16} color={theme.colors.error} />;
+    }
+  };
+
+  // Get bubble style based on message type and state
   const getBubbleStyle = () => {
     const baseStyle = [
       styles.bubble,
@@ -161,7 +220,7 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
             backgroundColor: message.status === 'failed' 
               ? theme.colors.error + '20' 
               : theme.colors.primary,
-            opacity: message.status === 'pending' ? 0.6 : 1
+            opacity: message.status === 'pending' ? 0.7 : 1
           }]
         : isSystem
           ? [styles.systemBubble, { backgroundColor: theme.colors.error + '20' }]
@@ -171,7 +230,7 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
 
     return baseStyle;
   };
-  
+
   return (
     <>
       <Animated.View
@@ -184,32 +243,36 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
         <View ref={bubbleRef} style={styles.bubbleWrapper}>
           {showCopyButton && !isImage && Platform.OS === 'web' && (
             <Animated.View
-              entering={FadeIn.springify()}
-              exiting={FadeOut.springify()}
               style={[
                 styles.copyButton,
                 { backgroundColor: theme.colors.card },
                 isUser ? styles.copyButtonLeft : styles.copyButtonRight,
-                animatedStyle
+                copyButtonAnimatedStyle
               ]}
             >
               <Pressable
                 onPress={handleCopy}
                 style={({ pressed }) => [
                   styles.copyButtonInner,
-                  pressed && { opacity: 0.7, transform: [{ scale: 0.97 }] }
+                  pressed && { 
+                    opacity: 0.7,
+                    transform: [{ scale: 0.97 }]
+                  }
                 ]}
               >
-                {copied ? (
-                  <Check size={16} color={theme.colors.success} />
-                ) : (
+                <Animated.View style={[styles.iconContainer, { opacity: copied ? 0 : 1 }]}>
                   <Copy size={16} color={theme.colors.text.primary} />
-                )}
+                </Animated.View>
+                <Animated.View style={[styles.iconContainer, checkmarkAnimatedStyle, styles.checkmark]}>
+                  <Check size={16} color={theme.colors.success} />
+                </Animated.View>
                 <Text 
                   style={[
                     styles.copyText, 
                     { 
-                      color: copied ? theme.colors.success : theme.colors.text.primary 
+                      color: copied 
+                        ? theme.colors.success 
+                        : theme.colors.text.primary 
                     }
                   ]}
                 >
@@ -449,9 +512,17 @@ const styles = StyleSheet.create({
     padding: 8,
     gap: 6,
   },
+  iconContainer: {
+    position: 'absolute',
+    left: 8,
+  },
+  checkmark: {
+    position: 'absolute',
+  },
   copyText: {
     fontSize: 14,
     fontWeight: '500',
+    marginLeft: 24,
   },
   retryButton: {
     flexDirection: 'row',
