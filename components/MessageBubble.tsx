@@ -139,10 +139,8 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId }: Messa
     if (isRetrying) return;
     setIsRetrying(true);
     try {
-      const newMessageId = Date.now().toString();
       await addMessageToConversation(conversationId, {
         ...message,
-        id: newMessageId,
         status: undefined,
       });
     } catch (error) {
