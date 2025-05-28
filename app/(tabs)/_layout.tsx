@@ -1,68 +1,64 @@
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Home, Search, PlusSquare, Heart, User } from 'lucide-react-native';
+import { Chrome as Home, Settings } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   
   return (
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: theme.colors.background,
-          borderTopColor: theme.colors.border,
-          height: 60 + insets.bottom,
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
           paddingBottom: insets.bottom,
+          height: 60 + insets.bottom,
+          backgroundColor: theme.colors.tabBar,
+          borderTopWidth: 0.5,
+          borderTopColor: theme.colors.border,
+          elevation: 0,
+          shadowOpacity: 0,
         },
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.text.secondary,
-        tabBarShowLabel: false,
+        tabBarLabelStyle: {
+          fontSize: 12,
+          marginBottom: 8,
+        },
+        tabBarIconStyle: {
+          marginTop: 8,
+        },
+        headerShadowVisible: false,
         headerStyle: {
           backgroundColor: theme.colors.background,
         },
         headerTitleStyle: {
           color: theme.colors.text.primary,
-          fontSize: 18,
-          fontFamily: 'Inter-SemiBold',
+          fontWeight: '600',
+          fontSize: 17,
         },
-        headerShadowVisible: false,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Moments',
+          title: t('tabs.chats'),
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+          headerTitle: t('tabs.chats'),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="settings"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="create"
-        options={{
-          title: 'Create',
-          tabBarIcon: ({ color, size }) => <PlusSquare size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="activity"
-        options={{
-          title: 'Activity',
-          tabBarIcon: ({ color, size }) => <Heart size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+          title: t('tabs.settings'),
+          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
+          headerTitle: t('tabs.settings'),
         }}
       />
     </Tabs>
