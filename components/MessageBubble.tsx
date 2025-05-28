@@ -147,6 +147,25 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
 
     await addMessageToConversation(conversationId, newMessage);
   };
+
+  const getBubbleStyle = () => {
+    const baseStyle = [
+      styles.bubble,
+      isUser
+        ? [styles.userBubble, { 
+            backgroundColor: message.status === 'failed' 
+              ? theme.colors.error + '20' 
+              : theme.colors.primary,
+            opacity: message.status === 'pending' ? 0.6 : 1
+          }]
+        : isSystem
+          ? [styles.systemBubble, { backgroundColor: theme.colors.error + '20' }]
+          : [styles.assistantBubble, { backgroundColor: agentColor + '20' }],
+      isImage && styles.imageBubble,
+    ];
+
+    return baseStyle;
+  };
   
   return (
     <>
@@ -198,19 +217,7 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
           <Animated.View style={bubbleAnimatedStyle}>
             <Pressable 
               onPress={handlePress}
-              style={[
-                styles.bubble,
-                isUser
-                  ? [styles.userBubble, { 
-                      backgroundColor: message.status === 'failed' 
-                        ? theme.colors.error + '20' 
-                        : theme.colors.primary 
-                    }]
-                  : isSystem
-                    ? [styles.systemBubble, { backgroundColor: theme.colors.error + '20' }]
-                    : [styles.assistantBubble, { backgroundColor: agentColor + '20' }],
-                isImage && styles.imageBubble,
-              ]}
+              style={getBubbleStyle()}
             >
               {isImage && message.imageUrl ? (
                 <Pressable onPress={() => setShowFullImage(true)}>
@@ -251,12 +258,12 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastU
           <View style={styles.footer}>
             {isLastUserMessage && message.status === 'failed' ? (
               <Pressable 
-                onPress={handleRetry}
                 style={({ pressed }) => [
                   styles.retryButton,
                   { backgroundColor: theme.colors.error + '20' },
                   pressed && { opacity: 0.7 }
                 ]}
+                onPress={handleRetry}
               >
                 <RefreshCw size={14} color={theme.colors.error} />
                 <Text style={[styles.retryText, { color: theme.colors.error }]}>
