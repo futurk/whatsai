@@ -192,7 +192,7 @@ export default function SettingsScreen() {
             onSwitchChange: toggleDebugMode
           })}
         </View>
-/*
+<!--
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
             {t('settings.sections.notifications')}
@@ -254,7 +254,7 @@ export default function SettingsScreen() {
             onPress: () => {}
           })}
         </View>
-*/
+-->
       </ScrollView>
 
       <AgentSelectionModal
