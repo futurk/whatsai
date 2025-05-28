@@ -181,6 +181,20 @@ export default function SettingsScreen() {
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.developer')}
+          </Text>
+          {renderSettingItem({
+            icon: <Bug size={22} color={theme.colors.primary} />,
+            title: t('settings.items.debugMode'),
+            description: t('settings.descriptions.debugMode'),
+            hasSwitch: true,
+            switchValue: isDebugMode,
+            onSwitchChange: toggleDebugMode
+          })}
+        </View>
+/*
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
             {t('settings.sections.notifications')}
           </Text>
           {renderSettingItem({
@@ -198,20 +212,6 @@ export default function SettingsScreen() {
             hasSwitch: true,
             switchValue: sounds,
             onSwitchChange: setSounds
-          })}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
-            {t('settings.sections.developer')}
-          </Text>
-          {renderSettingItem({
-            icon: <Bug size={22} color={theme.colors.primary} />,
-            title: t('settings.items.debugMode'),
-            description: t('settings.descriptions.debugMode'),
-            hasSwitch: true,
-            switchValue: isDebugMode,
-            onSwitchChange: toggleDebugMode
           })}
         </View>
 
@@ -254,6 +254,7 @@ export default function SettingsScreen() {
             onPress: () => {}
           })}
         </View>
+*/
       </ScrollView>
 
       <AgentSelectionModal
