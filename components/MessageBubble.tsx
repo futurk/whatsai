@@ -13,8 +13,9 @@ import Animated, {
 import { memo, useState, useEffect, useRef } from 'react';
 import { Message } from '@/types/chat';
 import { useTheme } from '@/context/ThemeContext';
-import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2, X, Copy, Check } from 'lucide-react-native';
+import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2, X, Copy, Check, RefreshCw } from 'lucide-react-native';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
+import { useChatContext } from '@/context/ChatContext';
 
 // Global state to track active message ID
 let activeMessageId: string | null = null;
@@ -24,6 +25,7 @@ interface MessageBubbleProps {
   message: Message;
   agentColor: string;
   agentName: string;
+  conversationId: string;
 }
 
 function formatTime(timestamp: string) {
@@ -31,26 +33,26 @@ function formatTime(timestamp: string) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) => {
+const MessageBubble = ({ message, agentColor, agentName, conversationId }: MessageBubbleProps) => {
   const { theme } = useTheme();
+  const { addMessageToConversation } = useChatContext();
   const isUser = message.sender === 'user';
   const isSystem = message.sender === 'system';
   const isImage = message.type === 'image';
   const [showFullImage, setShowFullImage] = useState(false);
   const [showCopyButton, setShowCopyButton] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
   const bubbleRef = useRef<View>(null);
   const scale = useSharedValue(1);
   const bubbleScale = useSharedValue(1);
 
   useEffect(() => {
-    // Update the callback reference when a new message bubble is mounted
     if (showCopyButton) {
       setShowCopyButtonCallback = setShowCopyButton;
     }
 
     return () => {
-      // Clean up when unmounted
       if (setShowCopyButtonCallback === setShowCopyButton) {
         setShowCopyButtonCallback = null;
       }
@@ -119,12 +121,10 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
 
   const handlePress = () => {
     if (!isImage) {
-      // Hide previous copy button if it exists
       if (activeMessageId && activeMessageId !== message.id && setShowCopyButtonCallback) {
         setShowCopyButtonCallback(false);
       }
       
-      // Update active message
       activeMessageId = message.id;
       setShowCopyButton(true);
       
@@ -132,6 +132,21 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
         withSpring(0.95, { damping: 10 }),
         withSpring(1, { damping: 10 })
       );
+    }
+  };
+
+  const handleRetry = async () => {
+    if (isRetrying) return;
+    setIsRetrying(true);
+    try {
+      await addMessageToConversation(conversationId, {
+        ...message,
+        status: undefined,
+      });
+    } catch (error) {
+      console.error('Retry failed:', error);
+    } finally {
+      setIsRetrying(false);
     }
   };
   
@@ -199,6 +214,25 @@ const MessageBubble = ({ message, agentColor, agentName }: MessageBubbleProps) =
           </Animated.View>
 
           <View style={styles.footer}>
+            {message.status === 'failed' && (
+              <Pressable
+                style={[styles.retryButton, { backgroundColor: theme.colors.error + '20' }]}
+                onPress={handleRetry}
+                disabled={isRetrying}
+              >
+                <RefreshCw
+                  size={14}
+                  color={theme.colors.error}
+                  style={[
+                    styles.retryIcon,
+                    isRetrying && styles.retryIconSpinning
+                  ]}
+                />
+                <Text style={[styles.retryText, { color: theme.colors.error }]}>
+                  Retry
+                </Text>
+              </Pressable>
+            )}
             {getStatusIcon()}
             <Text 
               style={[
@@ -398,6 +432,25 @@ const styles = StyleSheet.create({
   copyText: {
     fontSize: 14,
     fontWeight: '500',
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 8,
+  },
+  retryText: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  retryIcon: {
+    marginRight: 2,
+  },
+  retryIconSpinning: {
+    transform: [{ rotate: '45deg' }],
   },
 });
 
