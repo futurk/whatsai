@@ -80,7 +80,7 @@ const MessageBubble = ({
       });
     } else {
       copyButtonOpacity.value = withTiming(0, {
-        duration: 150,
+        duration: 50,
         easing: Easing.inOut(Easing.ease)
       });
     }
