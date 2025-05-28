@@ -109,6 +109,17 @@ export default function ChatScreen() {
 
   const currentLogs = debugLogs[id as string] || [];
 
+  const getLastUserMessageIndex = () => {
+    for (let i = conversation.messages.length - 1; i >= 0; i--) {
+      if (conversation.messages[i].sender === 'user') {
+        return i;
+      }
+    }
+    return -1;
+  };
+
+  const lastUserMessageIndex = getLastUserMessageIndex();
+
   return (
     <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
@@ -138,12 +149,13 @@ export default function ChatScreen() {
           styles.messagesContainer,
           { paddingBottom: 16 + insets.bottom }
         ]}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <MessageBubble
             message={item}
             agentColor={agent.color}
             agentName={agent.name}
             conversationId={conversation.id}
+            isLastUserMessage={index === lastUserMessageIndex}
           />
         )}
         onContentSizeChange={() => {
