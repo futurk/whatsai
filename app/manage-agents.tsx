@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Platform, Slider } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { ArrowLeft, Plus, CreditCard as Edit2, Trash2, Key, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { useAgentContext } from '@/context/AgentContext';
@@ -411,18 +411,22 @@ export default function ManageAgentsScreen() {
                       <Text style={[styles.label, { color: theme.colors.text.primary }]}>
                         {t('agents.form.temperature')}
                       </Text>
-                      <TextInput
-                        style={[styles.input, {
-                          backgroundColor: theme.colors.surface,
-                          borderColor: theme.colors.border,
-                          color: theme.colors.text.primary
-                        }]}
-                        value={temperature}
-                        onChangeText={setTemperature}
-                        placeholder="1.0"
-                        placeholderTextColor={theme.colors.text.secondary}
-                        keyboardType="decimal-pad"
-                      />
+                      <View style={styles.temperatureContainer}>
+                        <Slider
+                          style={styles.slider}
+                          value={parseFloat(temperature)}
+                          onValueChange={(value) => setTemperature(value.toFixed(1))}
+                          minimumValue={0}
+                          maximumValue={1}
+                          step={0.1}
+                          minimumTrackTintColor={theme.colors.primary}
+                          maximumTrackTintColor={theme.colors.border}
+                          thumbTintColor={theme.colors.primary}
+                        />
+                        <Text style={[styles.temperatureValue, { color: theme.colors.text.primary }]}>
+                          {temperature}
+                        </Text>
+                      </View>
                       <Text style={[styles.helpText, { color: theme.colors.text.secondary }]}>
                         {t('agents.form.temperatureHelp')}
                       </Text>
@@ -744,5 +748,21 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '500',
+  },
+  temperatureContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  slider: {
+    flex: 1,
+    height: 40,
+  },
+  temperatureValue: {
+    marginLeft: 16,
+    fontSize: 16,
+    fontWeight: '500',
+    minWidth: 36,
+    textAlign: 'right',
   },
 });
