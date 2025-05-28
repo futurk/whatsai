@@ -143,6 +143,7 @@ export default function ChatScreen() {
             message={item}
             agentColor={agent.color}
             agentName={agent.name}
+            conversationId={conversation.id}
           />
         )}
         onContentSizeChange={() => {
