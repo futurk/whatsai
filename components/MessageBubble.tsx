@@ -151,7 +151,7 @@ const MessageBubble = ({
         });
 
         // Reset after delay
-        setTimeout(handleCopyReset, 1000);
+        setTimeout(handleCopyReset, 500);
       } catch (err) {
         console.error('Failed to copy text:', err);
       }
