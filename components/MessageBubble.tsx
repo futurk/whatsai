@@ -80,7 +80,7 @@ const MessageBubble = ({
       });
     } else {
       copyButtonOpacity.value = withTiming(0, {
-        duration: 50,
+        duration: 150,
         easing: Easing.inOut(Easing.ease)
       });
     }
@@ -151,7 +151,7 @@ const MessageBubble = ({
         });
 
         // Reset after delay
-        setTimeout(handleCopyReset, 1500);
+        setTimeout(handleCopyReset, 1000);
       } catch (err) {
         console.error('Failed to copy text:', err);
       }
