@@ -17,7 +17,6 @@ import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2, X, 
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { useChatContext } from '@/context/ChatContext';
 
-// Global state to track active message ID
 let activeMessageId: string | null = null;
 let setShowCopyButtonCallback: ((show: boolean) => void) | null = null;
 
@@ -26,6 +25,7 @@ interface MessageBubbleProps {
   agentColor: string;
   agentName: string;
   conversationId: string;
+  isLastFailedMessage?: boolean;
 }
 
 function formatTime(timestamp: string) {
@@ -33,7 +33,7 @@ function formatTime(timestamp: string) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-const MessageBubble = ({ message, agentColor, agentName, conversationId }: MessageBubbleProps) => {
+const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastFailedMessage = false }: MessageBubbleProps) => {
   const { theme } = useTheme();
   const { addMessageToConversation } = useChatContext();
   const isUser = message.sender === 'user';
@@ -214,7 +214,7 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId }: Messa
           </Animated.View>
 
           <View style={styles.footer}>
-            {message.status === 'failed' && (
+            {message.status === 'failed' && isLastFailedMessage && (
               <Pressable
                 style={[styles.retryButton, { backgroundColor: theme.colors.error + '20' }]}
                 onPress={handleRetry}

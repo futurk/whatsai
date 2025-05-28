@@ -59,6 +59,14 @@ export default function ChatScreen() {
     }
   }, [conversation?.messages, isTyping]);
 
+  const getLastFailedMessageId = () => {
+    if (!conversation?.messages) return null;
+    const userMessages = conversation.messages.filter(
+      msg => msg.sender === 'user' && msg.status === 'failed'
+    );
+    return userMessages.length > 0 ? userMessages[userMessages.length - 1].id : null;
+  };
+
   const handleSend = async () => {
     if (!inputText.trim()) return;
     
@@ -108,6 +116,7 @@ export default function ChatScreen() {
   if (!conversation || !agent) return null;
 
   const currentLogs = debugLogs[id as string] || [];
+  const lastFailedMessageId = getLastFailedMessageId();
 
   return (
     <KeyboardAvoidingView
@@ -144,6 +153,7 @@ export default function ChatScreen() {
             agentColor={agent.color}
             agentName={agent.name}
             conversationId={conversation.id}
+            isLastFailedMessage={item.id === lastFailedMessageId}
           />
         )}
         onContentSizeChange={() => {
