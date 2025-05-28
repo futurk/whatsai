@@ -7,6 +7,7 @@ import Animated, {
   withSpring,
   withSequence,
   withTiming,
+  withRepeat,
   useAnimatedStyle,
   useSharedValue
 } from 'react-native-reanimated';
@@ -17,7 +18,6 @@ import { TriangleAlert as AlertTriangle, Clock, CircleCheck as CheckCircle2, X, 
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { useChatContext } from '@/context/ChatContext';
 
-// Global state to track active message ID
 let activeMessageId: string | null = null;
 let setShowCopyButtonCallback: ((show: boolean) => void) | null = null;
 
@@ -46,6 +46,7 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId }: Messa
   const bubbleRef = useRef<View>(null);
   const scale = useSharedValue(1);
   const bubbleScale = useSharedValue(1);
+  const rotateAnimation = useSharedValue(0);
 
   useEffect(() => {
     if (showCopyButton) {
@@ -73,6 +74,24 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId }: Messa
       return () => document.removeEventListener('click', handleClickOutside);
     }
   }, [showCopyButton]);
+
+  useEffect(() => {
+    if (isRetrying) {
+      rotateAnimation.value = withRepeat(
+        withTiming(360, { duration: 1000 }),
+        -1,
+        false
+      );
+    } else {
+      rotateAnimation.value = 0;
+    }
+  }, [isRetrying]);
+
+  const spinningStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ rotate: `${rotateAnimation.value}deg` }],
+    };
+  });
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -216,20 +235,19 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId }: Messa
           <View style={styles.footer}>
             {message.status === 'failed' && (
               <Pressable
-                style={[styles.retryButton, { backgroundColor: theme.colors.error + '20' }]}
+                style={[
+                  styles.retryButton,
+                  { backgroundColor: theme.colors.error + '20' },
+                  isRetrying && styles.retryButtonActive
+                ]}
                 onPress={handleRetry}
                 disabled={isRetrying}
               >
-                <RefreshCw
-                  size={14}
-                  color={theme.colors.error}
-                  style={[
-                    styles.retryIcon,
-                    isRetrying && styles.retryIconSpinning
-                  ]}
-                />
+                <Animated.View style={spinningStyle}>
+                  <RefreshCw size={14} color={theme.colors.error} />
+                </Animated.View>
                 <Text style={[styles.retryText, { color: theme.colors.error }]}>
-                  Retry
+                  {isRetrying ? 'Retrying...' : 'Retry'}
                 </Text>
               </Pressable>
             )}
@@ -441,16 +459,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginRight: 8,
   },
+  retryButtonActive: {
+    opacity: 0.7,
+  },
   retryText: {
     fontSize: 12,
     fontWeight: '500',
     marginLeft: 4,
-  },
-  retryIcon: {
-    marginRight: 2,
-  },
-  retryIconSpinning: {
-    transform: [{ rotate: '45deg' }],
   },
 });
 
