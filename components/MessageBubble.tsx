@@ -26,6 +26,7 @@ interface MessageBubbleProps {
   agentColor: string;
   agentName: string;
   conversationId: string;
+  isLastUserMessage?: boolean;
 }
 
 function formatTime(timestamp: string) {
@@ -33,7 +34,7 @@ function formatTime(timestamp: string) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-const MessageBubble = ({ message, agentColor, agentName, conversationId }: MessageBubbleProps) => {
+const MessageBubble = ({ message, agentColor, agentName, conversationId, isLastUserMessage }: MessageBubbleProps) => {
   const { theme } = useTheme();
   const { addMessageToConversation } = useChatContext();
   const isUser = message.sender === 'user';
@@ -47,13 +48,11 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId }: Messa
   const bubbleScale = useSharedValue(1);
 
   useEffect(() => {
-    // Update the callback reference when a new message bubble is mounted
     if (showCopyButton) {
       setShowCopyButtonCallback = setShowCopyButton;
     }
 
     return () => {
-      // Clean up when unmounted
       if (setShowCopyButtonCallback === setShowCopyButton) {
         setShowCopyButtonCallback = null;
       }
@@ -122,12 +121,10 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId }: Messa
 
   const handlePress = () => {
     if (!isImage) {
-      // Hide previous copy button if it exists
       if (activeMessageId && activeMessageId !== message.id && setShowCopyButtonCallback) {
         setShowCopyButtonCallback(false);
       }
       
-      // Update active message
       activeMessageId = message.id;
       setShowCopyButton(true);
       
@@ -215,7 +212,7 @@ const MessageBubble = ({ message, agentColor, agentName, conversationId }: Messa
           </Animated.View>
 
           <View style={styles.footer}>
-            {message.status === 'failed' ? (
+            {isLastUserMessage && message.status === 'failed' ? (
               <Pressable 
                 onPress={handleRetry}
                 style={({ pressed }) => [
