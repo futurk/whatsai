@@ -64,8 +64,7 @@ export default {
       apiKeys: 'Manage your API keys for different vendors',
       defaultAgent: 'Select an agent to start new chats immediately',
       language: 'Change the app language',
-      pushNot
-      ifications: 'Get notified about new messages',
+      pushNotifications: 'Get notified about new messages',
       sounds: 'Play sounds for new messages',
       debugMode: 'Enable developer debugging features',
       clearConversations: 'This cannot be undone',
