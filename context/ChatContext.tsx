@@ -4,6 +4,7 @@ import { useAgentContext } from './AgentContext';
 import { useApiKeyContext } from './ApiKeyContext';
 import { ChatManager, LogEntry } from '@/utils/chatManager';
 import { useDebugContext } from './DebugContext';
+import { soundManager } from '@/utils/sound';
 
 interface ChatContextType {
   conversations: Conversation[];
@@ -120,6 +121,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         )
       );
 
+      // Play message sent tone
+      soundManager.playMessageTone();
+
       setIsTyping(true);
       try {
         const agent = getAgentById(conversation.agentId);
@@ -202,6 +206,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               : conv
           )
         );
+
+        // Play notification tone for assistant's response
+        soundManager.playNotificationTone();
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
         updateMessageStatus(conversationId, message.id, 'failed', errorMessage);
