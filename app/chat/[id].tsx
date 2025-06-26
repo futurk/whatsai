@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, TextInput, Pressable, FlatList, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import Animated, { FadeIn, useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { ArrowLeft, ArrowUp, Image as ImageIcon } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useChatContext } from '@/context/ChatContext';
@@ -24,7 +24,6 @@ export default function ChatScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const flatListRef = useRef(null);
   const inputRef = useRef<TextInput>(null);
   
@@ -37,9 +36,6 @@ export default function ChatScreen() {
     t('chat.suggestions.joke'),
     t('chat.suggestions.specialty')
   ];
-
-  // Animated value for input container
-  const inputContainerTranslateY = useSharedValue(0);
 
   useEffect(() => {
     if (!conversation) {
@@ -62,46 +58,6 @@ export default function ChatScreen() {
       }, 100);
     }
   }, [conversation?.messages, isTyping]);
-
-  // Keyboard event listeners
-  useEffect(() => {
-    const keyboardWillShowListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e) => {
-        const height = e.endCoordinates.height;
-        setKeyboardHeight(height);
-        inputContainerTranslateY.value = withTiming(-height + insets.bottom, {
-          duration: Platform.OS === 'ios' ? 250 : 200,
-        });
-        
-        // Scroll to end when keyboard shows
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }, Platform.OS === 'ios' ? 250 : 200);
-      }
-    );
-
-    const keyboardWillHideListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => {
-        setKeyboardHeight(0);
-        inputContainerTranslateY.value = withTiming(0, {
-          duration: Platform.OS === 'ios' ? 250 : 200,
-        });
-      }
-    );
-
-    return () => {
-      keyboardWillShowListener?.remove();
-      keyboardWillHideListener?.remove();
-    };
-  }, [insets.bottom]);
-
-  const animatedInputStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: inputContainerTranslateY.value }],
-    };
-  });
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -165,7 +121,11 @@ export default function ChatScreen() {
   const lastUserMessageIndex = getLastUserMessageIndex();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
       <Stack.Screen
         options={{
           headerShown: true,
@@ -187,9 +147,7 @@ export default function ChatScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={[
           styles.messagesContainer,
-          { 
-            paddingBottom: Platform.OS === 'web' ? 16 + insets.bottom : 100 + keyboardHeight,
-          }
+          { paddingBottom: 16 + insets.bottom }
         ]}
         renderItem={({ item, index }) => (
           <MessageBubble
@@ -221,12 +179,6 @@ export default function ChatScreen() {
             <DebugLogs logs={currentLogs} />
           ) : null
         }
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        maintainVisibleContentPosition={{
-          minIndexForVisible: 0,
-          autoscrollToTopThreshold: 10,
-        }}
       />
       
       {isTyping && (
@@ -244,18 +196,17 @@ export default function ChatScreen() {
         </Animated.View>
       )}
       
-      <Animated.View 
+      <View 
         style={[
           styles.inputContainer,
           {
+            paddingBottom: Math.max(16, insets.bottom),
             backgroundColor: theme.colors.background,
             borderTopColor: theme.colors.border,
             borderTopWidth: 1,
             paddingTop: 12,
             paddingHorizontal: 16,
-            paddingBottom: Math.max(16, insets.bottom),
-          },
-          Platform.OS !== 'web' && animatedInputStyle
+          }
         ]}
       >
         <Pressable
@@ -290,9 +241,6 @@ export default function ChatScreen() {
           onKeyPress={handleKeyPress}
           multiline
           maxLength={500}
-          blurOnSubmit={false}
-          returnKeyType="send"
-          onSubmitEditing={handleSend}
         />
 
         <Pressable
@@ -310,8 +258,8 @@ export default function ChatScreen() {
             color={inputText.trim() ? '#FFFFFF' : theme.colors.text.secondary}
           />
         </Pressable>
-      </Animated.View>
-    </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -330,7 +278,6 @@ const styles = StyleSheet.create({
   messagesContainer: {
     paddingHorizontal: 16,
     paddingTop: 16,
-    flexGrow: 1,
   },
   emptyContainer: {
     flex: 1,
@@ -386,10 +333,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   input: {
     flex: 1,
