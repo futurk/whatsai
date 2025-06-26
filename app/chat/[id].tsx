@@ -24,7 +24,6 @@ export default function ChatScreen() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const flatListRef = useRef(null);
   const inputRef = useRef<TextInput>(null);
   
@@ -59,24 +58,6 @@ export default function ChatScreen() {
       }, 100);
     }
   }, [conversation?.messages, isTyping]);
-
-  // Handle keyboard events for Android
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-      });
-      
-      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-        setKeyboardHeight(0);
-      });
-
-      return () => {
-        keyboardDidShowListener?.remove();
-        keyboardDidHideListener?.remove();
-      };
-    }
-  }, []);
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -139,68 +120,35 @@ export default function ChatScreen() {
 
   const lastUserMessageIndex = getLastUserMessageIndex();
 
-  // Calculate bottom padding based on platform and keyboard state
-  const getBottomPadding = () => {
-    if (Platform.OS === 'android') {
-      return keyboardHeight > 0 ? 16 : Math.max(16, insets.bottom);
-    }
-    return Math.max(16, insets.bottom);
-  };
-
-  const getInputContainerStyle = () => {
-    const baseStyle = [
-      styles.inputContainer,
-      {
-        backgroundColor: theme.colors.background,
-        borderTopColor: theme.colors.border,
-        borderTopWidth: 1,
-        paddingTop: 12,
-        paddingHorizontal: 16,
-        paddingBottom: getBottomPadding(),
-      }
-    ];
-
-    if (Platform.OS === 'android' && keyboardHeight > 0) {
-      return [
-        ...baseStyle,
-        {
-          position: 'absolute' as const,
-          bottom: 0,
-          left: 0,
-          right: 0,
-        }
-      ];
-    }
-
-    return baseStyle;
-  };
-
-  const getContentContainerStyle = () => {
-    const baseStyle = [
-      styles.messagesContainer,
-      { paddingBottom: 16 }
-    ];
-
-    if (Platform.OS === 'android' && keyboardHeight > 0) {
-      return [
-        ...baseStyle,
-        { paddingBottom: 80 + getBottomPadding() }
-      ];
-    }
-
-    return [
-      ...baseStyle,
-      { paddingBottom: 80 + getBottomPadding() }
-    ];
-  };
-
-  const ChatContent = () => (
-    <>
+  return (
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTitle: agent.name,
+          headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
+          headerLeft: () => (
+            <Pressable onPress={() => router.replace('/')} style={styles.backButton}>
+              <ArrowLeft size={24} color={theme.colors.text.primary} />
+            </Pressable>
+          ),
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: theme.colors.background },
+        }}
+      />
+      
       <FlatList
         ref={flatListRef}
         data={conversation.messages}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={getContentContainerStyle()}
+        contentContainerStyle={[
+          styles.messagesContainer,
+          { paddingBottom: 16 + insets.bottom }
+        ]}
         renderItem={({ item, index }) => (
           <MessageBubble
             message={item}
@@ -248,7 +196,19 @@ export default function ChatScreen() {
         </Animated.View>
       )}
       
-      <View style={getInputContainerStyle()}>
+      <View 
+        style={[
+          styles.inputContainer,
+          {
+            paddingBottom: Math.max(16, insets.bottom),
+            backgroundColor: theme.colors.background,
+            borderTopColor: theme.colors.border,
+            borderTopWidth: 1,
+            paddingTop: 12,
+            paddingHorizontal: 16,
+          }
+        ]}
+      >
         <Pressable
           style={[
             styles.iconButton,
@@ -299,46 +259,12 @@ export default function ChatScreen() {
           />
         </Pressable>
       </View>
-    </>
-  );
-
-  return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          headerTitle: agent.name,
-          headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
-          headerLeft: () => (
-            <Pressable onPress={() => router.replace('/')} style={styles.backButton}>
-              <ArrowLeft size={24} color={theme.colors.text.primary} />
-            </Pressable>
-          ),
-          headerShadowVisible: false,
-          headerStyle: { backgroundColor: theme.colors.background },
-        }}
-      />
-      
-      {Platform.OS === 'ios' ? (
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoidingView}
-          behavior="padding"
-          keyboardVerticalOffset={64}
-        >
-          <ChatContent />
-        </KeyboardAvoidingView>
-      ) : (
-        <ChatContent />
-      )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
     flex: 1,
   },
   headerTitle: {
