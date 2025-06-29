@@ -1,7 +1,8 @@
-import { createContext, useContext, ReactNode, useState } from 'react';
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { Model, VENDOR_MODELS } from '@/types/model';
 import { ApiKey, Vendor } from '@/types/apiKey';
-import { sampleApiKeys } from '@/data/sampleData';
+import { sampleApiKeys, getApiKeyStatus } from '@/data/sampleData';
+import { validateEnv, hasApiKey } from '@/utils/env';
 
 interface ApiKeyContextType {
   apiKeys: ApiKey[];
@@ -11,12 +12,27 @@ interface ApiKeyContextType {
   getApiKeysByVendor: (vendor: Vendor) => ApiKey[];
   getModelsByVendor: (vendor: Vendor) => Model[];
   getSupportedVendors: () => Vendor[];
+  envStatus: string;
 }
 
 const ApiKeyContext = createContext<ApiKeyContextType | undefined>(undefined);
 
 export const ApiKeyProvider = ({ children }: { children: ReactNode }) => {
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>(sampleApiKeys);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [envStatus, setEnvStatus] = useState<string>('');
+
+  useEffect(() => {
+    // Validate environment and initialize API keys
+    const isValid = validateEnv();
+    setEnvStatus(getApiKeyStatus());
+    
+    // Load sample keys (which now include env-based keys)
+    setApiKeys(sampleApiKeys);
+    
+    if (!isValid && __DEV__) {
+      console.warn('Some environment variables are missing. Check your .env.local file.');
+    }
+  }, []);
 
   const addApiKey = (vendor: Vendor, key: string, name: string) => {
     const newKey: ApiKey = {
@@ -64,7 +80,8 @@ export const ApiKeyProvider = ({ children }: { children: ReactNode }) => {
       deleteApiKey,
       getApiKeysByVendor,
       getModelsByVendor,
-      getSupportedVendors
+      getSupportedVendors,
+      envStatus
     }}>
       {children}
     </ApiKeyContext.Provider>
