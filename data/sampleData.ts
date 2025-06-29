@@ -1,6 +1,5 @@
 import { Agent } from '@/types/agent';
 import { ApiKey, Vendor } from '@/types/apiKey';
-import { ENV, getApiKey, hasApiKey } from '@/utils/env';
 
 export const sampleAgents: Agent[] = [
   {
@@ -27,48 +26,19 @@ export const sampleAgents: Agent[] = [
   }
 ];
 
-/**
- * Generate sample API keys from environment variables
- * Falls back to placeholder values if env vars are not set
- */
 export const sampleApiKeys: ApiKey[] = [
   {
     id: 'key1',
     vendor: 'OpenAI',
-    key: getApiKey('OpenAI', 'primary') || 'sk-example-key-placeholder-replace-with-your-actual-key',
-    name: hasApiKey('OpenAI') ? 'Primary OpenAI Key' : 'Development Key (Placeholder)',
+    key: 'sk-example-key-placeholder-replace-with-your-actual-key',
+    name: 'Development Key',
     createdAt: new Date().toISOString()
   },
   {
     id: 'key2',
     vendor: 'OpenAI',
-    key: getApiKey('OpenAI', 'secondary') || 'sk-another-example-key-placeholder',
+    key: 'sk-another-example-key-placeholder',
     name: 'Secondary Key',
     createdAt: new Date().toISOString()
-  },
-  ...(hasApiKey('Anthropic') ? [{
-    id: 'key3',
-    vendor: 'Anthropic' as Vendor,
-    key: getApiKey('Anthropic'),
-    name: 'Primary Anthropic Key',
-    createdAt: new Date().toISOString()
-  }] : [])
-];
-
-/**
- * Get development status message for API keys
- */
-export const getApiKeyStatus = () => {
-  const openaiAvailable = hasApiKey('OpenAI');
-  const anthropicAvailable = hasApiKey('Anthropic');
-  
-  if (!openaiAvailable && !anthropicAvailable) {
-    return 'No API keys configured. Add your keys to .env.local file.';
   }
-  
-  const available = [];
-  if (openaiAvailable) available.push('OpenAI');
-  if (anthropicAvailable) available.push('Anthropic');
-  
-  return `API keys available for: ${available.join(', ')}`;
-};
+];

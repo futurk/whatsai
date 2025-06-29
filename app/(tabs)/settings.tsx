@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor, Sun, Moon, Languages, CircleAlert as AlertCircle } from 'lucide-react-native';
+import { Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor, Sun, Moon, Languages } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
@@ -11,12 +11,11 @@ import { useTranslation } from '@/hooks/useTranslation';
 import AgentSelectionModal from '@/components/AgentSelectionModal';
 import LanguageSelectionModal from '@/components/LanguageSelectionModal';
 import { ThemeMode } from '@/types/theme';
-import { ENV } from '@/utils/env';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { agents, defaultAgentId, setDefaultAgent, getAgentById } = useAgentContext();
-  const { apiKeys, envStatus } = useApiKeyContext();
+  const { apiKeys } = useApiKeyContext();
   const { isDebugMode, toggleDebugMode } = useDebugContext();
   const { theme, themeMode, setThemeMode } = useTheme();
   const { language } = useLanguage();
@@ -57,8 +56,7 @@ export default function SettingsScreen() {
     onSwitchChange = () => {}, 
     onPress = null,
     destructive = false,
-    badge = null,
-    warning = false
+    badge = null
   }) => (
     <Pressable 
       style={styles.settingItem} 
@@ -67,7 +65,7 @@ export default function SettingsScreen() {
     >
       <View style={[
         styles.iconContainer, 
-        { backgroundColor: destructive ? theme.colors.error + '20' : warning ? theme.colors.warning + '20' : theme.colors.surface },
+        { backgroundColor: destructive ? theme.colors.error + '20' : theme.colors.surface },
         destructive && styles.destructiveIcon
       ]}>
         {icon}
@@ -107,21 +105,6 @@ export default function SettingsScreen() {
         style={[styles.container, { backgroundColor: theme.colors.background }]} 
         contentContainerStyle={styles.contentContainer}
       >
-        {/* Environment Status */}
-        {ENV.IS_DEV && (
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
-              Environment Status
-            </Text>
-            <View style={[styles.envStatusCard, { backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}>
-              <AlertCircle size={20} color={theme.colors.info} />
-              <Text style={[styles.envStatusText, { color: theme.colors.text.secondary }]}>
-                {envStatus}
-              </Text>
-            </View>
-          </View>
-        )}
-
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
             {t('settings.sections.developer')}
@@ -148,11 +131,10 @@ export default function SettingsScreen() {
             onPress: () => router.push('/manage-agents')
           })}
           {renderSettingItem({
-            icon: <Key size={22} color={apiKeys.length > 0 ? theme.colors.primary : theme.colors.warning} />,
+            icon: <Key size={22} color={theme.colors.primary} />,
             title: t('settings.items.apiKeys'),
             description: t('settings.descriptions.apiKeys'),
             badge: apiKeys.length.toString(),
-            warning: apiKeys.length === 0,
             onPress: () => router.push('/api-keys')
           })}
         </View>
@@ -210,6 +192,69 @@ export default function SettingsScreen() {
             ))}
           </View>
         </View>
+{/* temporarily disabled on purpose
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.notifications')}
+          </Text>
+          {renderSettingItem({
+            icon: <Bell size={22} color={theme.colors.primary} />,
+            title: t('settings.items.pushNotifications'),
+            description: t('settings.descriptions.pushNotifications'),
+            hasSwitch: true,
+            switchValue: notifications,
+            onSwitchChange: setNotifications
+          })}
+          {renderSettingItem({
+            icon: <Volume2 size={22} color={theme.colors.primary} />,
+            title: t('settings.items.sounds'),
+            description: t('settings.descriptions.sounds'),
+            hasSwitch: true,
+            switchValue: sounds,
+            onSwitchChange: setSounds
+          })}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.about')}
+          </Text>
+          {renderSettingItem({
+            icon: <Shield size={22} color={theme.colors.primary} />,
+            title: t('settings.items.privacyPolicy'),
+            onPress: () => {}
+          })}
+          {renderSettingItem({
+            icon: <HelpCircle size={22} color={theme.colors.primary} />,
+            title: t('settings.items.helpSupport'),
+            onPress: () => {}
+          })}
+          {renderSettingItem({
+            icon: <Info size={22} color={theme.colors.primary} />,
+            title: t('settings.items.appVersion'),
+            description: '1.0.0'
+          })}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.account')}
+          </Text>
+          {renderSettingItem({
+            icon: <LogOut size={22} color={theme.colors.error} />,
+            title: t('settings.items.signOut'),
+            destructive: true,
+            onPress: () => {}
+          })}
+          {renderSettingItem({
+            icon: <Trash2 size={22} color={theme.colors.error} />,
+            title: t('settings.items.clearConversations'),
+            description: t('settings.descriptions.clearConversations'),
+            destructive: true,
+            onPress: () => {}
+          })}
+        </View>
+*/}
       </ScrollView>
 
       <AgentSelectionModal
@@ -298,18 +343,5 @@ const styles = StyleSheet.create({
   themeText: {
     fontSize: 12,
     fontWeight: '500',
-  },
-  envStatusCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    marginHorizontal: 20,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  envStatusText: {
-    fontSize: 14,
-    marginLeft: 12,
-    flex: 1,
   },
 });
