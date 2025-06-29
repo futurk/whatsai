@@ -13,23 +13,28 @@ import { useTranslation } from '@/hooks/useTranslation';
 import MessageBubble from '@/components/MessageBubble';
 import SuggestionChip from '@/components/SuggestionChip';
 import DebugLogs from '@/components/DebugLogs';
+import { useHeaderHeight } from '@react-navigation/elements';
+import { Message } from '@/types/chat';
 
 export default function ChatScreen() {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { getConversationById, addMessageToConversation, isTyping, debugLogs } = useChatContext();
-  const { getAgentById } = useAgentContext();
-  const { isDebugMode } = useDebugContext();
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
-  const flatListRef = useRef(null);
+  const flatListRef = useRef<FlatList>(null);
   const inputRef = useRef<TextInput>(null);
-  
-  const conversation = getConversationById(id as string);
+  const headerHeight = useHeaderHeight();
+
+  // Context hooks
+  const { getConversationById, addMessageToConversation, isTyping, debugLogs } = useChatContext();
+  const { getAgentById } = useAgentContext();
+  const { isDebugMode } = useDebugContext();
+
+  const conversation = getConversationById(id);
   const agent = conversation ? getAgentById(conversation.agentId) : null;
-  
+
   const suggestions = [
     t('chat.suggestions.aboutYou'),
     t('chat.suggestions.help'),
@@ -37,20 +42,19 @@ export default function ChatScreen() {
     t('chat.suggestions.specialty')
   ];
 
+  // Redirect if conversation doesn't exist
   useEffect(() => {
     if (!conversation) {
       router.replace('/');
     }
-  }, [conversation, router]);
+  }, [conversation]);
 
+  // Auto-focus input on mount
   useEffect(() => {
-    const focusTimeout = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
-
-    return () => clearTimeout(focusTimeout);
+    inputRef.current?.focus();
   }, []);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
     if (flatListRef.current && conversation?.messages.length) {
       setTimeout(() => {
@@ -60,21 +64,23 @@ export default function ChatScreen() {
   }, [conversation?.messages, isTyping]);
 
   const handleSend = async () => {
-    if (!inputText.trim()) return;
-    
-    const userMessage = inputText.trim();
-    setInputText('');
-    
-    await addMessageToConversation(id as string, {
+    if (!inputText.trim() || !conversation) return;
+
+    const message: Message = {
       id: Date.now().toString(),
-      text: userMessage,
+      text: inputText.trim(),
       sender: 'user',
       type: 'text',
       timestamp: new Date().toISOString()
-    });
+    };
+
+    setInputText('');
+    await addMessageToConversation(id, message);
   };
 
   const handleImagePick = async () => {
+    if (!conversation) return;
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
@@ -82,14 +88,15 @@ export default function ChatScreen() {
     });
 
     if (!result.canceled && result.assets[0]) {
-      await addMessageToConversation(id as string, {
+      const message: Message = {
         id: Date.now().toString(),
         text: t('chat.sendImage'),
         sender: 'user',
         type: 'image',
         imageUrl: result.assets[0].uri,
         timestamp: new Date().toISOString()
-      });
+      };
+      await addMessageToConversation(id, message);
     }
   };
 
@@ -107,25 +114,13 @@ export default function ChatScreen() {
 
   if (!conversation || !agent) return null;
 
-  const currentLogs = debugLogs[id as string] || [];
-
-  const getLastUserMessageIndex = () => {
-    for (let i = conversation.messages.length - 1; i >= 0; i--) {
-      if (conversation.messages[i].sender === 'user') {
-        return i;
-      }
-    }
-    return -1;
-  };
-
-  const lastUserMessageIndex = getLastUserMessageIndex();
+  const currentLogs = debugLogs[id] || [];
+  const lastUserMessageIndex = conversation.messages.findLastIndex(
+    msg => msg.sender === 'user'
+  );
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Stack.Screen
         options={{
           headerShown: true,
@@ -140,11 +135,11 @@ export default function ChatScreen() {
           headerStyle: { backgroundColor: theme.colors.background },
         }}
       />
-      
+
       <FlatList
         ref={flatListRef}
         data={conversation.messages}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         contentContainerStyle={[
           styles.messagesContainer,
           { paddingBottom: 16 + insets.bottom }
@@ -158,11 +153,6 @@ export default function ChatScreen() {
             isLastUserMessage={index === lastUserMessageIndex}
           />
         )}
-        onContentSizeChange={() => {
-          if (conversation.messages.length > 0) {
-            flatListRef.current?.scrollToEnd({ animated: true });
-          }
-        }}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             {suggestions.map((suggestion, index) => (
@@ -180,13 +170,13 @@ export default function ChatScreen() {
           ) : null
         }
       />
-      
+
       {isTyping && (
         <Animated.View
           entering={FadeIn.duration(300)}
           style={styles.typingContainer}
         >
-          <View style={[styles.typingBubble, { backgroundColor: agent.color + '20' }]}>
+          <View style={[styles.typingBubble, { backgroundColor: `${agent.color}20` }]}>
             <View style={styles.typingIndicator}>
               <View style={[styles.typingDot, styles.typingDot1]} />
               <View style={[styles.typingDot, styles.typingDot2]} />
@@ -195,71 +185,64 @@ export default function ChatScreen() {
           </View>
         </Animated.View>
       )}
-      
-      <View 
-        style={[
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={headerHeight}
+      >
+        <View style={[
           styles.inputContainer,
           {
             paddingBottom: Math.max(16, insets.bottom),
-            backgroundColor: theme.colors.background,
             borderTopColor: theme.colors.border,
             borderTopWidth: 1,
             paddingTop: 12,
             paddingHorizontal: 16,
           }
-        ]}
-      >
-        <Pressable
-          style={[
-            styles.iconButton,
-            { backgroundColor: theme.colors.surface }
-          ]}
-          onPress={handleImagePick}
-        >
-          <ImageIcon size={20} color={theme.colors.text.secondary} />
-        </Pressable>
+        ]}>
+          <Pressable
+            style={[styles.iconButton, { backgroundColor: theme.colors.surface }]}
+            onPress={handleImagePick}
+          >
+            <ImageIcon size={20} color={theme.colors.text.secondary} />
+          </Pressable>
 
-        <TextInput
-          ref={inputRef}
-          style={[
-            styles.input,
-            {
-              backgroundColor: theme.colors.surface,
-              color: theme.colors.text.primary,
-              borderRadius: 24,
-              paddingHorizontal: 16,
-              paddingVertical: 8,
-              marginHorizontal: 8,
-              fontSize: 16,
-              maxHeight: 120,
-            }
-          ]}
-          placeholder={t('chat.typeMessage')}
-          placeholderTextColor={theme.colors.text.secondary}
-          value={inputText}
-          onChangeText={setInputText}
-          onKeyPress={handleKeyPress}
-          multiline
-          maxLength={500}
-        />
-
-        <Pressable
-          style={[
-            styles.iconButton,
-            {
-              backgroundColor: inputText.trim() ? theme.colors.primary : theme.colors.surface
-            }
-          ]}
-          onPress={handleSend}
-          disabled={!inputText.trim()}
-        >
-          <ArrowUp 
-            size={20} 
-            color={inputText.trim() ? '#FFFFFF' : theme.colors.text.secondary}
+          <TextInput
+            ref={inputRef}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.colors.surface,
+                color: theme.colors.text.primary,
+              }
+            ]}
+            placeholder={t('chat.typeMessage')}
+            placeholderTextColor={theme.colors.text.secondary}
+            value={inputText}
+            onChangeText={setInputText}
+            onKeyPress={handleKeyPress}
+            multiline
+            maxLength={500}
           />
-        </Pressable>
-      </View>
-    </KeyboardAvoidingView>
+
+          <Pressable
+            style={[
+              styles.iconButton,
+              {
+                backgroundColor: inputText.trim() ? theme.colors.primary : theme.colors.surface
+              }
+            ]}
+            onPress={handleSend}
+            disabled={!inputText.trim()}
+          >
+            <ArrowUp
+              size={20}
+              color={inputText.trim() ? '#FFFFFF' : theme.colors.text.secondary}
+            />
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -333,9 +316,16 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
+    backgroundColor: 'transparent',
   },
   input: {
     flex: 1,
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginHorizontal: 8,
+    fontSize: 16,
+    maxHeight: 120,
   },
   iconButton: {
     width: 40,
