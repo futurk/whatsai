@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor, Sun, Moon, Languages, AlertCircle } from 'lucide-react-native';
+import { Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor, Sun, Moon, Languages, CircleAlert as AlertCircle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
