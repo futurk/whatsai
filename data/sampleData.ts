@@ -37,7 +37,7 @@ export const sampleApiKeys: ApiKey[] = [
   {
     id: 'key2',
     vendor: 'OpenAI',
-    key: process.env.EXPO_PUBLIC_SAMPLE_FALSE_KEY || 'sk-sample-key-false',
+    key: 'sk-sample-key-false',
     name: 'False Key',
     createdAt: new Date().toISOString()
   }
