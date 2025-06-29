@@ -13,7 +13,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const LANGUAGE_STORAGE_KEY = '@app_language';
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('de');
+  const [language, setLanguageState] = useState<Language>('system');
 
   useEffect(() => {
     loadLanguagePreference();
@@ -56,8 +56,8 @@ export function useLanguage() {
 
 export function getDeviceLanguage(): Language {
   if (Platform.OS === 'ios') {
-    const locale = NativeModules.SettingsManager.settings.AppleLocale || 
-                  NativeModules.SettingsManager.settings.AppleLanguages[0];
+    const locale = NativeModules.SettingsManager.settings.AppleLocale ||
+      NativeModules.SettingsManager.settings.AppleLanguages[0];
     return mapLocaleToLanguage(locale);
   } else if (Platform.OS === 'android') {
     const locale = NativeModules.I18nManager.localeIdentifier;
@@ -70,7 +70,7 @@ export function getDeviceLanguage(): Language {
 
 function mapLocaleToLanguage(locale: string): Language {
   const languageCode = locale.toLowerCase().split(/[-_]/)[0];
-  const supportedLanguage = SUPPORTED_LANGUAGES.find(lang => 
+  const supportedLanguage = SUPPORTED_LANGUAGES.find(lang =>
     lang.id === languageCode
   );
   return supportedLanguage?.id || 'en';
