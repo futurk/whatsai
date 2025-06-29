@@ -30,15 +30,15 @@ export const sampleApiKeys: ApiKey[] = [
   {
     id: 'key1',
     vendor: 'OpenAI',
-    key: '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',
+    key: 'sk-example-key-placeholder-replace-with-your-actual-key',
     name: 'Development Key',
     createdAt: new Date().toISOString()
   },
   {
     id: 'key2',
     vendor: 'OpenAI',
-    key: 'sk-sample-key-false',
-    name: 'False Key',
+    key: 'sk-another-example-key-placeholder',
+    name: 'Secondary Key',
     createdAt: new Date().toISOString()
   }
 ];
