@@ -12,11 +12,13 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MessageSquare, Sparkles, Zap, ArrowRight } from 'lucide-react-native';
 import { useEffect } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const sparkleScale = useSharedValue(1);
   const zapRotation = useSharedValue(0);
 
@@ -65,11 +67,12 @@ export default function WelcomeScreen() {
           </View>
         </View>
 
-        {/* Main content */}
-        <View style={styles.content}>
+        {/* Main content with proper spacing */}
+        <View style={[styles.mainContent, { paddingTop: insets.top + 40 }]}>
+          {/* Logo and App Name */}
           <Animated.View 
             entering={FadeInUp.delay(300).springify()}
-            style={styles.logoContainer}
+            style={styles.logoSection}
           >
             <View style={styles.logo}>
               <MessageSquare size={48} color="#FFFFFF" strokeWidth={2} />
@@ -77,6 +80,7 @@ export default function WelcomeScreen() {
             <Text style={styles.appName}>ChatBot AI</Text>
           </Animated.View>
 
+          {/* Hero Section */}
           <Animated.View 
             entering={FadeInUp.delay(600).springify()}
             style={styles.heroSection}
@@ -91,6 +95,7 @@ export default function WelcomeScreen() {
             </Text>
           </Animated.View>
 
+          {/* Features */}
           <Animated.View 
             entering={FadeInUp.delay(900).springify()}
             style={styles.featuresContainer}
@@ -116,10 +121,10 @@ export default function WelcomeScreen() {
           </Animated.View>
         </View>
 
-        {/* Bottom section */}
+        {/* Bottom section with proper spacing */}
         <Animated.View 
           entering={FadeInDown.delay(1200).springify()}
-          style={styles.bottomSection}
+          style={[styles.bottomSection, { paddingBottom: insets.bottom + 40 }]}
         >
           <Pressable
             style={({ pressed }) => [
@@ -154,6 +159,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    zIndex: 0,
   },
   floatingIcon: {
     position: 'absolute',
@@ -167,18 +173,18 @@ const styles = StyleSheet.create({
     left: width * 0.15,
   },
   messageIcon: {
-    bottom: height * 0.3,
+    bottom: height * 0.35,
     right: width * 0.2,
   },
-  content: {
+  mainContent: {
     flex: 1,
     paddingHorizontal: 32,
-    paddingTop: 80,
-    alignItems: 'center',
+    justifyContent: 'space-between',
+    zIndex: 1,
   },
-  logoContainer: {
+  logoSection: {
     alignItems: 'center',
-    marginBottom: 60,
+    marginTop: 20,
   },
   logo: {
     width: 80,
@@ -199,7 +205,9 @@ const styles = StyleSheet.create({
   },
   heroSection: {
     alignItems: 'center',
-    marginBottom: 50,
+    flex: 1,
+    justifyContent: 'center',
+    paddingVertical: 40,
   },
   heroTitle: {
     fontSize: 32,
@@ -217,13 +225,15 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     lineHeight: 24,
-    maxWidth: 300,
+    maxWidth: 320,
+    marginBottom: 40,
   },
   featuresContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
     maxWidth: 320,
+    alignSelf: 'center',
   },
   feature: {
     alignItems: 'center',
@@ -246,8 +256,8 @@ const styles = StyleSheet.create({
   },
   bottomSection: {
     paddingHorizontal: 32,
-    paddingBottom: 50,
     alignItems: 'center',
+    zIndex: 1,
   },
   getStartedButton: {
     flexDirection: 'row',
@@ -265,6 +275,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+    minWidth: 200,
+    justifyContent: 'center',
   },
   getStartedButtonPressed: {
     transform: [{ scale: 0.98 }],
@@ -280,5 +292,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
+    maxWidth: 280,
   },
 });
