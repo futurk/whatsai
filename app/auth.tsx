@@ -10,7 +10,7 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from 'lucide-react-native';
+import { ArrowLeft, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AuthMode = 'login' | 'signup';
@@ -47,6 +47,10 @@ export default function AuthScreen() {
     }, 1500);
   };
 
+  const handleSkip = () => {
+    router.replace('/(tabs)');
+  };
+
   const buttonAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: buttonScale.value }],
   }));
@@ -68,6 +72,15 @@ export default function AuthScreen() {
               style={[styles.backButton, { marginTop: insets.top }]}
             >
               <ArrowLeft size={24} color="#FFFFFF" />
+            </Pressable>
+          ),
+          headerRight: () => (
+            <Pressable 
+              onPress={handleSkip}
+              style={[styles.skipButton, { marginTop: insets.top }]}
+            >
+              <Text style={styles.skipButtonText}>Skip</Text>
+              <ArrowRight size={16} color="rgba(255, 255, 255, 0.8)" />
             </Pressable>
           ),
         }}
@@ -215,6 +228,32 @@ export default function AuthScreen() {
             </Animated.View>
 
             <Animated.View 
+              entering={FadeInDown.delay(500).springify()}
+              style={styles.skipContainer}
+            >
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.dividerLine} />
+              </View>
+              
+              <Pressable
+                style={({ pressed }) => [
+                  styles.skipMainButton,
+                  pressed && styles.skipMainButtonPressed
+                ]}
+                onPress={handleSkip}
+              >
+                <Text style={styles.skipMainButtonText}>Try the App First</Text>
+                <ArrowRight size={18} color="rgba(255, 255, 255, 0.9)" strokeWidth={2} />
+              </Pressable>
+              
+              <Text style={styles.skipDescription}>
+                Explore all features without creating an account
+              </Text>
+            </Animated.View>
+
+            <Animated.View 
               entering={FadeInDown.delay(600).springify()}
               style={styles.switchModeContainer}
             >
@@ -250,6 +289,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: 16,
   },
+  skipButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 16,
+  },
+  skipButtonText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '600',
+    marginRight: 4,
+  },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 32,
@@ -257,7 +311,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 50,
+    marginBottom: 40,
   },
   title: {
     fontSize: 32,
@@ -273,7 +327,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   formContainer: {
-    marginBottom: 40,
+    marginBottom: 30,
   },
   inputContainer: {
     marginBottom: 20,
@@ -361,11 +415,58 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     textDecorationLine: 'underline',
   },
+  skipContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  dividerText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginHorizontal: 16,
+    fontWeight: '500',
+  },
+  skipMainButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 14,
+    marginBottom: 8,
+  },
+  skipMainButtonPressed: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    transform: [{ scale: 0.98 }],
+  },
+  skipMainButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginRight: 8,
+  },
+  skipDescription: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.6)',
+    textAlign: 'center',
+  },
   switchModeContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 10,
   },
   switchModeText: {
     fontSize: 14,

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor, Sun, Moon, Languages } from 'lucide-react-native';
+import { Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor, Sun, Moon, Languages, UserCheck } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
@@ -54,6 +54,10 @@ export default function SettingsScreen() {
   const handleSignOut = async () => {
     await signOut();
     setShowSignOutDialog(false);
+  };
+
+  const handleCreateAccount = () => {
+    router.push('/auth');
   };
 
   const renderSettingItem = ({ 
@@ -207,12 +211,22 @@ export default function SettingsScreen() {
           <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
             {t('settings.sections.account')}
           </Text>
-          {renderSettingItem({
-            icon: <LogOut size={22} color={theme.colors.error} />,
-            title: t('settings.items.signOut'),
-            destructive: true,
-            onPress: () => setShowSignOutDialog(true)
-          })}
+          
+          {user?.isGuest ? (
+            renderSettingItem({
+              icon: <UserCheck size={22} color={theme.colors.primary} />,
+              title: 'Create Account',
+              description: 'Save your conversations and sync across devices',
+              onPress: handleCreateAccount
+            })
+          ) : (
+            renderSettingItem({
+              icon: <LogOut size={22} color={theme.colors.error} />,
+              title: t('settings.items.signOut'),
+              destructive: true,
+              onPress: () => setShowSignOutDialog(true)
+            })
+          )}
         </View>
       </ScrollView>
 

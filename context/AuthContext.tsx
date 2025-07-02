@@ -6,6 +6,7 @@ interface User {
   id: string;
   email: string;
   name: string;
+  isGuest?: boolean;
 }
 
 interface AuthContextType {
@@ -14,6 +15,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
+  continueAsGuest: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,8 +40,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user && inAuthGroup) {
       // User is not signed in and trying to access protected routes
       router.replace('/welcome');
-    } else if (user && !inAuthGroup) {
-      // User is signed in and trying to access auth routes
+    } else if (user && !inAuthGroup && segments[0] !== 'welcome' && segments[0] !== 'auth') {
+      // User is signed in and trying to access auth routes (but not welcome/auth)
       router.replace('/(tabs)');
     }
   }, [user, segments, isLoading]);
@@ -63,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       id: '1',
       email,
       name: 'User Name',
+      isGuest: false,
     };
 
     await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(mockUser));
@@ -75,10 +78,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       id: '1',
       email,
       name,
+      isGuest: false,
     };
 
     await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(mockUser));
     setUser(mockUser);
+  };
+
+  const continueAsGuest = () => {
+    const guestUser: User = {
+      id: 'guest',
+      email: 'guest@example.com',
+      name: 'Guest User',
+      isGuest: true,
+    };
+
+    // Don't store guest user in AsyncStorage - they should see welcome screen again
+    setUser(guestUser);
   };
 
   const signOut = async () => {
@@ -94,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signOut,
+        continueAsGuest,
       }}
     >
       {children}
