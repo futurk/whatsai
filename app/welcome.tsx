@@ -67,12 +67,16 @@ export default function WelcomeScreen() {
           </View>
         </View>
 
-        {/* Main content with proper spacing */}
-        <View style={[styles.mainContent, { paddingTop: insets.top + 40 }]}>
-          {/* Logo and App Name */}
+        {/* Content Container */}
+        <View style={[styles.contentContainer, { 
+          paddingTop: insets.top + 20,
+          paddingBottom: insets.bottom + 20 
+        }]}>
+          
+          {/* Top Section - Logo */}
           <Animated.View 
             entering={FadeInUp.delay(300).springify()}
-            style={styles.logoSection}
+            style={styles.topSection}
           >
             <View style={styles.logo}>
               <MessageSquare size={48} color="#FFFFFF" strokeWidth={2} />
@@ -80,67 +84,65 @@ export default function WelcomeScreen() {
             <Text style={styles.appName}>ChatBot AI</Text>
           </Animated.View>
 
-          {/* Hero Section */}
+          {/* Middle Section - Hero Content */}
           <Animated.View 
             entering={FadeInUp.delay(600).springify()}
-            style={styles.heroSection}
+            style={styles.middleSection}
           >
             <Text style={styles.heroTitle}>
               Welcome to the Future of{'\n'}
               <Text style={styles.heroTitleAccent}>AI Conversations</Text>
             </Text>
+            
             <Text style={styles.heroSubtitle}>
               Chat with multiple AI agents, each with unique personalities and expertise. 
               Experience the next generation of intelligent conversations.
             </Text>
+
+            {/* Features */}
+            <View style={styles.featuresContainer}>
+              <View style={styles.feature}>
+                <View style={styles.featureIcon}>
+                  <MessageSquare size={20} color="#667eea" />
+                </View>
+                <Text style={styles.featureText}>Multiple AI Agents</Text>
+              </View>
+              <View style={styles.feature}>
+                <View style={styles.featureIcon}>
+                  <Sparkles size={20} color="#667eea" />
+                </View>
+                <Text style={styles.featureText}>Smart Conversations</Text>
+              </View>
+              <View style={styles.feature}>
+                <View style={styles.featureIcon}>
+                  <Zap size={20} color="#667eea" />
+                </View>
+                <Text style={styles.featureText}>Lightning Fast</Text>
+              </View>
+            </View>
           </Animated.View>
 
-          {/* Features */}
+          {/* Bottom Section - CTA */}
           <Animated.View 
-            entering={FadeInUp.delay(900).springify()}
-            style={styles.featuresContainer}
+            entering={FadeInDown.delay(1200).springify()}
+            style={styles.bottomSection}
           >
-            <View style={styles.feature}>
-              <View style={styles.featureIcon}>
-                <MessageSquare size={20} color="#667eea" />
-              </View>
-              <Text style={styles.featureText}>Multiple AI Agents</Text>
-            </View>
-            <View style={styles.feature}>
-              <View style={styles.featureIcon}>
-                <Sparkles size={20} color="#667eea" />
-              </View>
-              <Text style={styles.featureText}>Smart Conversations</Text>
-            </View>
-            <View style={styles.feature}>
-              <View style={styles.featureIcon}>
-                <Zap size={20} color="#667eea" />
-              </View>
-              <Text style={styles.featureText}>Lightning Fast</Text>
-            </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.getStartedButton,
+                pressed && styles.getStartedButtonPressed
+              ]}
+              onPress={() => router.push('/auth')}
+            >
+              <Text style={styles.getStartedButtonText}>Get Started</Text>
+              <ArrowRight size={20} color="#667eea" strokeWidth={2.5} />
+            </Pressable>
+            
+            <Text style={styles.bottomText}>
+              Join thousands of users already chatting with AI
+            </Text>
           </Animated.View>
         </View>
-
-        {/* Bottom section with proper spacing */}
-        <Animated.View 
-          entering={FadeInDown.delay(1200).springify()}
-          style={[styles.bottomSection, { paddingBottom: insets.bottom + 40 }]}
-        >
-          <Pressable
-            style={({ pressed }) => [
-              styles.getStartedButton,
-              pressed && styles.getStartedButtonPressed
-            ]}
-            onPress={() => router.push('/auth')}
-          >
-            <Text style={styles.getStartedButtonText}>Get Started</Text>
-            <ArrowRight size={20} color="#667eea" strokeWidth={2.5} />
-          </Pressable>
-          
-          <Text style={styles.bottomText}>
-            Join thousands of users already chatting with AI
-          </Text>
-        </Animated.View>
       </LinearGradient>
     </View>
   );
@@ -176,15 +178,15 @@ const styles = StyleSheet.create({
     bottom: height * 0.35,
     right: width * 0.2,
   },
-  mainContent: {
+  contentContainer: {
     flex: 1,
     paddingHorizontal: 32,
-    justifyContent: 'space-between',
     zIndex: 1,
   },
-  logoSection: {
+  topSection: {
     alignItems: 'center',
-    marginTop: 20,
+    paddingTop: 40,
+    paddingBottom: 20,
   },
   logo: {
     width: 80,
@@ -203,10 +205,10 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },
-  heroSection: {
-    alignItems: 'center',
+  middleSection: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     paddingVertical: 40,
   },
   heroTitle: {
@@ -226,14 +228,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
     maxWidth: 320,
-    marginBottom: 40,
+    marginBottom: 50,
   },
   featuresContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
     maxWidth: 320,
-    alignSelf: 'center',
   },
   feature: {
     alignItems: 'center',
@@ -255,9 +256,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   bottomSection: {
-    paddingHorizontal: 32,
     alignItems: 'center',
-    zIndex: 1,
+    paddingBottom: 40,
   },
   getStartedButton: {
     flexDirection: 'row',
