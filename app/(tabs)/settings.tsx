@@ -115,7 +115,8 @@ export default function SettingsScreen() {
             description: t('settings.descriptions.debugMode'),
             hasSwitch: true,
             switchValue: isDebugMode,
-            onSwitchChange: toggleDebugMode
+            onSwitchChange: toggleDebugMode,
+            onPress: toggleDebugMode
           })}
         </View>
         
@@ -252,6 +253,25 @@ export default function SettingsScreen() {
             icon: <Info size={22} color={theme.colors.primary} />,
             title: t('settings.items.appVersion'),
             description: '1.0.0'
+          })}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
+            {t('settings.sections.account')}
+          </Text>
+          {renderSettingItem({
+            icon: <LogOut size={22} color={theme.colors.error} />,
+            title: t('settings.items.signOut'),
+            destructive: true,
+            onPress: () => {}
+          })}
+          {renderSettingItem({
+            icon: <Trash2 size={22} color={theme.colors.error} />,
+            title: t('settings.items.clearConversations'),
+            description: t('settings.descriptions.clearConversations'),
+            destructive: true,
+            onPress: () => {}
           })}
         </View>
 */}
