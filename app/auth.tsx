@@ -43,12 +43,12 @@ export default function AuthScreen() {
       setIsLoading(false);
       buttonScale.value = withSpring(1);
       // Navigate to main app
-      router.replace('/(tabs)/index');
+      router.replace('/');
     }, 1500);
   };
 
   const handleSkip = () => {
-    router.replace('/(tabs)/index');
+    router.replace('/');
   };
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({
