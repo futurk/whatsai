@@ -12,6 +12,7 @@ import { ApiKeyProvider } from '@/context/ApiKeyContext';
 import { DebugProvider } from '@/context/DebugContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { AuthProvider } from '@/context/AuthContext';
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -46,12 +47,16 @@ export default function RootLayout() {
               <ApiKeyProvider>
                 <AgentProvider>
                   <ChatProvider>
-                    <Stack screenOptions={{ headerShown: false }}>
-                      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                      <Stack.Screen name="chat/[id]" options={{ presentation: 'card' }} />
-                      <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
-                    </Stack>
-                    <StatusBar style="auto" />
+                    <AuthProvider>
+                      <Stack screenOptions={{ headerShown: false }}>
+                        <Stack.Screen name="welcome" options={{ headerShown: false }} />
+                        <Stack.Screen name="auth" options={{ headerShown: false }} />
+                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                        <Stack.Screen name="chat/[id]" options={{ presentation: 'card' }} />
+                        <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
+                      </Stack>
+                      <StatusBar style="auto" />
+                    </AuthProvider>
                   </ChatProvider>
                 </AgentProvider>
               </ApiKeyProvider>

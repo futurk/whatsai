@@ -1,0 +1,110 @@
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter, useSegments } from 'expo-router';
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signOut: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const AUTH_STORAGE_KEY = '@auth_user';
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const segments = useSegments();
+
+  useEffect(() => {
+    loadStoredAuth();
+  }, []);
+
+  useEffect(() => {
+    const inAuthGroup = segments[0] === '(tabs)';
+    
+    if (isLoading) return;
+
+    if (!user && inAuthGroup) {
+      // User is not signed in and trying to access protected routes
+      router.replace('/welcome');
+    } else if (user && !inAuthGroup) {
+      // User is signed in and trying to access auth routes
+      router.replace('/(tabs)');
+    }
+  }, [user, segments, isLoading]);
+
+  const loadStoredAuth = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error('Error loading stored auth:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signIn = async (email: string, password: string) => {
+    // Simulate API call
+    const mockUser: User = {
+      id: '1',
+      email,
+      name: 'User Name',
+    };
+
+    await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(mockUser));
+    setUser(mockUser);
+  };
+
+  const signUp = async (email: string, password: string, name: string) => {
+    // Simulate API call
+    const mockUser: User = {
+      id: '1',
+      email,
+      name,
+    };
+
+    await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(mockUser));
+    setUser(mockUser);
+  };
+
+  const signOut = async () => {
+    await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        signIn,
+        signUp,
+        signOut,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}

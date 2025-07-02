@@ -7,9 +7,11 @@ import { useApiKeyContext } from '@/context/ApiKeyContext';
 import { useDebugContext } from '@/context/DebugContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import AgentSelectionModal from '@/components/AgentSelectionModal';
 import LanguageSelectionModal from '@/components/LanguageSelectionModal';
+import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { ThemeMode } from '@/types/theme';
 
 export default function SettingsScreen() {
@@ -19,11 +21,13 @@ export default function SettingsScreen() {
   const { isDebugMode, toggleDebugMode } = useDebugContext();
   const { theme, themeMode, setThemeMode } = useTheme();
   const { language } = useLanguage();
+  const { user, signOut } = useAuth();
   const { t } = useTranslation();
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
   const [showAgentModal, setShowAgentModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
   const getThemeIcon = (mode: ThemeMode) => {
     switch (mode) {
@@ -45,6 +49,11 @@ export default function SettingsScreen() {
       case 'dark':
         return t('settings.items.theme.dark');
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setShowSignOutDialog(false);
   };
 
   const renderSettingItem = ({ 
@@ -202,79 +211,9 @@ export default function SettingsScreen() {
             icon: <LogOut size={22} color={theme.colors.error} />,
             title: t('settings.items.signOut'),
             destructive: true,
-            onPress: () => {}
-          })}
-          {renderSettingItem({
-            icon: <Trash2 size={22} color={theme.colors.error} />,
-            title: t('settings.items.clearConversations'),
-            description: t('settings.descriptions.clearConversations'),
-            destructive: true,
-            onPress: () => {}
+            onPress: () => setShowSignOutDialog(true)
           })}
         </View>
-{/* temporarily disabled on purpose
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
-            {t('settings.sections.notifications')}
-          </Text>
-          {renderSettingItem({
-            icon: <Bell size={22} color={theme.colors.primary} />,
-            title: t('settings.items.pushNotifications'),
-            description: t('settings.descriptions.pushNotifications'),
-            hasSwitch: true,
-            switchValue: notifications,
-            onSwitchChange: setNotifications
-          })}
-          {renderSettingItem({
-            icon: <Volume2 size={22} color={theme.colors.primary} />,
-            title: t('settings.items.sounds'),
-            description: t('settings.descriptions.sounds'),
-            hasSwitch: true,
-            switchValue: sounds,
-            onSwitchChange: setSounds
-          })}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
-            {t('settings.sections.about')}
-          </Text>
-          {renderSettingItem({
-            icon: <Shield size={22} color={theme.colors.primary} />,
-            title: t('settings.items.privacyPolicy'),
-            onPress: () => {}
-          })}
-          {renderSettingItem({
-            icon: <HelpCircle size={22} color={theme.colors.primary} />,
-            title: t('settings.items.helpSupport'),
-            onPress: () => {}
-          })}
-          {renderSettingItem({
-            icon: <Info size={22} color={theme.colors.primary} />,
-            title: t('settings.items.appVersion'),
-            description: '1.0.0'
-          })}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
-            {t('settings.sections.account')}
-          </Text>
-          {renderSettingItem({
-            icon: <LogOut size={22} color={theme.colors.error} />,
-            title: t('settings.items.signOut'),
-            destructive: true,
-            onPress: () => {}
-          })}
-          {renderSettingItem({
-            icon: <Trash2 size={22} color={theme.colors.error} />,
-            title: t('settings.items.clearConversations'),
-            description: t('settings.descriptions.clearConversations'),
-            destructive: true,
-            onPress: () => {}
-          })}
-        </View>
-*/}
       </ScrollView>
 
       <AgentSelectionModal
@@ -288,6 +227,16 @@ export default function SettingsScreen() {
       <LanguageSelectionModal
         visible={showLanguageModal}
         onClose={() => setShowLanguageModal(false)}
+      />
+
+      <ConfirmationDialog
+        visible={showSignOutDialog}
+        title="Sign Out"
+        message="Are you sure you want to sign out?"
+        confirmText="Sign Out"
+        onConfirm={handleSignOut}
+        onCancel={() => setShowSignOutDialog(false)}
+        destructive
       />
     </>
   );
