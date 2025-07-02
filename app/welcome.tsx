@@ -12,13 +12,11 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import { MessageSquare, Sparkles, Zap, ArrowRight } from 'lucide-react-native';
 import { useEffect } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const sparkleScale = useSharedValue(1);
   const zapRotation = useSharedValue(0);
 
@@ -67,16 +65,11 @@ export default function WelcomeScreen() {
           </View>
         </View>
 
-        {/* Content Container */}
-        <View style={[styles.contentContainer, { 
-          paddingTop: insets.top + 20,
-          paddingBottom: insets.bottom + 20 
-        }]}>
-          
-          {/* Top Section - Logo */}
+        {/* Main content */}
+        <View style={styles.content}>
           <Animated.View 
             entering={FadeInUp.delay(300).springify()}
-            style={styles.topSection}
+            style={styles.logoContainer}
           >
             <View style={styles.logo}>
               <MessageSquare size={48} color="#FFFFFF" strokeWidth={2} />
@@ -84,65 +77,65 @@ export default function WelcomeScreen() {
             <Text style={styles.appName}>ChatBot AI</Text>
           </Animated.View>
 
-          {/* Middle Section - Hero Content */}
           <Animated.View 
             entering={FadeInUp.delay(600).springify()}
-            style={styles.middleSection}
+            style={styles.heroSection}
           >
             <Text style={styles.heroTitle}>
               Welcome to the Future of{'\n'}
               <Text style={styles.heroTitleAccent}>AI Conversations</Text>
             </Text>
-            
             <Text style={styles.heroSubtitle}>
               Chat with multiple AI agents, each with unique personalities and expertise. 
               Experience the next generation of intelligent conversations.
             </Text>
+          </Animated.View>
 
-            {/* Features */}
-            <View style={styles.featuresContainer}>
-              <View style={styles.feature}>
-                <View style={styles.featureIcon}>
-                  <MessageSquare size={20} color="#667eea" />
-                </View>
-                <Text style={styles.featureText}>Multiple AI Agents</Text>
+          <Animated.View 
+            entering={FadeInUp.delay(900).springify()}
+            style={styles.featuresContainer}
+          >
+            <View style={styles.feature}>
+              <View style={styles.featureIcon}>
+                <MessageSquare size={20} color="#667eea" />
               </View>
-              <View style={styles.feature}>
-                <View style={styles.featureIcon}>
-                  <Sparkles size={20} color="#667eea" />
-                </View>
-                <Text style={styles.featureText}>Smart Conversations</Text>
+              <Text style={styles.featureText}>Multiple AI Agents</Text>
+            </View>
+            <View style={styles.feature}>
+              <View style={styles.featureIcon}>
+                <Sparkles size={20} color="#667eea" />
               </View>
-              <View style={styles.feature}>
-                <View style={styles.featureIcon}>
-                  <Zap size={20} color="#667eea" />
-                </View>
-                <Text style={styles.featureText}>Lightning Fast</Text>
+              <Text style={styles.featureText}>Smart Conversations</Text>
+            </View>
+            <View style={styles.feature}>
+              <View style={styles.featureIcon}>
+                <Zap size={20} color="#667eea" />
               </View>
+              <Text style={styles.featureText}>Lightning Fast</Text>
             </View>
           </Animated.View>
-
-          {/* Bottom Section - CTA */}
-          <Animated.View 
-            entering={FadeInDown.delay(1200).springify()}
-            style={styles.bottomSection}
-          >
-            <Pressable
-              style={({ pressed }) => [
-                styles.getStartedButton,
-                pressed && styles.getStartedButtonPressed
-              ]}
-              onPress={() => router.push('/auth')}
-            >
-              <Text style={styles.getStartedButtonText}>Get Started</Text>
-              <ArrowRight size={20} color="#667eea" strokeWidth={2.5} />
-            </Pressable>
-            
-            <Text style={styles.bottomText}>
-              Join thousands of users already chatting with AI
-            </Text>
-          </Animated.View>
         </View>
+
+        {/* Bottom section */}
+        <Animated.View 
+          entering={FadeInDown.delay(1200).springify()}
+          style={styles.bottomSection}
+        >
+          <Pressable
+            style={({ pressed }) => [
+              styles.getStartedButton,
+              pressed && styles.getStartedButtonPressed
+            ]}
+            onPress={() => router.push('/auth')}
+          >
+            <Text style={styles.getStartedButtonText}>Get Started</Text>
+            <ArrowRight size={20} color="#667eea" strokeWidth={2.5} />
+          </Pressable>
+          
+          <Text style={styles.bottomText}>
+            Join thousands of users already chatting with AI
+          </Text>
+        </Animated.View>
       </LinearGradient>
     </View>
   );
@@ -161,7 +154,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 0,
   },
   floatingIcon: {
     position: 'absolute',
@@ -175,18 +167,18 @@ const styles = StyleSheet.create({
     left: width * 0.15,
   },
   messageIcon: {
-    bottom: height * 0.35,
+    bottom: height * 0.3,
     right: width * 0.2,
   },
-  contentContainer: {
+  content: {
     flex: 1,
     paddingHorizontal: 32,
-    zIndex: 1,
-  },
-  topSection: {
+    paddingTop: 80,
     alignItems: 'center',
-    paddingTop: 40,
-    paddingBottom: 20,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 60,
   },
   logo: {
     width: 80,
@@ -205,11 +197,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },
-  middleSection: {
-    flex: 1,
-    justifyContent: 'center',
+  heroSection: {
     alignItems: 'center',
-    paddingVertical: 40,
+    marginBottom: 50,
   },
   heroTitle: {
     fontSize: 32,
@@ -227,8 +217,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
     lineHeight: 24,
-    maxWidth: 320,
-    marginBottom: 50,
+    maxWidth: 300,
   },
   featuresContainer: {
     flexDirection: 'row',
@@ -256,8 +245,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   bottomSection: {
+    paddingHorizontal: 32,
+    paddingBottom: 50,
     alignItems: 'center',
-    paddingBottom: 40,
   },
   getStartedButton: {
     flexDirection: 'row',
@@ -275,8 +265,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
-    minWidth: 200,
-    justifyContent: 'center',
   },
   getStartedButtonPressed: {
     transform: [{ scale: 0.98 }],
@@ -292,6 +280,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
-    maxWidth: 280,
   },
 });
