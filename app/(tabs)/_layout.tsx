@@ -54,11 +54,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="sets"
+        name="settings"
         options={{
-          title: t('tabs.settings'),
+          title: t('settings'),
           tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
-          headerTitle: t('tabs.settings'),
+          headerTitle: t('settings'),
         }}
       />
     </Tabs>
