@@ -327,10 +327,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  destructiveIcon: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-  },
-  destructiveText: {
-    color: '#EF4444',
-  },
 });
