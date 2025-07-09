@@ -9,8 +9,6 @@ export default function TabLayout() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   
-  console.log('TabLayout rendering with theme:', theme.colors);
-  
   return (
     <Tabs
       screenOptions={{
