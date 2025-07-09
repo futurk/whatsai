@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Chrome as Home, Settings } from 'lucide-react-native';
+import { MessageSquare, Settings } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -49,7 +49,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: t('tabs.chats'),
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => <MessageSquare size={size} color={color} />,
           headerTitle: t('tabs.chats'),
         }}
       />
