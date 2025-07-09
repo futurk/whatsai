@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { Bell, Volume2, Shield, CircleHelp as HelpCircle, Info, LogOut, Trash2, ChevronRight, Users, Key, Bug, MessageSquare, Monitor, Sun, Moon, Languages, UserCheck } from 'lucide-react-native';
+import { ChevronRight, Users, Key, Bug, Monitor, Sun, Moon, Languages, UserCheck, LogOut } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
@@ -71,23 +71,24 @@ export default function SettingsScreen() {
     destructive = false,
     badge = null
   }) => (
-    <Pressable 
-      style={styles.settingItem} 
+    <Pressable
+      style={({ pressed }) => [
+        styles.settingItem,
+        pressed && { backgroundColor: theme.colors.surface }
+      ]}
       onPress={onPress}
       disabled={!onPress}
     >
       <View style={[
         styles.iconContainer, 
-        { backgroundColor: destructive ? theme.colors.error + '20' : theme.colors.surface },
-        destructive && styles.destructiveIcon
+        { backgroundColor: destructive ? theme.colors.error + '20' : theme.colors.surface }
       ]}>
         {icon}
       </View>
       <View style={styles.settingContent}>
         <Text style={[
           styles.settingTitle, 
-          { color: destructive ? theme.colors.error : theme.colors.text.primary },
-          destructive && styles.destructiveText
+          { color: destructive ? theme.colors.error : theme.colors.text.primary }
         ]}>{title}</Text>
         {description ? (
           <Text style={[styles.settingDescription, { color: theme.colors.text.secondary }]}>
@@ -122,15 +123,31 @@ export default function SettingsScreen() {
           <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
             {t('settings.sections.developer')}
           </Text>
-          {renderSettingItem({
-            icon: <Bug size={22} color={theme.colors.primary} />,
-            title: t('settings.items.debugMode'),
-            description: t('settings.descriptions.debugMode'),
-            hasSwitch: true,
-            switchValue: isDebugMode,
-            onSwitchChange: toggleDebugMode,
-            onPress: toggleDebugMode
-          })}
+          <Pressable
+            style={({ pressed }) => [
+              styles.settingItem,
+              pressed && { backgroundColor: theme.colors.surface }
+            ]}
+            onPress={toggleDebugMode}
+          >
+            <View style={[styles.iconContainer, { backgroundColor: theme.colors.surface }]}>
+              <Bug size={22} color={theme.colors.primary} />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={[styles.settingTitle, { color: theme.colors.text.primary }]}>
+                {t('settings.items.debugMode')}
+              </Text>
+              <Text style={[styles.settingDescription, { color: theme.colors.text.secondary }]}>
+                {t('settings.descriptions.debugMode')}
+              </Text>
+            </View>
+            <Switch
+              value={isDebugMode}
+              onValueChange={toggleDebugMode}
+              trackColor={{ false: theme.colors.border, true: theme.colors.primary + '40' }}
+              thumbColor={isDebugMode ? theme.colors.primary : theme.colors.secondary}
+            />
+          </Pressable>
         </View>
         
         <View style={styles.section}>
@@ -140,7 +157,7 @@ export default function SettingsScreen() {
           {renderSettingItem({
             icon: <Users size={22} color={theme.colors.primary} />,
             title: t('settings.items.manageAgents'),
-            description: t('settings.descriptions.apiKeys'),
+            description: t('settings.descriptions.manageAgents'),
             badge: agents.length.toString(),
             onPress: () => router.push('/manage-agents')
           })}
@@ -158,7 +175,7 @@ export default function SettingsScreen() {
             {t('settings.sections.preferences')}
           </Text>
           {renderSettingItem({
-            icon: <MessageSquare size={22} color={theme.colors.primary} />,
+            icon: <Users size={22} color={theme.colors.primary} />,
             title: t('settings.items.defaultAgent'),
             description: defaultAgentId 
               ? `${t('settings.descriptions.defaultAgent')} ${getAgentById(defaultAgentId)?.name}`
