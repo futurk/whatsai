@@ -15,6 +15,8 @@ import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { ThemeMode } from '@/types/theme';
 
 export default function SettingsScreen() {
+  console.log('SettingsScreen component rendering');
+  
   const router = useRouter();
   const { agents, defaultAgentId, setDefaultAgent, getAgentById } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
