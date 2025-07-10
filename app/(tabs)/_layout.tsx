@@ -5,9 +5,13 @@ import { useTheme } from '@/context/ThemeContext';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function TabLayout() {
+  console.log('TabLayout rendering');
+  
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
   const { t } = useTranslation();
+  
+  console.log('TabLayout contexts loaded');
   
   return (
     <Tabs
@@ -59,6 +63,7 @@ export default function TabLayout() {
           title: t('tabs.settings'),
           tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
           headerTitle: t('tabs.settings'),
+          tabBarTestID: 'settings-tab',
         }}
       />
     </Tabs>

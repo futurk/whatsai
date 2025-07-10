@@ -35,13 +35,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const inAuthGroup = segments[0] === '(tabs)';
     
+    console.log('AuthContext navigation check:', {
+      segments,
+      inAuthGroup,
+      user: user ? 'exists' : 'null',
+      isLoading
+    });
+    
     if (isLoading) return;
 
     if (!user && inAuthGroup) {
       // User is not signed in and trying to access protected routes
+      console.log('Redirecting to / - no user in auth group');
       router.replace('/');
     } else if (user && !inAuthGroup && segments[0] !== 'welcome' && segments[0] !== 'auth' && segments[0] !== 'index') {
       // User is signed in and trying to access auth routes (but not welcome/auth/index)
+      console.log('Redirecting to /(tabs) - user exists outside auth group');
       router.replace('/(tabs)');
     }
   }, [user, segments, isLoading]);

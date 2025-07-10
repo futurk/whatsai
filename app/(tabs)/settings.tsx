@@ -15,16 +15,33 @@ import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { ThemeMode } from '@/types/theme';
 
 export default function SettingsScreen() {
+  console.log('SettingsScreen component called');
+  
   console.log('SettingsScreen rendering'); // Debug log
   
   const router = useRouter();
+  console.log('SettingsScreen router initialized');
+  
   const { agents, defaultAgentId, setDefaultAgent, getAgentById } = useAgentContext();
+  console.log('SettingsScreen agent context loaded');
+  
   const { apiKeys } = useApiKeyContext();
+  console.log('SettingsScreen api key context loaded');
+  
   const { isDebugMode, toggleDebugMode } = useDebugContext();
+  console.log('SettingsScreen debug context loaded');
+  
   const { theme, themeMode, setThemeMode } = useTheme();
+  console.log('SettingsScreen theme context loaded');
+  
   const { language } = useLanguage();
+  console.log('SettingsScreen language context loaded');
+  
   const { user, signOut } = useAuth();
+  console.log('SettingsScreen auth context loaded, user:', user ? 'exists' : 'null');
+  
   const { t } = useTranslation();
+  console.log('SettingsScreen translation loaded');
   
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
