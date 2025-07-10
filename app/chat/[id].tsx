@@ -45,7 +45,7 @@ export default function ChatScreen() {
   // Redirect if conversation doesn't exist
   useEffect(() => {
     if (!conversation) {
-      router.replace('/(tabs)');
+      router.replace('/');
     }
   }, [conversation]);
 
@@ -127,7 +127,7 @@ export default function ChatScreen() {
           headerTitle: agent.name,
           headerTitleStyle: [styles.headerTitle, { color: theme.colors.text.primary }],
           headerLeft: () => (
-            <Pressable onPress={() => router.replace('/(tabs)')} style={styles.backButton}>
+            <Pressable onPress={() => router.replace('/')} style={styles.backButton}>
               <ArrowLeft size={24} color={theme.colors.text.primary} />
             </Pressable>
           ),

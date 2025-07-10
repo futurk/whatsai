@@ -61,7 +61,6 @@ export default {
       clearConversations: 'Clear All Conversations',
     },
     descriptions: {
-      manageAgents: 'Create and customize your AI agents',
       apiKeys: 'Manage your API keys for different vendors',
       defaultAgent: 'Select an agent to start new chats immediately',
       language: 'Change the app language',

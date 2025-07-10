@@ -10,10 +10,8 @@ export default function IndexScreen() {
   useEffect(() => {
     if (!isLoading) {
       if (user) {
-        // User is authenticated (either registered or guest), go to main app
         router.replace('/(tabs)');
       } else {
-        // No user, show welcome screen
         router.replace('/welcome');
       }
     }
