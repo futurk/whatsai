@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { ChevronRight, Users, Key, Bug, Monitor, Sun, Moon, Languages, UserCheck, LogOut, Settings as SettingsIcon } from 'lucide-react-native';
+import { ChevronRight, Users, Key, Bug, Monitor, Sun, Moon, Languages, UserCheck, LogOut } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
@@ -16,6 +16,7 @@ import { ThemeMode } from '@/types/theme';
 
 export default function SettingsScreen() {
   console.log('SettingsScreen rendering'); // Debug log
+  
   const router = useRouter();
   const { agents, defaultAgentId, setDefaultAgent, getAgentById } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
@@ -24,6 +25,7 @@ export default function SettingsScreen() {
   const { language } = useLanguage();
   const { user, signOut } = useAuth();
   const { t } = useTranslation();
+  
   const [notifications, setNotifications] = useState(true);
   const [sounds, setSounds] = useState(true);
   const [showAgentModal, setShowAgentModal] = useState(false);
@@ -115,15 +117,15 @@ export default function SettingsScreen() {
   );
 
   return (
-    <>
-      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <Text style={{ padding: 20, fontSize: 18, color: theme.colors.text.primary }}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <ScrollView 
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={[styles.debugText, { color: theme.colors.text.primary }]}>
           Settings Screen Loaded Successfully
         </Text>
-      <ScrollView 
-        style={[styles.container, { backgroundColor: theme.colors.background }]} 
-        contentContainerStyle={styles.contentContainer}
-      >
+
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text.secondary }]}>
             {t('settings.sections.developer')}
@@ -251,7 +253,6 @@ export default function SettingsScreen() {
           )}
         </View>
       </ScrollView>
-      </View>
 
       <AgentSelectionModal
         visible={showAgentModal}
@@ -275,7 +276,7 @@ export default function SettingsScreen() {
         onCancel={() => setShowSignOutDialog(false)}
         destructive
       />
-    </>
+    </View>
   );
 }
 
@@ -285,6 +286,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingBottom: 40,
+  },
+  debugText: {
+    padding: 20,
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   section: {
     marginBottom: 32,
