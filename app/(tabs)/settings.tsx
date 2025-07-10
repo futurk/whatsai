@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, Switch, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { ChevronRight, Users, Key, Bug, Monitor, Sun, Moon, Languages, UserCheck, LogOut } from 'lucide-react-native';
+import { ChevronRight, Users, Key, Bug, Monitor, Sun, Moon, Languages, UserCheck, LogOut, Settings as SettingsIcon } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAgentContext } from '@/context/AgentContext';
 import { useApiKeyContext } from '@/context/ApiKeyContext';
@@ -15,6 +15,7 @@ import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { ThemeMode } from '@/types/theme';
 
 export default function SettingsScreen() {
+  console.log('SettingsScreen rendering'); // Debug log
   const router = useRouter();
   const { agents, defaultAgentId, setDefaultAgent, getAgentById } = useAgentContext();
   const { apiKeys } = useApiKeyContext();
@@ -115,6 +116,10 @@ export default function SettingsScreen() {
 
   return (
     <>
+      <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+        <Text style={{ padding: 20, fontSize: 18, color: theme.colors.text.primary }}>
+          Settings Screen Loaded Successfully
+        </Text>
       <ScrollView 
         style={[styles.container, { backgroundColor: theme.colors.background }]} 
         contentContainerStyle={styles.contentContainer}
@@ -246,6 +251,7 @@ export default function SettingsScreen() {
           )}
         </View>
       </ScrollView>
+      </View>
 
       <AgentSelectionModal
         visible={showAgentModal}

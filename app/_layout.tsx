@@ -52,7 +52,13 @@ export default function RootLayout() {
                         <Stack.Screen name="index" options={{ headerShown: false }} />
                         <Stack.Screen name="welcome" options={{ headerShown: false }} />
                         <Stack.Screen name="auth" options={{ headerShown: false }} />
-                        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                        <Stack.Screen 
+                          name="(tabs)" 
+                          options={{ 
+                            headerShown: false,
+                            gestureEnabled: false 
+                          }} 
+                        />
                         <Stack.Screen name="agents" options={{ presentation: 'card' }} />
                         <Stack.Screen name="api-keys" options={{ presentation: 'card' }} />
                         <Stack.Screen name="manage-agents" options={{ presentation: 'card' }} />
