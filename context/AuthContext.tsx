@@ -33,16 +33,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (isLoading) return;
+
     const inAuthGroup = segments[0] === '(tabs)';
     
-    if (isLoading) return;
+    console.log('Navigation check:', {
+      user: user ? { id: user.id, isGuest: user.isGuest } : null,
+      segments,
+      inAuthGroup,
+      isLoading
+    });
 
     if (!user && inAuthGroup) {
       // User is not signed in and trying to access protected routes
+      console.log('Redirecting to welcome - no user');
       router.replace('/welcome');
-    } else if (user && !inAuthGroup && segments[0] !== 'welcome' && segments[0] !== 'auth') {
-      // User is signed in (including guests) and trying to access auth routes
-      router.replace('/(tabs)');
+    } else if (user && !inAuthGroup) {
+      // User is signed in (including guests) and not in protected routes
+      if (segments[0] !== 'welcome' && segments[0] !== 'auth') {
+        console.log('Redirecting to tabs - user exists');
+        router.replace('/(tabs)');
+      }
     }
   }, [user, segments, isLoading]);
 
@@ -50,7 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const storedUser = await AsyncStorage.getItem(AUTH_STORAGE_KEY);
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        console.log('Loaded stored user:', parsedUser);
+        setUser(parsedUser);
       }
     } catch (error) {
       console.error('Error loading stored auth:', error);
@@ -70,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(mockUser));
     setUser(mockUser);
+    console.log('User signed in:', mockUser);
   };
 
   const signUp = async (email: string, password: string, name: string) => {
@@ -83,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(mockUser));
     setUser(mockUser);
+    console.log('User signed up:', mockUser);
   };
 
   const continueAsGuest = () => {
@@ -95,11 +110,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Don't store guest user in AsyncStorage - they should see welcome screen again
     setUser(guestUser);
+    console.log('User continuing as guest:', guestUser);
+    
+    // Force navigation to tabs
+    setTimeout(() => {
+      router.replace('/(tabs)');
+    }, 100);
   };
 
   const signOut = async () => {
     await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
     setUser(null);
+    console.log('User signed out');
   };
 
   return (

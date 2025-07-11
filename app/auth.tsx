@@ -12,11 +12,13 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowLeft, Mail, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '@/context/AuthContext';
 
 type AuthMode = 'login' | 'signup';
 
 export default function AuthScreen() {
   const router = useRouter();
+  const { signIn, signUp, continueAsGuest } = useAuth();
   const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
@@ -38,17 +40,24 @@ export default function AuthScreen() {
     setIsLoading(true);
     buttonScale.value = withSpring(0.95);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      if (mode === 'login') {
+        await signIn(email, password);
+      } else {
+        await signUp(email, password, name);
+      }
+      console.log('Auth completed, should navigate to tabs');
+    } catch (error) {
+      console.error('Auth error:', error);
+    } finally {
       setIsLoading(false);
       buttonScale.value = withSpring(1);
-      // Navigate to main app
-      router.replace('(tabs)');
-    }, 1500);
+    }
   };
 
   const handleSkip = () => {
-    router.replace('(tabs)');
+    console.log('Skip button pressed');
+    continueAsGuest();
   };
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({
