@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // User is not signed in and trying to access protected routes
       router.replace('/welcome');
     } else if (user && !inAuthGroup && segments[0] !== 'welcome' && segments[0] !== 'auth') {
-      // User is signed in (including guests) and trying to access auth routes
+      // User is signed in and trying to access auth routes (but not welcome/auth)
       router.replace('/(tabs)');
     }
   }, [user, segments, isLoading]);
