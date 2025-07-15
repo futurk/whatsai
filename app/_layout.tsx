@@ -1,1 +1,1 @@
-import { useFrameworkReady } from '@/hooks/useFrameworkReady'(Content omitted)
+(Content omitted)
