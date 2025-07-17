@@ -410,10 +410,8 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   loadingDot2: {
-    animationDelay: '0.2s',
   },
   loadingDot3: {
-    animationDelay: '0.4s',
   },
   forgotPasswordContainer: {
     alignItems: 'center',

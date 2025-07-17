@@ -296,22 +296,10 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   typingDot1: {
-    animationKeyframes: 'bounce',
-    animationDuration: '0.6s',
-    animationDelay: '0s',
-    animationIterationCount: 'infinite',
   },
   typingDot2: {
-    animationKeyframes: 'bounce',
-    animationDuration: '0.6s',
-    animationDelay: '0.2s',
-    animationIterationCount: 'infinite',
   },
   typingDot3: {
-    animationKeyframes: 'bounce',
-    animationDuration: '0.6s',
-    animationDelay: '0.4s',
-    animationIterationCount: 'infinite',
   },
   inputContainer: {
     flexDirection: 'row',
