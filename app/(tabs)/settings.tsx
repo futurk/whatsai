@@ -57,7 +57,11 @@ export default function SettingsScreen() {
   };
 
   const handleCreateAccount = () => {
-    router.push('/auth');
+    try {
+      router.push('/auth');
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
   };
 
   const renderSettingItem = ({ 

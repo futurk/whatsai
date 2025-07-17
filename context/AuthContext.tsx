@@ -35,25 +35,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
-    const inAuthGroup = segments[0] === '(tabs)';
+    const inTabsGroup = segments[0] === '(tabs)';
+    const inAuthScreens = segments[0] === 'auth' || segments[0] === 'welcome';
     
     console.log('Navigation check:', {
       user: user ? { id: user.id, isGuest: user.isGuest } : null,
       segments,
-      inAuthGroup,
+      inTabsGroup,
+      inAuthScreens,
       isLoading
     });
 
-    if (!user && inAuthGroup) {
+    if (!user && inTabsGroup) {
       // User is not signed in and trying to access protected routes
       console.log('Redirecting to welcome - no user');
       router.replace('/welcome');
-    } else if (user && !inAuthGroup) {
-      // User is signed in (including guests) and not in protected routes
-      if (segments[0] !== 'welcome' && segments[0] !== 'auth') {
-        console.log('Redirecting to tabs - user exists');
-        router.replace('/(tabs)');
-      }
+    } else if (user && inAuthScreens) {
+      // User is signed in (including guests) but still on auth screens
+      console.log('Redirecting to tabs - user exists, leaving auth screens');
+      router.replace('/(tabs)');
     }
   }, [user, segments, isLoading]);
 

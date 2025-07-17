@@ -20,10 +20,14 @@ export default function ChatsScreen() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   const navigateToChat = (id: string) => {
-    if (selectedChats.size > 0) {
-      handleChatSelect(id);
-    } else {
-      router.push(`/chat/${id}`);
+    try {
+      if (selectedChats.size > 0) {
+        handleChatSelect(id);
+      } else {
+        router.push(`/chat/${id}`);
+      }
+    } catch (error) {
+      console.error('Navigation error:', error);
     }
   };
 

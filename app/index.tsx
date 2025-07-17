@@ -9,9 +9,12 @@ export default function IndexScreen() {
 
   useEffect(() => {
     if (!isLoading) {
+      console.log('Index screen - routing user:', { user: user ? { id: user.id, isGuest: user.isGuest } : null });
       if (user) {
+        console.log('User exists, going to tabs');
         router.replace('/(tabs)');
       } else {
+        console.log('No user, going to welcome');
         router.replace('/welcome');
       }
     }
