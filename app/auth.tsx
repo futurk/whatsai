@@ -105,10 +105,7 @@ export default function AuthScreen() {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <ScrollView 
-            contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 60 }]}
-            showsVerticalScrollIndicator={false}
-          >
+          <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
             <Animated.View 
               entering={FadeInUp.delay(200).springify()}
               style={styles.header}
@@ -275,7 +272,7 @@ export default function AuthScreen() {
                 </Text>
               </Pressable>
             </Animated.View>
-          </ScrollView>
+          </View>
         </LinearGradient>
       </KeyboardAvoidingView>
     </>
@@ -313,33 +310,34 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginRight: 4,
   },
-  scrollContent: {
-    flexGrow: 1,
+  content: {
+    flex: 1,
     paddingHorizontal: 32,
-    paddingBottom: 40,
+    paddingBottom: 20,
+    justifyContent: 'space-between',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '800',
     color: '#FFFFFF',
-    marginBottom: 12,
+    marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 20,
   },
   formContainer: {
-    marginBottom: 30,
+    flex: 1,
+    justifyContent: 'center',
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 16,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -358,7 +356,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: '#FFFFFF',
-    paddingVertical: 16,
+    paddingVertical: 14,
   },
   passwordInput: {
     paddingRight: 40,
@@ -369,12 +367,12 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   buttonContainer: {
-    marginTop: 20,
+    marginTop: 16,
   },
   authButton: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    paddingVertical: 18,
+    paddingVertical: 16,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -393,7 +391,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
   },
   authButtonText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#667eea',
   },
@@ -415,22 +413,21 @@ const styles = StyleSheet.create({
   },
   forgotPasswordContainer: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 16,
   },
   forgotPasswordText: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'rgba(255, 255, 255, 0.8)',
     textDecorationLine: 'underline',
   },
   skipContainer: {
     alignItems: 'center',
-    marginBottom: 30,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   dividerLine: {
     flex: 1,
@@ -438,7 +435,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
   },
   dividerText: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'rgba(255, 255, 255, 0.6)',
     marginHorizontal: 16,
     fontWeight: '500',
@@ -450,22 +447,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
     paddingHorizontal: 24,
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: 14,
-    marginBottom: 8,
+    marginBottom: 6,
   },
   skipMainButtonPressed: {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
     transform: [{ scale: 0.98 }],
   },
   skipMainButtonText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: 'rgba(255, 255, 255, 0.9)',
-    marginRight: 8,
+    marginRight: 6,
   },
   skipDescription: {
-    fontSize: 12,
+    fontSize: 11,
     color: 'rgba(255, 255, 255, 0.6)',
     textAlign: 'center',
   },
@@ -473,15 +470,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
   },
   switchModeText: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'rgba(255, 255, 255, 0.7)',
-    marginRight: 8,
+    marginRight: 6,
   },
   switchModeButton: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#FFE066',
     fontWeight: '600',
     textDecorationLine: 'underline',
