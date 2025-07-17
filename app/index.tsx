@@ -15,10 +15,7 @@ export default function IndexScreen() {
         router.replace('/(tabs)');
       } else {
         console.log('No user, going to welcome');
-        // Let AuthContext handle the navigation to avoid race conditions
-        setTimeout(() => {
-          router.replace('/welcome');
-        }, 100);
+        router.replace('/welcome');
       }
     }
   }, [user, isLoading]);

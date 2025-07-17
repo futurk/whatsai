@@ -37,20 +37,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const inTabsGroup = segments[0] === '(tabs)';
     const inAuthScreens = segments[0] === 'auth' || segments[0] === 'welcome';
-    const inIndexScreen = segments.length === 0 || segments[0] === 'index';
     
     console.log('Navigation check:', {
       user: user ? { id: user.id, isGuest: user.isGuest } : null,
       segments,
       inTabsGroup,
       inAuthScreens,
-      inIndexScreen,
       isLoading
     });
 
-    if (!user && (inTabsGroup || inIndexScreen)) {
+    if (!user && inTabsGroup) {
       // User is not signed in and trying to access protected routes
-      console.log('Redirecting to welcome - no user, from:', segments);
+      console.log('Redirecting to welcome - no user');
       router.replace('/welcome');
     } else if (user && inAuthScreens) {
       // User is signed in (including guests) but still on auth screens
